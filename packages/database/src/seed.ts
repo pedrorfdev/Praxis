@@ -1,19 +1,30 @@
-import { db, schema } from "./index";
+import { reset, seed } from "drizzle-seed";
+import { db, sql, schema } from "./connection";
 
 async function main() {
-  console.log("🌱 Rodando Seed...");
+  console.log("🌱 Iniciando Drizzle Seed...");
 
   try {
-    await db.insert(schema.clinics).values({
-      name: "Clínica Praxis Central",
-      slug: "praxis-central",
-    });
+    
+    await reset(db, schema);
 
-    console.log("✅ Sucesso!");
+    await seed(db, schema).refine((f) => ({
+      clinics: {
+        count: 5,
+        columns: {
+          name: f.companyName(),
+          slug: f.loremIpsum({ separator: "-", wordCount: 2 }),
+        },
+      },
+    }));
+
+    console.log("✅ Banco de dados populado!");
   } catch (error) {
-    console.error("❌ Erro:", error);
+    console.error("❌ Erro no seed:", error);
   } finally {
+    await sql.end();
     process.exit(0);
   }
 }
+
 main();

@@ -1,13 +1,9 @@
 {
-  "extends": "@praxis/typescript-config/base.json",
+  "extends": "../typescript-config/base.json",
   "compilerOptions": {
-    "noEmit": false, 
     "outDir": "./dist",
     "rootDir": "./src",
-    "baseUrl": ".",
-    "paths": {
-      "@praxis/*": ["../*/src"]
-    }
+    "baseUrl": "."
   },
-  "include": ["src/**/*.ts"]
+  "include": ["src/**/*.ts", "seed.ts"]
 }
