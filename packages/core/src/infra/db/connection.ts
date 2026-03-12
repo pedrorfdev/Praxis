@@ -1,6 +1,6 @@
 import postgres from "postgres";
 import { drizzle } from "drizzle-orm/postgres-js";
-import { schemas } from "./schemas";
+import { schemas } from "../schemas/index";
 
 const connectionString = "postgresql://admin:password123@localhost:5432/praxis_db";
 

@@ -12,6 +12,40 @@ importers:
         specifier: ^25.4.0
         version: 25.4.0
 
+  packages/core:
+    dependencies:
+      drizzle-orm:
+        specifier: latest
+        version: 0.45.1(postgres@3.4.8)
+      drizzle-zod:
+        specifier: latest
+        version: 0.8.3(drizzle-orm@0.45.1(postgres@3.4.8))(zod@4.3.6)
+      postgres:
+        specifier: latest
+        version: 3.4.8
+      zod:
+        specifier: latest
+        version: 4.3.6
+    devDependencies:
+      '@praxis/typescript-config':
+        specifier: workspace:*
+        version: link:../typescript-config
+      drizzle-kit:
+        specifier: latest
+        version: 0.31.9
+      drizzle-seed:
+        specifier: ^0.3.1
+        version: 0.3.1(drizzle-orm@0.45.1(postgres@3.4.8))
+      tsup:
+        specifier: latest
+        version: 8.5.1(tsx@4.21.0)(typescript@5.9.3)
+      tsx:
+        specifier: latest
+        version: 4.21.0
+      typescript:
+        specifier: latest
+        version: 5.9.3
+
   packages/database:
     dependencies:
       drizzle-orm:
@@ -805,6 +839,12 @@ packages:
       drizzle-orm:
         optional: true
 
+  drizzle-zod@0.8.3:
+    resolution: {integrity: sha512-66yVOuvGhKJnTdiqj1/Xaaz9/qzOdRJADpDa68enqS6g3t0kpNkwNYjUuaeXgZfO/UWuIM9HIhSlJ6C5ZraMww==}
+    peerDependencies:
+      drizzle-orm: '>=0.36.0'
+      zod: ^3.25.0 || ^4.0.0
+
   esbuild-register@3.6.0:
     resolution: {integrity: sha512-H2/S7Pm8a9CL1uhp9OvjwrBh5Pvx0H8qVOxNu8Wed9Y7qv56MPtq+GGM8RJpq6glYJn9Wspr8uw7l55uyinNeg==}
     peerDependencies:
@@ -1005,6 +1045,9 @@ packages:
 
   undici-types@7.18.2:
     resolution: {integrity: sha512-AsuCzffGHJybSaRrmr5eHr81mwJU3kjw6M+uprWvCXiNeN9SOGwQ3Jn8jb8m3Z6izVgknn1R0FTCEAP2QrLY/w==}
+
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -1383,6 +1426,11 @@ snapshots:
     optionalDependencies:
       drizzle-orm: 0.45.1(postgres@3.4.8)
 
+  drizzle-zod@0.8.3(drizzle-orm@0.45.1(postgres@3.4.8))(zod@4.3.6):
+    dependencies:
+      drizzle-orm: 0.45.1(postgres@3.4.8)
+      zod: 4.3.6
+
   esbuild-register@3.6.0(esbuild@0.25.12):
     dependencies:
       debug: 4.4.3
@@ -1657,3 +1705,5 @@ snapshots:
   ufo@1.6.3: {}
 
   undici-types@7.18.2: {}
+
+  zod@4.3.6: {}
