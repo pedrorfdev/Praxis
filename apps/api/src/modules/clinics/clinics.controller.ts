@@ -1,38 +1,52 @@
-import { Controller, Post, Body, Get, UsePipes, Param, NotFoundException, Patch, Delete } from '@nestjs/common';
+import { 
+  Controller, 
+  Post, 
+  Body, 
+  Get, 
+  UsePipes, 
+  Patch, 
+  Delete, 
+  NotFoundException, 
+  HttpCode, 
+  HttpStatus 
+} from '@nestjs/common';
 import { ClinicsService } from './clinics.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { createClinicSchema } from '@praxis/core/domain';
+import { createClinicSchema, updateClinicSchema } from '@praxis/core/domain';
+import { Public } from '../../common/decorators/public.decorator';
+import { ActiveClinic } from '../../common/decorators/active-clinic.decorator';
 
 @Controller('clinics')
 export class ClinicsController {
   constructor(private readonly clinicsService: ClinicsService) {}
 
+  @Public()
   @Post()
   @UsePipes(new ZodValidationPipe(createClinicSchema))
   async create(@Body() data: any) {
     return this.clinicsService.create(data);
   }
 
-  @Get(':id')
-  async findOne(@Param('id') id: string) {
-    const clinic = await this.clinicsService.findById(id);
+  @Get('me')
+  async getProfile(@ActiveClinic() clinicId: string) {
+    const clinic = await this.clinicsService.findById(clinicId);
     if (!clinic) throw new NotFoundException('Clínica não encontrada');
-    return clinic;
+    
+    const { password, ...safeClinic } = clinic;
+    return safeClinic;
   }
 
-  @Get()
-  async findAll() {
-    return this.clinicsService.findAll();
+  @Patch('me')
+  async update(
+    @ActiveClinic() clinicId: string, 
+    @Body(new ZodValidationPipe(updateClinicSchema)) data: any
+  ) {
+    return this.clinicsService.update(clinicId, data);
   }
 
-  @Patch(':id')
-  @UsePipes(new ZodValidationPipe(createClinicSchema.partial()))
-  async update(@Param('id') id: string, @Body() data: any) {
-    return this.clinicsService.update(id, data);
-  }
-
-  @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return this.clinicsService.delete(id);
+  @Delete('me')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  async remove(@ActiveClinic() clinicId: string) {
+    return this.clinicsService.delete(clinicId);
   }
 }

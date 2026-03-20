@@ -1,14 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PatientsRepository } from './patients.repository';
-import { createPatientSchema, updatePatientSchema } from '@praxis/core/domain';
 
 @Injectable()
 export class PatientsService {
   constructor(private readonly repository: PatientsRepository) {}
 
   async create(data: any, clinicId: string) {
-    const validatedData = createPatientSchema.parse(data);
-    return this.repository.create({ ...validatedData, clinicId });
+    return this.repository.create({ ...data, clinicId });
   }
 
   async findAll(clinicId: string) {
@@ -17,19 +15,20 @@ export class PatientsService {
 
   async findOne(id: string, clinicId: string) {
     const patient = await this.repository.findById(id, clinicId);
-    if (!patient) throw new NotFoundException('Paciente não encontrado');
+    if (!patient) throw new NotFoundException('Paciente não encontrado nesta clínica');
     return patient;
   }
 
   async update(id: string, clinicId: string, data: any) {
-    const validatedData = updatePatientSchema.parse(data);
-    const updatedPatient = await this.repository.update(id, clinicId, validatedData);
-    if (!updatedPatient) throw new NotFoundException('Paciente não encontrado para atualizar');
+    await this.findOne(id, clinicId);
+    
+    const updatedPatient = await this.repository.update(id, clinicId, data);
     return updatedPatient;
   }
 
   async remove(id: string, clinicId: string) {
     await this.findOne(id, clinicId);
-    return this.repository.delete(id, clinicId);
+    await this.repository.delete(id, clinicId);
+    return { message: 'Paciente removido com sucesso' };
   }
 }

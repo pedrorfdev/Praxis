@@ -1,34 +1,42 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes } from '@nestjs/common';
 import { PatientsService } from './patients.service';
+import { ActiveClinic } from '../../common/decorators/active-clinic.decorator';
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
+import { createPatientSchema, updatePatientSchema } from '@praxis/core/domain';
 
 @Controller('patients')
 export class PatientsController {
   constructor(private readonly patientsService: PatientsService) {}
 
-  private readonly clinicId = "id-da-clinica-demo-do-seed"; 
-
   @Post()
-  create(@Body() body: any) {
-    return this.patientsService.create(body, this.clinicId);
+  async create(
+    @ActiveClinic() clinicId: string, 
+    @Body(new ZodValidationPipe(createPatientSchema)) body: any
+  ) {
+    return this.patientsService.create(body, clinicId);
   }
 
   @Get()
-  findAll() {
-    return this.patientsService.findAll(this.clinicId);
+  async findAll(@ActiveClinic() clinicId: string) {
+    return this.patientsService.findAll(clinicId);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.patientsService.findOne(id, this.clinicId);
+  async findOne(@Param('id') id: string, @ActiveClinic() clinicId: string) {
+    return this.patientsService.findOne(id, clinicId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() body: any) {
-    return this.patientsService.update(id, this.clinicId, body);
+  async update(
+    @Param('id') id: string, 
+    @ActiveClinic() clinicId: string, 
+    @Body(new ZodValidationPipe(updatePatientSchema)) body: any
+  ) {
+    return this.patientsService.update(id, clinicId, body);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.patientsService.remove(id, this.clinicId);
+  async remove(@Param('id') id: string, @ActiveClinic() clinicId: string) {
+    return this.patientsService.remove(id, clinicId);
   }
 }

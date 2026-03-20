@@ -1,14 +1,12 @@
 import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { SessionsRepository } from './sessions.repository';
-import { createSessionSchema, updateSessionSchema } from '@praxis/core/domain';
 
 @Injectable()
 export class SessionsService {
   constructor(private readonly repository: SessionsRepository) {}
 
   async create(data: any, clinicId: string) {
-    const validatedData = createSessionSchema.parse(data);
-    return this.repository.create({ ...validatedData, clinicId });
+    return this.repository.create({ ...data, clinicId });
   }
 
   async findAll(clinicId: string) {
@@ -17,15 +15,14 @@ export class SessionsService {
 
   async findOne(id: string, clinicId: string) {
     const session = await this.repository.findById(id, clinicId);
-    if (!session) throw new NotFoundException('Sessão não encontrada');
+    if (!session) throw new NotFoundException('Sessão não encontrada para esta clínica');
     return session;
   }
 
   async update(id: string, clinicId: string, data: any) {
-    const validatedData = updateSessionSchema.parse(data);
-    const updated = await this.repository.update(id, clinicId, validatedData);
-    if (!updated)
-      throw new NotFoundException('Sessão não encontrada');
+    await this.findOne(id, clinicId);
+    
+    const updated = await this.repository.update(id, clinicId, data);
     return updated;
   }
 
@@ -38,6 +35,7 @@ export class SessionsService {
       );
     }
 
-    return this.repository.delete(id, clinicId);
+    await this.repository.delete(id, clinicId);
+    return { message: 'Sessão removida com sucesso' };
   }
 }

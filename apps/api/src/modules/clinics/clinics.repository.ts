@@ -47,6 +47,9 @@ export class ClinicsRepository {
   }
 
   async delete(id: string) {
-    await this.db.delete(schema.clinics).where(eq(schema.clinics.id, id));
+    await this.db
+      .delete(schema.clinics)
+      .where(eq(schema.clinics.id, id))
+      .returning();
   }
 }
