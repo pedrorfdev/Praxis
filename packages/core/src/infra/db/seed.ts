@@ -17,7 +17,7 @@ async function main() {
     name: "Clínica Praxis - Demo",
     slug: "clinica-demo",
     email: "demo@praxis.com.br",
-    passwordHash: hashedDemoPassword,
+    password: hashedDemoPassword,
   }).returning();
 
   console.log("👤 Criando pacientes com dados fictícios...");

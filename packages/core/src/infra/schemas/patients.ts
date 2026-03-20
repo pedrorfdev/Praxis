@@ -1,5 +1,7 @@
 import { pgTable, text, timestamp, uniqueIndex, uuid } from "drizzle-orm/pg-core";
 import { clinics } from "./clinics";
+import { sessions } from "./sessions";
+import { relations } from "drizzle-orm";
 
 export const patients = pgTable("patients", {
   id: uuid().primaryKey().defaultRandom(),
@@ -13,3 +15,11 @@ export const patients = pgTable("patients", {
 }, (table) => [
   uniqueIndex("clinic_cpf_unique").on(table.clinicId, table.cpf)
 ])
+
+export const patientsRelations = relations(patients, ({ one, many }) => ({
+  clinic: one(clinics, {
+    fields: [patients.clinicId],
+    references: [clinics.id],
+  }),
+  sessions: many(sessions),
+}));

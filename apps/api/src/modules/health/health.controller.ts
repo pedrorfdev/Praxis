@@ -1,11 +1,11 @@
 import { Controller, Get } from '@nestjs/common';
-import { ApiTags, ApiOperation } from '@nestjs/swagger';
+//import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
-@ApiTags('System')
+//@ApiTags('System')
 @Controller('health')
 export class HealthController {
   @Get()
-  @ApiOperation({ summary: 'Verifica se a API está online' })
+  //@ApiOperation({ summary: 'Verifica se a API está online' })
   check() {
     return {
       status: 'ok',

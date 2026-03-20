@@ -23,3 +23,4 @@ export const updateSessionSchema = createSessionSchema.partial();
 
 export type Session = z.infer<typeof sessionSchema>;
 export type CreateSessionInput = z.infer<typeof createSessionSchema>;
+export type UpdateSessionInput = z.infer<typeof updateSessionSchema>;

@@ -1,8 +1,8 @@
-import { Inject, Injectable } from '@nestjs/common';
 import { DRIZZLE } from '../../infra/database/database.module';
 import { NodePgDatabase } from 'drizzle-orm/node-postgres';
-import { schema } from '@praxis/core/infra';
+import { Inject, Injectable } from '@nestjs/common';
 import { eq } from 'drizzle-orm';
+import { schema } from '@praxis/core/infra';
 import type { CreateClinicInput } from '@praxis/core/domain';
 
 @Injectable()
@@ -28,6 +28,12 @@ export class ClinicsRepository {
   async findById(id: string) {
     return this.db.query.clinics.findFirst({
       where: eq(schema.clinics.id, id),
+    });
+  }
+
+  async findByEmail(email: string) {
+    return this.db.query.clinics.findFirst({
+      where: eq(schema.clinics.email, email),
     });
   }
 
