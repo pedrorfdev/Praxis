@@ -2,6 +2,7 @@ import {
   Injectable,
   ConflictException,
   NotFoundException,
+  Inject,
 } from '@nestjs/common';
 import { ClinicsRepository } from './clinics.repository';
 import type { CreateClinicInput, UpdateClinicInput } from '@praxis/core/domain';
@@ -9,7 +10,9 @@ import * as bcrypt from 'bcryptjs';
 
 @Injectable()
 export class ClinicsService {
-  constructor(private readonly repository: ClinicsRepository) {}
+  constructor(
+    @Inject(ClinicsRepository)
+    private readonly repository: ClinicsRepository) {}
 
   async create(data: CreateClinicInput) {
     const existing = await this.repository.findByEmail(data.email);

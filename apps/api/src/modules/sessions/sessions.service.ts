@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  Inject,
   Injectable,
   NotFoundException,
 } from '@nestjs/common';
@@ -7,7 +8,10 @@ import { SessionsRepository } from './sessions.repository';
 
 @Injectable()
 export class SessionsService {
-  constructor(private readonly repository: SessionsRepository) {}
+  constructor(
+    @Inject(SessionsRepository)
+    private readonly repository: SessionsRepository
+  ) {}
 
   async create(data: any, clinicId: string) {
     return this.repository.create({ ...data, clinicId });

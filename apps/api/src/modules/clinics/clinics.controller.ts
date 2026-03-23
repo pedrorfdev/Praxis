@@ -1,19 +1,30 @@
-import { 
-  Controller, 
-  Post, 
-  Body, 
-  Get, 
-  UsePipes, 
-  Patch, 
-  Delete, 
-  NotFoundException, 
-  HttpCode, 
-  HttpStatus 
+import {
+  Controller,
+  Post,
+  Body,
+  Get,
+  UsePipes,
+  Patch,
+  Delete,
+  NotFoundException,
+  HttpCode,
+  HttpStatus,
+  Inject,
 } from '@nestjs/common';
-import { ApiTags, ApiBearerAuth, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger'
+import {
+  ApiTags,
+  ApiBearerAuth,
+  ApiOperation,
+  ApiResponse,
+  ApiBody,
+} from '@nestjs/swagger';
 import { ClinicsService } from './clinics.service';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { createClinicSchema, updateClinicSchema } from '@praxis/core/domain';
+import {
+  createClinicSchema,
+  updateClinicSchema,
+  type CreateClinicInput,
+} from '@praxis/core/domain';
 import { Public } from '../../common/decorators/public.decorator';
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator';
 
@@ -21,7 +32,10 @@ import { ActiveClinic } from '../../common/decorators/active-clinic.decorator';
 @ApiBearerAuth('access-token')
 @Controller('clinics')
 export class ClinicsController {
-  constructor(private readonly clinicsService: ClinicsService) {}
+  constructor(
+    @Inject(ClinicsService)
+    private readonly clinicsService: ClinicsService,
+  ) {}
 
   @Public()
   @ApiOperation({ summary: 'Registrar uma nova clínica (Acesso Público)' })
@@ -38,18 +52,21 @@ export class ClinicsController {
   })
   @Post()
   @UsePipes(new ZodValidationPipe(createClinicSchema))
-  async create(@Body() data: any) {
+  async create(@Body() data: CreateClinicInput) {
     return this.clinicsService.create(data);
   }
 
   @Get('me')
   @ApiOperation({ summary: 'Retorna os dados da clínica logada' })
-  @ApiResponse({ status: 200, description: 'Dados da clínica retornados com sucesso.' })
+  @ApiResponse({
+    status: 200,
+    description: 'Dados da clínica retornados com sucesso.',
+  })
   @ApiResponse({ status: 401, description: 'Não autorizado.' })
   async getProfile(@ActiveClinic() clinicId: string) {
     const clinic = await this.clinicsService.findById(clinicId);
     if (!clinic) throw new NotFoundException('Clínica não encontrada');
-    
+
     const { password, ...safeClinic } = clinic;
     return safeClinic;
   }
@@ -70,8 +87,8 @@ export class ClinicsController {
   @ApiResponse({ status: 200, description: 'Clínica atualizada com sucesso.' })
   @ApiResponse({ status: 400, description: 'Dados inválidos.' })
   async update(
-    @ActiveClinic() clinicId: string, 
-    @Body(new ZodValidationPipe(updateClinicSchema)) data: any
+    @ActiveClinic() clinicId: string,
+    @Body(new ZodValidationPipe(updateClinicSchema)) data: any,
   ) {
     return this.clinicsService.update(clinicId, data);
   }

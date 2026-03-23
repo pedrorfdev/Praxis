@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   UsePipes,
+  Inject,
 } from '@nestjs/common';
 import { SessionsService } from './sessions.service';
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator';
@@ -18,7 +19,10 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nes
 @ApiBearerAuth('access-token')
 @Controller('sessions')
 export class SessionsController {
-  constructor(private readonly sessionsService: SessionsService) {}
+  constructor(
+    @Inject(SessionsService)
+    private readonly sessionsService: SessionsService
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Agendar uma nova sessão' })

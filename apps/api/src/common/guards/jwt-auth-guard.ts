@@ -28,7 +28,7 @@ export class JwtAuthGuard extends AuthGuard('jwt') implements CanActivate{
     return super.canActivate(context);
   }
 
-  handleRequest(err, user, info) {
+  handleRequest(err: any, user: any, info: any) {
     if (err || !user) {
       throw err || new UnauthorizedException('Acesso restrito a clínicas autenticadas');
     }

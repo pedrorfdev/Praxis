@@ -1,15 +1,34 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UsePipes } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UsePipes,
+  Inject,
+} from '@nestjs/common';
 import { PatientsService } from './patients.service';
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator';
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
 import { createPatientSchema, updatePatientSchema } from '@praxis/core/domain';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger';
 
 @ApiTags('Patients')
 @ApiBearerAuth('access-token')
 @Controller('patients')
 export class PatientsController {
-  constructor(private readonly patientsService: PatientsService) {}
+  constructor(
+    @Inject(PatientsService)
+    private readonly patientsService: PatientsService,
+  ) {}
 
   @Post()
   @ApiOperation({ summary: 'Cadastrar um novo paciente' })
@@ -25,23 +44,26 @@ export class PatientsController {
       },
     },
   })
-  @ApiResponse({ 
-    status: 201, 
+  @ApiResponse({
+    status: 201,
     description: 'Paciente criado com sucesso.',
     schema: {
       example: {
-        id: "uuid-gerado",
-        fullName: "João da Silva",
-        email: "joao@email.com",
-        cpf: "12345678901",
-        createdAt: "2026-03-23T14:00:00Z"
-      }
-    }
+        id: 'uuid-gerado',
+        fullName: 'João da Silva',
+        email: 'joao@email.com',
+        cpf: '12345678901',
+        createdAt: '2026-03-23T14:00:00Z',
+      },
+    },
   })
-  @ApiResponse({ status: 400, description: 'Dados inválidos ou CPF duplicado nesta clínica.' })
+  @ApiResponse({
+    status: 400,
+    description: 'Dados inválidos ou CPF duplicado nesta clínica.',
+  })
   async create(
-    @ActiveClinic() clinicId: string, 
-    @Body(new ZodValidationPipe(createPatientSchema)) body: any
+    @ActiveClinic() clinicId: string,
+    @Body(new ZodValidationPipe(createPatientSchema)) body: any,
   ) {
     return this.patientsService.create(body, clinicId);
   }
@@ -70,34 +92,37 @@ export class PatientsController {
       },
     },
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Paciente atualizado.',
     schema: {
       example: {
-        id: "uuid-existente",
-        fullName: "João Silva Sauro",
-        phone: "11988887777",
-        updatedAt: "2026-03-23T15:30:00Z"
-      }
-    }
+        id: 'uuid-existente',
+        fullName: 'João Silva Sauro',
+        phone: '11988887777',
+        updatedAt: '2026-03-23T15:30:00Z',
+      },
+    },
   })
   async update(
-    @Param('id') id: string, 
-    @ActiveClinic() clinicId: string, 
-    @Body(new ZodValidationPipe(updatePatientSchema)) body: any
+    @Param('id') id: string,
+    @ActiveClinic() clinicId: string,
+    @Body(new ZodValidationPipe(updatePatientSchema)) body: any,
   ) {
     return this.patientsService.update(id, clinicId, body);
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Remover um paciente e seu histórico' })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Paciente removido com sucesso.',
     schema: {
-      example: { message: "Paciente removido com sucesso", id: "uuid-deletado" }
-    }
+      example: {
+        message: 'Paciente removido com sucesso',
+        id: 'uuid-deletado',
+      },
+    },
   })
   async remove(@Param('id') id: string, @ActiveClinic() clinicId: string) {
     return this.patientsService.remove(id, clinicId);

@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { ClinicsRepository } from '../clinics/clinics.repository';
 import * as bcrypt from 'bcryptjs';
@@ -7,7 +7,9 @@ import { type LoginInput } from '@praxis/core/domain';
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(ClinicsRepository)
     private readonly clinicsRepository: ClinicsRepository,
+    @Inject(JwtService)
     private readonly jwtService: JwtService,
   ) {}
 

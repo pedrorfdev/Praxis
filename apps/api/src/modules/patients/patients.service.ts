@@ -1,9 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { PatientsRepository } from './patients.repository';
 
 @Injectable()
 export class PatientsService {
-  constructor(private readonly repository: PatientsRepository) {}
+  constructor(
+    @Inject(PatientsRepository)
+    private readonly repository: PatientsRepository
+  ) {}
 
   async create(data: any, clinicId: string) {
     return this.repository.create({ ...data, clinicId });

@@ -1,20 +1,28 @@
 import { Module } from '@nestjs/common';
-import { APP_GUARD } from '@nestjs/core'
-import { DatabaseModule } from './infra/database/database.module';
+import { APP_GUARD, Reflector } from '@nestjs/core'
 import { ClinicsModule } from './modules/clinics/clinics.module';
-import { HealthController } from './modules/health/health.controller';
 import { JwtAuthGuard } from './common/guards/jwt-auth-guard';
+import { HealthModule } from './modules/health/health.module';
+import { PatientsModule } from './modules/patients/patients.module';
+import { SessionsModule } from './modules/sessions/sessions.module';
+import { AuthModule } from './modules/auth/auth.module';
 
 @Module({
   imports: [
-    DatabaseModule,
+    HealthModule,
+    AuthModule,
     ClinicsModule,
+    PatientsModule,
+    SessionsModule,
   ],
   controllers: [],
   providers: [
     {
       provide: APP_GUARD,
-      useClass: JwtAuthGuard
+      useFactory: (reflector: Reflector) => {
+        return new JwtAuthGuard(reflector);
+      },
+      inject: [Reflector],
     },
   ],
 })
