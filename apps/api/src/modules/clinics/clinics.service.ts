@@ -20,8 +20,16 @@ export class ClinicsService {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(data.password, salt);
 
+    const slug = data.name
+      .toLowerCase()
+      .trim()
+      .replace(/[^\w\s-]/g, '')
+      .replace(/[\s_-]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+
     return this.repository.create({
       ...data,
+      slug,
       password: hashedPassword,
     });
   }

@@ -51,6 +51,21 @@ export class SessionsRepository {
     return updatedSession;
   }
 
+  async updateStatus(clinicId: string, id: string, status: "scheduled" | "completed" | "cancelled") {
+  const [result] = await db
+    .update(schema.sessions)
+    .set({ status, updatedAt: new Date() })
+    .where(
+      and(
+        eq(schema.sessions.id, id),
+        eq(schema.sessions.clinicId, clinicId)
+      )
+    )
+    .returning();
+    
+  return result;
+}
+
   async delete(id: string, clinicId: string) {
   return db
     .delete(schema.sessions)

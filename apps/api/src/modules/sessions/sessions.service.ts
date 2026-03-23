@@ -1,4 +1,8 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { SessionsRepository } from './sessions.repository';
 
 @Injectable()
@@ -15,14 +19,31 @@ export class SessionsService {
 
   async findOne(id: string, clinicId: string) {
     const session = await this.repository.findById(id, clinicId);
-    if (!session) throw new NotFoundException('Sessão não encontrada para esta clínica');
+    if (!session)
+      throw new NotFoundException('Sessão não encontrada para esta clínica');
     return session;
   }
 
   async update(id: string, clinicId: string, data: any) {
     await this.findOne(id, clinicId);
-    
+
     const updated = await this.repository.update(id, clinicId, data);
+    return updated;
+  }
+
+  async updateStatus(clinicId: string, sessionId: string, status: any) {
+    const updated = await this.repository.updateStatus(
+      clinicId,
+      sessionId,
+      status,
+    );
+
+    if (!updated) {
+      throw new NotFoundException(
+        'Sessão não encontrada ou não pertence a esta clínica',
+      );
+    }
+
     return updated;
   }
 
