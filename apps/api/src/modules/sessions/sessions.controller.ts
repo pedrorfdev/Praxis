@@ -1,19 +1,25 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UsePipes,
+  Get,
   Inject,
-} from '@nestjs/common';
-import { SessionsService } from './sessions.service';
-import { ActiveClinic } from '../../common/decorators/active-clinic.decorator';
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { createSessionSchema, updateSessionSchema } from '@praxis/core/domain';
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+  Param,
+  Patch,
+  Post,
+  UsePipes,
+} from '@nestjs/common'
+import {
+  ApiBearerAuth,
+  ApiBody,
+  ApiOperation,
+  ApiResponse,
+  ApiTags,
+} from '@nestjs/swagger'
+import { createSessionSchema, updateSessionSchema } from '@praxis/core/domain'
+import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+import { SessionsService } from './sessions.service'
 
 @ApiTags('Sessions')
 @ApiBearerAuth('access-token')
@@ -26,17 +32,17 @@ export class SessionsController {
 
   @Post()
   @ApiOperation({ summary: 'Agendar uma nova sessão' })
-  @ApiResponse({ 
-    status: 201, 
+  @ApiResponse({
+    status: 201,
     description: 'Sessão agendada.',
     schema: {
       example: {
-        id: "uuid-sessao",
-        patientId: "uuid-paciente",
-        scheduledAt: "2026-03-25T14:30:00Z",
-        status: "scheduled"
-      }
-    }
+        id: 'uuid-sessao',
+        patientId: 'uuid-paciente',
+        scheduledAt: '2026-03-25T14:30:00Z',
+        status: 'scheduled',
+      },
+    },
   })
   @ApiResponse({ status: 404, description: 'Sessão não encontrada.' })
   @ApiBody({
@@ -71,7 +77,7 @@ export class SessionsController {
     @ActiveClinic() clinicId: string,
     @Body(new ZodValidationPipe(createSessionSchema)) body: any,
   ) {
-    return this.sessionsService.create(body, clinicId);
+    return this.sessionsService.create(body, clinicId)
   }
 
   @Get()
@@ -82,7 +88,7 @@ export class SessionsController {
 
   @Get(':id')
   async findOne(@Param('id') id: string, @ActiveClinic() clinicId: string) {
-    return this.sessionsService.findOne(id, clinicId);
+    return this.sessionsService.findOne(id, clinicId)
   }
 
   @Patch(':id')
@@ -91,34 +97,41 @@ export class SessionsController {
     schema: {
       type: 'object',
       properties: {
-        patientId: { type: 'string', format: 'uuid', example: 'novo-uuid-do-paciente' },
+        patientId: {
+          type: 'string',
+          format: 'uuid',
+          example: 'novo-uuid-do-paciente',
+        },
         scheduledAt: { type: 'string', format: 'date-time' },
         content: { type: 'string' },
-        status: { type: 'string', enum: ['scheduled', 'completed', 'cancelled'] },
+        status: {
+          type: 'string',
+          enum: ['scheduled', 'completed', 'cancelled'],
+        },
       },
     },
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     description: 'Sessão alterada com sucesso.',
     schema: {
       example: {
-        id: "uuid-sessao",
-        patientId: "uuid-novo-paciente",
-        content: "Conteúdo atualizado da sessão",
-        status: "completed"
-      }
-    }
+        id: 'uuid-sessao',
+        patientId: 'uuid-novo-paciente',
+        content: 'Conteúdo atualizado da sessão',
+        status: 'completed',
+      },
+    },
   })
   async update(
     @Param('id') id: string,
     @ActiveClinic() clinicId: string,
     @Body(new ZodValidationPipe(updateSessionSchema)) body: any,
   ) {
-    return this.sessionsService.update(id, clinicId, body);
+    return this.sessionsService.update(id, clinicId, body)
   }
 
-    @Patch(':id/status')
+  @Patch(':id/status')
   @ApiOperation({ summary: 'Atualizar apenas o status da sessão' })
   @ApiBody({
     schema: {
@@ -131,23 +144,27 @@ export class SessionsController {
       },
     },
   })
-  @ApiResponse({ 
-    status: 200, 
+  @ApiResponse({
+    status: 200,
     schema: {
-      example: { id: "uuid-sessao", status: "cancelled", updatedAt: "2026-03-23T16:00:00Z" }
-    }
+      example: {
+        id: 'uuid-sessao',
+        status: 'cancelled',
+        updatedAt: '2026-03-23T16:00:00Z',
+      },
+    },
   })
   async updateStatus(
     @ActiveClinic() clinicId: string,
     @Param('id') id: string,
     @Body() body: any,
   ) {
-    return this.sessionsService.updateStatus(clinicId, id, body.status);
+    return this.sessionsService.updateStatus(clinicId, id, body.status)
   }
 
   @Delete(':id')
   @ApiOperation({ summary: 'Cancelar/Remover sessão' })
   async remove(@Param('id') id: string, @ActiveClinic() clinicId: string) {
-    return this.sessionsService.remove(id, clinicId);
+    return this.sessionsService.remove(id, clinicId)
   }
 }

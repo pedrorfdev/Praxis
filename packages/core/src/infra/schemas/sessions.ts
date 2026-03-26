@@ -1,20 +1,28 @@
-import { pgTable, text, timestamp, uuid, pgEnum } from "drizzle-orm/pg-core";
-import { relations } from 'drizzle-orm';
-import { patients } from "./patients";
-import { clinics } from "./clinics";
+import { relations } from 'drizzle-orm'
+import { pgEnum, pgTable, text, timestamp, uuid } from 'drizzle-orm/pg-core'
+import { clinics } from './clinics'
+import { patients } from './patients'
 
-export const sessionStatusEnum = pgEnum("session_status", ["scheduled", "completed", "cancelled"]);
+export const sessionStatusEnum = pgEnum('session_status', [
+  'scheduled',
+  'completed',
+  'cancelled',
+])
 
-export const sessions = pgTable("sessions", {
+export const sessions = pgTable('sessions', {
   id: uuid().primaryKey().defaultRandom(),
-  clinicId: uuid().references(() => clinics.id, { onDelete: 'cascade' }).notNull(),
-  patientId: uuid().references(() => patients.id, { onDelete: 'cascade' }).notNull(),
+  clinicId: uuid()
+    .references(() => clinics.id, { onDelete: 'cascade' })
+    .notNull(),
+  patientId: uuid()
+    .references(() => patients.id, { onDelete: 'cascade' })
+    .notNull(),
   scheduledAt: timestamp().notNull(),
   content: text(),
-  status: sessionStatusEnum().default("scheduled").notNull(),
+  status: sessionStatusEnum().default('scheduled').notNull(),
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().notNull(),
-});
+})
 
 export const sessionsRelations = relations(sessions, ({ one }) => ({
   clinic: one(clinics, {
@@ -25,4 +33,4 @@ export const sessionsRelations = relations(sessions, ({ one }) => ({
     fields: [sessions.patientId],
     references: [patients.id],
   }),
-}));
+}))

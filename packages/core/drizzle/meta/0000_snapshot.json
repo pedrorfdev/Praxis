@@ -61,16 +61,12 @@
         "clinics_email_unique": {
           "name": "clinics_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         },
         "clinics_slug_unique": {
           "name": "clinics_slug_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "slug"
-          ]
+          "columns": ["slug"]
         }
       },
       "policies": {},
@@ -161,12 +157,8 @@
           "name": "patients_clinic_id_clinics_id_fk",
           "tableFrom": "patients",
           "tableTo": "clinics",
-          "columnsFrom": [
-            "clinic_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["clinic_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -241,12 +233,8 @@
           "name": "sessions_clinic_id_clinics_id_fk",
           "tableFrom": "sessions",
           "tableTo": "clinics",
-          "columnsFrom": [
-            "clinic_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["clinic_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -254,12 +242,8 @@
           "name": "sessions_patient_id_patients_id_fk",
           "tableFrom": "sessions",
           "tableTo": "patients",
-          "columnsFrom": [
-            "patient_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["patient_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -275,11 +259,7 @@
     "public.session_status": {
       "name": "session_status",
       "schema": "public",
-      "values": [
-        "scheduled",
-        "completed",
-        "cancelled"
-      ]
+      "values": ["scheduled", "completed", "cancelled"]
     }
   },
   "schemas": {},

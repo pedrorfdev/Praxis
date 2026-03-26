@@ -1,32 +1,32 @@
 import {
-  Controller,
-  Post,
   Body,
-  Get,
-  UsePipes,
-  Patch,
+  Controller,
   Delete,
-  NotFoundException,
+  Get,
   HttpCode,
   HttpStatus,
   Inject,
-} from '@nestjs/common';
+  NotFoundException,
+  Patch,
+  Post,
+  UsePipes,
+} from '@nestjs/common'
 import {
-  ApiTags,
   ApiBearerAuth,
+  ApiBody,
   ApiOperation,
   ApiResponse,
-  ApiBody,
-} from '@nestjs/swagger';
-import { ClinicsService } from './clinics.service';
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
+  ApiTags,
+} from '@nestjs/swagger'
 import {
+  type CreateClinicInput,
   createClinicSchema,
   updateClinicSchema,
-  type CreateClinicInput,
-} from '@praxis/core/domain';
-import { Public } from '../../common/decorators/public.decorator';
-import { ActiveClinic } from '../../common/decorators/active-clinic.decorator';
+} from '@praxis/core/domain'
+import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
+import { Public } from '../../common/decorators/public.decorator'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+import { ClinicsService } from './clinics.service'
 
 @ApiTags('Clinics')
 @ApiBearerAuth('access-token')
@@ -90,7 +90,7 @@ export class ClinicsController {
     @ActiveClinic() clinicId: string,
     @Body(new ZodValidationPipe(updateClinicSchema)) data: any,
   ) {
-    return this.clinicsService.update(clinicId, data);
+    return this.clinicsService.update(clinicId, data)
   }
 
   @Delete('me')

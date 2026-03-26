@@ -1,25 +1,25 @@
 import {
-  Controller,
-  Get,
-  Post,
   Body,
-  Patch,
-  Param,
+  Controller,
   Delete,
-  UsePipes,
+  Get,
   Inject,
-} from '@nestjs/common';
-import { PatientsService } from './patients.service';
-import { ActiveClinic } from '../../common/decorators/active-clinic.decorator';
-import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe';
-import { createPatientSchema, updatePatientSchema } from '@praxis/core/domain';
+  Param,
+  Patch,
+  Post,
+  UsePipes,
+} from '@nestjs/common'
 import {
   ApiBearerAuth,
   ApiBody,
   ApiOperation,
   ApiResponse,
   ApiTags,
-} from '@nestjs/swagger';
+} from '@nestjs/swagger'
+import { createPatientSchema, updatePatientSchema } from '@praxis/core/domain'
+import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
+import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
+import { PatientsService } from './patients.service'
 
 @ApiTags('Patients')
 @ApiBearerAuth('access-token')
@@ -65,7 +65,7 @@ export class PatientsController {
     @ActiveClinic() clinicId: string,
     @Body(new ZodValidationPipe(createPatientSchema)) body: any,
   ) {
-    return this.patientsService.create(body, clinicId);
+    return this.patientsService.create(body, clinicId)
   }
 
   @Get()
@@ -77,7 +77,7 @@ export class PatientsController {
   @Get(':id')
   @ApiOperation({ summary: 'Obter detalhes de um paciente específico' })
   async findOne(@Param('id') id: string, @ActiveClinic() clinicId: string) {
-    return this.patientsService.findOne(id, clinicId);
+    return this.patientsService.findOne(id, clinicId)
   }
 
   @Patch(':id')
@@ -109,7 +109,7 @@ export class PatientsController {
     @ActiveClinic() clinicId: string,
     @Body(new ZodValidationPipe(updatePatientSchema)) body: any,
   ) {
-    return this.patientsService.update(id, clinicId, body);
+    return this.patientsService.update(id, clinicId, body)
   }
 
   @Delete(':id')
@@ -125,6 +125,6 @@ export class PatientsController {
     },
   })
   async remove(@Param('id') id: string, @ActiveClinic() clinicId: string) {
-    return this.patientsService.remove(id, clinicId);
+    return this.patientsService.remove(id, clinicId)
   }
 }

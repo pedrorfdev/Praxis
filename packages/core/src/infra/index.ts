@@ -1,4 +1,5 @@
-export * from './db/connection';
+export * from './db/connection'
 
-import { schemas } from './schemas/index';
-export { schemas as schema };
+import { schemas } from './schemas/index'
+
+export { schemas as schema }

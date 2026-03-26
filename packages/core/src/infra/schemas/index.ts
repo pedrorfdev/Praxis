@@ -1,10 +1,10 @@
 import { clinics } from './clinics'
 import { patients } from './patients'
-import { sessions, sessionStatusEnum } from './sessions'
+import { sessionStatusEnum, sessions } from './sessions'
 
 export const schemas = {
   clinics,
   patients,
   sessions,
-  sessionStatusEnum
+  sessionStatusEnum,
 }

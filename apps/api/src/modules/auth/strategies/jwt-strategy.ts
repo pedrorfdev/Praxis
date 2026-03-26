@@ -1,6 +1,6 @@
-import { ExtractJwt, Strategy } from 'passport-jwt';
-import { PassportStrategy } from '@nestjs/passport';
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common'
+import { PassportStrategy } from '@nestjs/passport'
+import { ExtractJwt, Strategy } from 'passport-jwt'
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -9,17 +9,17 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       secretOrKey: process.env.JWT_SECRET || 'chave-secreta-praxis',
-    });
+    })
   }
-  
+
   async validate(payload: any) {
     if (!payload.sub) {
-      throw new UnauthorizedException('Token inválido ou malformado');
+      throw new UnauthorizedException('Token inválido ou malformado')
     }
 
-    return { 
-      clinicId: payload.sub, 
-      email: payload.email 
-    };
+    return {
+      clinicId: payload.sub,
+      email: payload.email,
+    }
   }
 }

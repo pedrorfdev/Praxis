@@ -1,15 +1,15 @@
 import {
-  Controller,
-  Post,
   Body,
+  Controller,
   HttpCode,
   HttpStatus,
   Inject,
-} from '@nestjs/common';
-import { AuthService } from './auth.service';
-import { loginSchema, type LoginInput } from '@praxis/core/domain';
-import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { Public } from '../../common/decorators/public.decorator';
+  Post,
+} from '@nestjs/common'
+import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger'
+import { type LoginInput, loginSchema } from '@praxis/core/domain'
+import { Public } from '../../common/decorators/public.decorator'
+import { AuthService } from './auth.service'
 
 @Controller('auth')
 export class AuthController {
