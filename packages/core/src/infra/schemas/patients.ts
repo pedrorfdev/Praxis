@@ -9,21 +9,32 @@ import {
 import { clinics } from './clinics'
 import { sessions } from './sessions'
 
-export const patients = pgTable(
-  'patients',
-  {
-    id: uuid().primaryKey().defaultRandom(),
-    clinicId: uuid()
-      .references(() => clinics.id, { onDelete: 'cascade' })
-      .notNull(),
-    fullName: text().notNull(),
-    email: text(),
-    phone: text(),
-    cpf: text(),
-    createdAt: timestamp().defaultNow().notNull(),
-    updatedAt: timestamp().defaultNow().notNull(),
-  },
-  (table) => [uniqueIndex('clinic_cpf_unique').on(table.clinicId, table.cpf)],
+export const patients = pgTable('patients', {
+  id: uuid().primaryKey().defaultRandom(),
+  clinicId: uuid().references(() => clinics.id, { onDelete: 'cascade' }).notNull(),
+  type: text().notNull(),
+  fullName: text().notNull(),
+  birthDate: timestamp().notNull(),
+  gender: text(),
+  address: text(),
+  city: text(),
+  phone: text(),
+  diagnosis: text(),
+  cpf: text(),
+  
+  responsibleName: text(), 
+  responsiblePhone: text(),
+
+  birthPlace: text(),
+  maritalStatus: text(),
+  educationLevel: text(),
+  profession: text(),
+  religion: text(),
+
+  createdAt: timestamp().defaultNow().notNull(),
+  updatedAt: timestamp().defaultNow().notNull(),
+},
+(table) => [uniqueIndex('clinic_cpf_unique').on(table.clinicId, table.cpf)],
 )
 
 export const patientsRelations = relations(patients, ({ one, many }) => ({
