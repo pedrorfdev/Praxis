@@ -5,6 +5,7 @@ import {
   NotFoundException,
 } from '@nestjs/common'
 import { SessionsRepository } from './sessions.repository'
+import type { CreateSessionInput, UpdateSessionInput } from '@praxis/core/domain'
 
 @Injectable()
 export class SessionsService {
@@ -13,7 +14,7 @@ export class SessionsService {
     private readonly repository: SessionsRepository
   ) {}
 
-  async create(data: any, clinicId: string) {
+  async create(data: CreateSessionInput, clinicId: string) {
     return this.repository.create({ ...data, clinicId })
   }
 
@@ -28,7 +29,7 @@ export class SessionsService {
     return session
   }
 
-  async update(id: string, clinicId: string, data: any) {
+  async update(id: string, clinicId: string, data: UpdateSessionInput) {
     await this.findOne(id, clinicId)
 
     const updated = await this.repository.update(id, clinicId, data)
@@ -56,7 +57,7 @@ export class SessionsService {
 
     if (session.status === 'completed') {
       throw new BadRequestException(
-        'Não é possível deletar uma sessão já finalizada. Tente cancelar ou editar.',
+        'Não é possível deletar uma sessão já finalizada.',
       )
     }
 

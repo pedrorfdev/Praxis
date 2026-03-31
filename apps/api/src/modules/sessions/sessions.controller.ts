@@ -16,7 +16,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
-import { createSessionSchema, updateSessionSchema } from '@praxis/core/domain'
+import { createSessionSchema, updateSessionSchema, type UpdateSessionInput } from '@praxis/core/domain'
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { SessionsService } from './sessions.service'
@@ -31,10 +31,10 @@ export class SessionsController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Agendar uma nova sessão' })
+  @ApiOperation({ summary: 'Iniciar uma nova sessão de atendimento' })
   @ApiResponse({
     status: 201,
-    description: 'Sessão agendada.',
+    description: 'Atendimento iniciado com sucesso.',
     schema: {
       example: {
         id: 'uuid-sessao',
@@ -48,28 +48,12 @@ export class SessionsController {
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['patientId', 'scheduledAt'],
+      required: ['patientId'],
       properties: {
-        patientId: {
-          type: 'string',
-          format: 'uuid',
-          example: 'uuid-do-paciente',
-        },
-        scheduledAt: {
-          type: 'string',
-          format: 'date-time',
-          example: '2026-03-25T14:30:00Z',
-        },
-        content: {
-          type: 'string',
-          example: 'Relato da evolução do paciente...',
-          description: 'Notas da sessão',
-        },
-        status: {
-          type: 'string',
-          enum: ['scheduled', 'completed', 'cancelled'],
-          default: 'scheduled',
-        },
+        patientId: { type: 'string', format: 'uuid', example: 'uuid-do-paciente' },
+        startAt: { type: 'string', format: 'date-time', example: '2026-03-30T14:30:00Z' },
+        billingType: { type: 'string', enum: ['PRIVATE', 'SUBSIDIZED'], example: 'PRIVATE' },
+        content: { type: 'string', example: 'Iniciando atendimento...', description: 'Evolução inicial' },
       },
     },
   })
@@ -81,18 +65,19 @@ export class SessionsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar agenda da clínica' })
+  @ApiOperation({ summary: 'Listar histórico de sessões' })
   async findAll(@ActiveClinic() clinicId: string) {
     return this.sessionsService.findAll(clinicId);
   }
 
   @Get(':id')
+  @ApiOperation({ summary: 'Obter detalhes de uma sessão específica' })
   async findOne(@Param('id') id: string, @ActiveClinic() clinicId: string) {
     return this.sessionsService.findOne(id, clinicId)
   }
 
   @Patch(':id')
-  @ApiOperation({ summary: 'Atualizar dados da sessão' })
+  @ApiOperation({ summary: 'Atualizar dados da sessão (Evolução, Horário ou Faturamento)' })
   @ApiBody({
     schema: {
       type: 'object',
@@ -102,11 +87,23 @@ export class SessionsController {
           format: 'uuid',
           example: 'novo-uuid-do-paciente',
         },
-        scheduledAt: { type: 'string', format: 'date-time' },
-        content: { type: 'string' },
+        startAt: { 
+          type: 'string', 
+          format: 'date-time', 
+          example: '2026-03-30T14:30:00Z' 
+        },
+        content: { 
+          type: 'string', 
+          example: 'Paciente apresentou melhora na coordenação motora fina...' 
+        },
+        billingType: { 
+          type: 'string', 
+          enum: ['PRIVATE', 'SUBSIDIZED'],
+          example: 'PRIVATE'
+        },
         status: {
           type: 'string',
-          enum: ['scheduled', 'completed', 'cancelled'],
+          enum: ['in_progress', 'completed'],
         },
       },
     },
@@ -117,29 +114,31 @@ export class SessionsController {
     schema: {
       example: {
         id: 'uuid-sessao',
-        patientId: 'uuid-novo-paciente',
-        content: 'Conteúdo atualizado da sessão',
+        patientId: 'uuid-paciente',
+        content: 'Conteúdo atualizado',
+        billingType: 'SUBSIDIZED',
         status: 'completed',
+        updatedAt: '2026-03-30T16:00:00Z',
       },
     },
   })
   async update(
     @Param('id') id: string,
     @ActiveClinic() clinicId: string,
-    @Body(new ZodValidationPipe(updateSessionSchema)) body: any,
+    @Body(new ZodValidationPipe(updateSessionSchema)) body: UpdateSessionInput,
   ) {
     return this.sessionsService.update(id, clinicId, body)
   }
 
   @Patch(':id/status')
-  @ApiOperation({ summary: 'Atualizar apenas o status da sessão' })
+  @ApiOperation({ summary: 'Finalizar atendimento (mudar status para completed)' })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
         status: {
           type: 'string',
-          enum: ['scheduled', 'completed', 'cancelled'],
+          enum: ['in_progress', 'completed']
         },
       },
     },
@@ -157,13 +156,13 @@ export class SessionsController {
   async updateStatus(
     @ActiveClinic() clinicId: string,
     @Param('id') id: string,
-    @Body() body: any,
+    @Body() body: { status: 'in_progress' | 'completed' },
   ) {
     return this.sessionsService.updateStatus(clinicId, id, body.status)
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Cancelar/Remover sessão' })
+  @ApiOperation({ summary: 'Remover sessão' })
   async remove(@Param('id') id: string, @ActiveClinic() clinicId: string) {
     return this.sessionsService.remove(id, clinicId)
   }

@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common'
-import type { CreateSessionInput } from '@praxis/core/domain'
+import type { CreateSessionInput, UpdateSessionInput } from '@praxis/core/domain'
 import { db, schema } from '@praxis/core/infra'
 import { and, desc, eq } from 'drizzle-orm'
 
@@ -17,11 +17,11 @@ export class SessionsRepository {
       with: {
         patient: {
           columns: {
-            fullname: true,
+            fullName: true,
           },
         },
       },
-      orderBy: [desc(schema.sessions.scheduledAt)],
+      orderBy: [desc(schema.sessions.startAt)],
     })
   }
 
@@ -37,7 +37,7 @@ export class SessionsRepository {
     })
   }
 
-  async update(id: string, clinicId: string, data: any) {
+  async update(id: string, clinicId: string, data: UpdateSessionInput) {
     const [updatedSession] = await db
       .update(schema.sessions)
       .set({ ...data, updatedAt: new Date() })
@@ -51,7 +51,7 @@ export class SessionsRepository {
   async updateStatus(
     clinicId: string,
     id: string,
-    status: 'scheduled' | 'completed' | 'cancelled',
+    status: 'in_progress' | 'completed',
   ) {
     const [result] = await db
       .update(schema.sessions)
