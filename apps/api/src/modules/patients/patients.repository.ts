@@ -9,7 +9,11 @@ import { and, desc, eq } from 'drizzle-orm'
 @Injectable()
 export class PatientsRepository {
   async create(data: CreatePatientInput & { clinicId: string }) {
-    const [patient] = await db.insert(schema.patients).values(data).returning()
+    const [patient] = await db
+      .insert(schema.patients)
+      .values(data)
+      .returning()
+    
     return patient
   }
 

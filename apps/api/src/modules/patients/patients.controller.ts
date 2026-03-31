@@ -7,7 +7,6 @@ import {
   Param,
   Patch,
   Post,
-  UsePipes,
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -16,7 +15,7 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
-import { createPatientSchema, updatePatientSchema } from '@praxis/core/domain'
+import { createPatientSchema, updatePatientSchema, type CreateClinicInput, type UpdateClinicInput } from '@praxis/core/domain'
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { PatientsService } from './patients.service'
@@ -31,16 +30,32 @@ export class PatientsController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Cadastrar um novo paciente' })
+  @ApiOperation({ summary: 'Cadastrar um novo paciente (Adulto ou Criança)' })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['fullName'],
+      required: ['type', 'fullName', 'birthDate', 'cpf'],
       properties: {
-        fullName: { type: 'string', example: 'João da Silva' },
-        email: { type: 'string', example: 'joao@email.com', nullable: true },
-        phone: { type: 'string', example: '11912345678', nullable: true },
-        cpf: { type: 'string', example: '12345678901', nullable: true },
+        type: { type: 'string', example: 'ADULT', enum: ['ADULT', 'CHILD'] },
+        fullName: { type: 'string', example: 'Pedro Ferreira' },
+        birthDate: { type: 'string', format: 'date', example: '2006-03-30' },
+        cpf: { type: 'string', example: '12345678901' },
+        
+        gender: { type: 'string', example: 'Masculino', nullable: true },
+        phone: { type: 'string', example: '11988887777', nullable: true },
+        email: { type: 'string', example: 'paciente@email.com', nullable: true },
+        address: { type: 'string', example: 'Rua das Flores, 123', nullable: true },
+        city: { type: 'string', example: 'São Paulo', nullable: true },
+        diagnosis: { type: 'string', example: 'Avaliação Inicial', nullable: true },
+        
+        responsibleName: { type: 'string', example: 'Maria Souza', nullable: true },
+        responsiblePhone: { type: 'string', example: '11977776666', nullable: true },
+        
+        birthPlace: { type: 'string', example: 'São Paulo - SP', nullable: true },
+        maritalStatus: { type: 'string', example: 'Solteiro', nullable: true },
+        educationLevel: { type: 'string', example: 'Superior Completo', nullable: true },
+        profession: { type: 'string', example: 'Engenheiro', nullable: true },
+        religion: { type: 'string', example: 'Católico', nullable: true },
       },
     },
   })
@@ -57,13 +72,10 @@ export class PatientsController {
       },
     },
   })
-  @ApiResponse({
-    status: 400,
-    description: 'Dados inválidos ou CPF duplicado nesta clínica.',
-  })
+  @ApiResponse({ status: 400, description: 'Dados inválidos ou CPF duplicado nesta clínica.'})
   async create(
     @ActiveClinic() clinicId: string,
-    @Body(new ZodValidationPipe(createPatientSchema)) body: any,
+    @Body(new ZodValidationPipe(createPatientSchema)) body: CreateClinicInput,
   ) {
     return this.patientsService.create(body, clinicId)
   }
@@ -107,7 +119,7 @@ export class PatientsController {
   async update(
     @Param('id') id: string,
     @ActiveClinic() clinicId: string,
-    @Body(new ZodValidationPipe(updatePatientSchema)) body: any,
+    @Body(new ZodValidationPipe(updatePatientSchema)) body: UpdateClinicInput,
   ) {
     return this.patientsService.update(id, clinicId, body)
   }

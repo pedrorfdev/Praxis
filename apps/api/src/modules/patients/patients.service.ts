@@ -1,5 +1,6 @@
 import { Inject, Injectable, NotFoundException } from '@nestjs/common'
 import { PatientsRepository } from './patients.repository'
+import type { UpdatePatientInput } from '@praxis/core/domain'
 
 @Injectable()
 export class PatientsService {
@@ -23,7 +24,7 @@ export class PatientsService {
     return patient
   }
 
-  async update(id: string, clinicId: string, data: any) {
+  async update(id: string, clinicId: string, data: UpdatePatientInput) {
     await this.findOne(id, clinicId)
 
     const updatedPatient = await this.repository.update(id, clinicId, data)
