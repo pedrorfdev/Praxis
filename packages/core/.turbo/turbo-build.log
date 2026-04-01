@@ -11,19 +11,19 @@
 [34mCLI[39m Cleaning output folder
 [34mCJS[39m Build start
 [34mESM[39m Build start
-[32mCJS[39m [1mdist/domain/index.js     [22m[32m7.01 KB[39m
+[32mCJS[39m [1mdist/domain/index.js     [22m[32m6.99 KB[39m
 [32mCJS[39m [1mdist/infra/index.js      [22m[32m5.67 KB[39m
-[32mCJS[39m [1mdist/domain/index.js.map [22m[32m9.87 KB[39m
+[32mCJS[39m [1mdist/domain/index.js.map [22m[32m9.86 KB[39m
 [32mCJS[39m [1mdist/infra/index.js.map  [22m[32m6.34 KB[39m
-[32mCJS[39m ⚡️ Build success in 51ms
+[32mCJS[39m ⚡️ Build success in 50ms
+[32mESM[39m [1mdist/domain/index.mjs     [22m[32m5.05 KB[39m
 [32mESM[39m [1mdist/infra/index.mjs      [22m[32m3.31 KB[39m
-[32mESM[39m [1mdist/domain/index.mjs     [22m[32m5.07 KB[39m
 [32mESM[39m [1mdist/infra/index.mjs.map  [22m[32m6.37 KB[39m
-[32mESM[39m [1mdist/domain/index.mjs.map [22m[32m9.70 KB[39m
+[32mESM[39m [1mdist/domain/index.mjs.map [22m[32m9.69 KB[39m
 [32mESM[39m ⚡️ Build success in 52ms
 DTS Build start
-DTS ⚡️ Build success in 3756ms
-DTS dist/domain/index.d.ts  5.75 KB
+DTS ⚡️ Build success in 3733ms
+DTS dist/domain/index.d.ts  5.83 KB
 DTS dist/infra/index.d.ts   47.33 KB
-DTS dist/domain/index.d.mts 5.75 KB
+DTS dist/domain/index.d.mts 5.83 KB
 DTS dist/infra/index.d.mts  47.33 KB
