@@ -17,7 +17,7 @@ import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { NewPatientDialog } from "@/components/new-patient-dialog";
+import { NewPatientDialog } from "@/components/patients/new-patient-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";

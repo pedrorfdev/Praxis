@@ -21,7 +21,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
-import { NewPatientDialog } from "./new-patient-dialog";
+import { NewPatientDialog } from "./patients/new-patient-dialog";
 import Link from "next/link";
 
 const routeMap: Record<string, string> = {
