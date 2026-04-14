@@ -1,14 +1,14 @@
 "use client";
 
+import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PatternFormat } from "react-number-format";
-import { toast } from "sonner";
-import { Check, CalendarIcon, ArrowLeft } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { ChevronRight, ChevronLeft, Check, CalendarIcon, Loader2 } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { createPatientSchema } from "@praxis/core/domain";
+
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -17,6 +17,9 @@ import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover
 import { Calendar } from "@/components/ui/calendar";
 import { cn } from "@/lib/utils";
 
+const FieldError = ({ message }: { message?: string }) =>
+  message ? <span className="text-xs font-medium text-destructive">{message}</span> : null;
+
 interface PatientFormProps {
   initialData?: any;
   isEditing?: boolean;
@@ -24,10 +27,10 @@ interface PatientFormProps {
   onSubmit: (data: any) => void;
 }
 
-export function PatientForm({ initialData, isEditing }: PatientFormProps) {
-  const router = useRouter();
+export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: PatientFormProps) {
+  const [step, setStep] = useState(1);
 
-  const { control, handleSubmit, watch, formState: { errors } } = useForm<any>({
+  const { control, handleSubmit, watch, trigger, formState: { errors } } = useForm<any>({
     resolver: zodResolver(createPatientSchema),
     defaultValues: initialData || {
       type: "ADULT",
@@ -36,141 +39,257 @@ export function PatientForm({ initialData, isEditing }: PatientFormProps) {
       maritalStatus: "Solteiro(a)",
       educationLevel: "Ensino Médio",
       religion: "Nenhuma",
+      address: "",
+      city: "",
+      birthPlace: "",
+      profession: "",
+      birthDate: "",
     },
   });
 
   const patientType = watch("type");
 
-  const onSubmit = async (data: any) => {
-    try {
-      console.log("Submit Data:", data);
-      toast.success(isEditing ? "Paciente atualizado!" : "Paciente cadastrado!");
-      router.push("/patients");
-    } catch (error) {
-      toast.error("Ocorreu um erro ao salvar.");
-    }
+  const nextStep = async () => {
+    const stepsFields: Record<number, any[]> = {
+      1: ["fullName", "birthDate", "gender", "cpf"],
+      2: ["address", "city", "phone", "birthPlace"],
+      3: ["diagnosis", "religion", "maritalStatus", "educationLevel", "profession", "responsibleName"],
+    };
+    const isValid = await trigger(stepsFields[step]);
+    if (isValid) setStep((s) => s + 1);
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="max-w-5xl mx-auto space-y-8 pb-20">
-      <div className="flex items-center justify-between">
-        <Button variant="ghost" onClick={() => router.back()} className="gap-2">
-          <ArrowLeft className="w-4 h-4" /> Voltar
-        </Button>
-        <Button type="submit" className="bg-secondary text-secondary-foreground px-8 rounded-full font-bold hover:scale-105 transition-all">
-          <Check className="w-4 h-4 mr-2" /> {isEditing ? "Salvar Alterações" : "Concluir Cadastro"}
-        </Button>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between mb-8">
+        <div className="flex gap-2">
+          {[1, 2, 3].map((i) => (
+            <div
+              key={i}
+              className={`h-1.5 w-12 rounded-full transition-all duration-500 ${
+                step >= i ? "bg-secondary" : "bg-muted"
+              }`}
+            />
+          ))}
+        </div>
+        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+          Passo {step} de 3
+        </span>
       </div>
 
-      <div className="bg-card border border-border/40 rounded-[32px] overflow-hidden shadow-sm">
-        <div className="p-8 border-b border-border/40 bg-muted/5">
-          <h2 className="text-2xl font-bold text-primary">Informações do Paciente</h2>
-          <p className="text-muted-foreground text-sm">Preencha os dados básicos para o prontuário.</p>
-        </div>
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        {step === 1 && (
+          <div className="grid gap-6 animate-in fade-in slide-in-from-right-4">
+            <div className="space-y-4">
+              <Label className="text-xs uppercase tracking-widest text-muted-foreground">Tipo de Perfil</Label>
+              <Controller
+                control={control}
+                name="type"
+                render={({ field }) => (
+                  <Tabs onValueChange={field.onChange} value={field.value} className="w-full max-w-md">
+                    <TabsList className="grid grid-cols-2 bg-muted/50">
+                      <TabsTrigger value="ADULT">Adulto</TabsTrigger>
+                      <TabsTrigger value="CHILD">Criança / Adolescente</TabsTrigger>
+                    </TabsList>
+                  </Tabs>
+                )}
+              />
+            </div>
 
-        <div className="p-8 space-y-8">
-          <div className="space-y-4">
-            <Label className="text-xs uppercase tracking-widest text-muted-foreground">Tipo de Perfil</Label>
-            <Controller
-              control={control}
-              name="type"
-              render={({ field }) => (
-                <Tabs onValueChange={field.onChange} value={field.value} className="w-full max-w-md">
-                  <TabsList className="grid grid-cols-2 bg-muted/50">
-                    <TabsTrigger value="ADULT">Adulto</TabsTrigger>
-                    <TabsTrigger value="CHILD">Criança / Adolescente</TabsTrigger>
-                  </TabsList>
-                </Tabs>
-              )}
-            />
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-widest text-muted-foreground">Nome Completo</Label>
               <Controller
                 control={control}
                 name="fullName"
-                render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />}
+                render={({ field }) => <Input className="bg-muted/10 border-none h-12 text-lg" {...field} />}
               />
-              {errors.fullName && <span className="text-xs text-destructive">{errors.fullName.message as string}</span>}
+              <FieldError message={errors.fullName?.message as string} />
             </div>
 
-            <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-widest text-muted-foreground">CPF</Label>
-              <Controller
-                control={control}
-                name="cpf"
-                render={({ field }) => (
-                  <PatternFormat
-                    format="###.###.###-##"
-                    mask="_"
-                    customInput={Input}
-                    className="bg-muted/10 border-none h-12"
-                    onValueChange={(v) => field.onChange(v.value)}
-                    value={field.value}
-                  />
-                )}
-              />
-            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Nascimento</Label>
+                <Controller
+                  control={control}
+                  name="birthDate"
+                  render={({ field }) => (
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start text-left bg-muted/10 border-none h-12 rounded-xl",
+                            !field.value && "text-muted-foreground"
+                          )}
+                        >
+                          <CalendarIcon className="mr-2 h-4 w-4" />
+                          {field.value ? format(new Date(field.value), "PPP", { locale: ptBR }) : "Selecione"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0">
+                        <Calendar
+                          mode="single"
+                          selected={field.value ? new Date(field.value) : undefined}
+                          onSelect={(date) => field.onChange(date?.toISOString())}
+                          locale={ptBR}
+                          captionLayout="dropdown"
+                        />
+                      </PopoverContent>
+                    </Popover>
+                  )}
+                />
+              </div>
 
-            <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-widest text-muted-foreground">Data de Nascimento</Label>
-              <Controller
-                control={control}
-                name="birthDate"
-                render={({ field }) => (
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <Button variant="outline" className={cn("w-full justify-start text-left bg-muted/10 border-none h-12 rounded-xl", !field.value && "text-muted-foreground")}>
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {field.value ? format(new Date(field.value), "PPP", { locale: ptBR }) : "Selecione"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar mode="single" selected={field.value ? new Date(field.value) : undefined} onSelect={(date) => field.onChange(date?.toISOString())} locale={ptBR} />
-                    </PopoverContent>
-                  </Popover>
-                )}
-              />
-            </div>
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Gênero</Label>
+                <Controller control={control} name="gender" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+              </div>
 
-            <div className="space-y-2">
-              <Label className="text-xs uppercase tracking-widest text-muted-foreground">Gênero</Label>
-              <Controller control={control} name="gender" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">CPF</Label>
+                <Controller
+                  control={control}
+                  name="cpf"
+                  render={({ field }) => (
+                    <PatternFormat
+                      format="###.###.###-##"
+                      mask="_"
+                      customInput={Input}
+                      className="bg-muted/10 border-none h-12"
+                      onValueChange={(v) => field.onChange(v.value)}
+                      value={field.value}
+                    />
+                  )}
+                />
+                <FieldError message={errors.cpf?.message as string} />
+              </div>
             </div>
           </div>
+        )}
 
-          <div className="pt-4 border-t border-border/40">
-            <h3 className="text-lg font-bold text-primary mb-6">Localização e Contato</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              <div className="md:col-span-2 space-y-2">
-                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Endereço</Label>
-                <Controller control={control} name="address" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
-              </div>
+        {step === 2 && (
+          <div className="grid gap-6 animate-in fade-in slide-in-from-right-4">
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-widest text-muted-foreground">Endereço Residencial</Label>
+              <Controller control={control} name="address" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Cidade</Label>
                 <Controller control={control} name="city" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
               </div>
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Telefone</Label>
+                <Controller
+                  control={control}
+                  name="phone"
+                  render={({ field }) => (
+                    <PatternFormat
+                      format="(##) #####-####"
+                      mask="_"
+                      customInput={Input}
+                      className="bg-muted/10 border-none h-12"
+                      onValueChange={(v) => field.onChange(v.value)}
+                      value={field.value}
+                    />
+                  )}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Naturalidade</Label>
+                <Controller control={control} name="birthPlace" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+              </div>
             </div>
           </div>
+        )}
 
-          {patientType === "CHILD" && (
-            <div className="p-6 rounded-2xl bg-secondary/5 border border-secondary/10 grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-widest text-secondary font-bold">Responsável Legal</Label>
-                <Controller control={control} name="responsibleName" render={({ field }) => <Input className="bg-background border-none h-12 shadow-sm" {...field} />} />
+        {step === 3 && (
+          <div className="grid gap-6 animate-in fade-in slide-in-from-right-4">
+            {patientType === "ADULT" && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-widest text-muted-foreground">Estado Civil</Label>
+                  <Controller control={control} name="maritalStatus" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-widest text-muted-foreground">Escolaridade</Label>
+                  <Controller control={control} name="educationLevel" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-widest text-muted-foreground">Profissão</Label>
+                  <Controller control={control} name="profession" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-widest text-secondary font-bold">Contato Responsável</Label>
-                <Controller control={control} name="responsiblePhone" render={({ field }) => (
-                  <PatternFormat format="(##) #####-####" mask="_" customInput={Input} className="bg-background border-none h-12 shadow-sm" onValueChange={(v) => field.onChange(v.value)} value={field.value} />
-                )} />
-              </div>
+            )}
+
+            <div className="space-y-2">
+              <Label className="text-xs uppercase tracking-widest text-muted-foreground">Religião</Label>
+              <Controller control={control} name="religion" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
             </div>
+
+            {patientType === "CHILD" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 rounded-2xl bg-secondary/5 border border-secondary/10">
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-widest text-secondary font-bold">Responsável Legal</Label>
+                  <Controller control={control} name="responsibleName" render={({ field }) => <Input className="bg-background border-none h-10 shadow-sm" {...field} />} />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs uppercase tracking-widest text-secondary font-bold">Contato Responsável</Label>
+                  <Controller
+                    control={control}
+                    name="responsiblePhone"
+                    render={({ field }) => (
+                      <PatternFormat
+                        format="(##) #####-####"
+                        mask="_"
+                        customInput={Input}
+                        className="bg-background border-none h-10 shadow-sm"
+                        onValueChange={(v) => field.onChange(v.value)}
+                        value={field.value}
+                      />
+                    )}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        <div className="flex items-center justify-between pt-8 border-t border-border/40">
+          <Button
+            type="button"
+            variant="ghost"
+            onClick={() => setStep(step - 1)}
+            disabled={step === 1 || isLoading}
+            className={step === 1 ? "invisible" : "rounded-full px-6"}
+          >
+            <ChevronLeft className="w-4 h-4 mr-2" /> Voltar
+          </Button>
+
+          {step < 3 ? (
+            <Button
+              type="button"
+              onClick={nextStep}
+              className="rounded-full px-10 bg-primary text-primary-foreground font-semibold hover:scale-105 transition-all"
+            >
+              Próximo <ChevronRight className="w-4 h-4 ml-2" />
+            </Button>
+          ) : (
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="rounded-full px-12 bg-secondary text-secondary-foreground font-bold shadow-xl shadow-secondary/20 transition-all hover:scale-105"
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              ) : (
+                <Check className="w-4 h-4 mr-2" />
+              )}
+              {isEditing ? "Salvar Alterações" : "Concluir Cadastro"}
+            </Button>
           )}
         </div>
-      </div>
-    </form>
+      </form>
+    </div>
   );
 }

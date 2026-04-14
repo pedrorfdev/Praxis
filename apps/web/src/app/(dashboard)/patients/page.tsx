@@ -17,12 +17,10 @@ import { useRouter } from "next/navigation";
 
 import { Input } from "@/components/ui/input";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { NewPatientDialog } from "@/components/patients/new-patient-dialog";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import {
   Table,
   TableBody,
@@ -68,6 +66,7 @@ export default function PatientsPage() {
   const [view, setView] = useState("grid");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const router = useRouter();
 
   const filteredPatients = mockPatients.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()),
@@ -86,8 +85,6 @@ export default function PatientsPage() {
     enabled: true,
   });
 
-  const displayData = mockPatients;
-
   return (
     <div className="flex flex-col gap-8">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
@@ -100,14 +97,12 @@ export default function PatientsPage() {
           </p>
         </div>
 
-        <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
-          <DialogTrigger asChild>
-            <Button className="rounded-full shadow-lg hover:scale-105 transition-all bg-primary text-primary-foreground px-6">
-              <Plus className="w-4 h-4 mr-2" /> Novo Paciente
-            </Button>
-          </DialogTrigger>
-          <NewPatientDialog open={isModalOpen} onOpenChange={setIsModalOpen} />
-        </Dialog>
+        <Button
+          onClick={() => router.push("/patients/new")}
+          className="rounded-full shadow-lg hover:scale-105 transition-all bg-primary text-primary-foreground px-6"
+        >
+          <Plus className="w-4 h-4 mr-2" /> Novo Paciente
+        </Button>
       </div>
 
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-secondary/5 p-2 rounded-2xl border border-border/40">
