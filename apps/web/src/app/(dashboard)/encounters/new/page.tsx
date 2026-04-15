@@ -3,13 +3,26 @@
 import { useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
-  Save, ArrowLeft, CheckCircle2, Loader2, AlertCircle,
-  Clock8, Timer, Banknote, ShieldCheck
+  Save,
+  ArrowLeft,
+  Loader2,
+  Clock8,
+  Timer,
+  Banknote,
+  ShieldCheck,
+  Lock,
+  LockOpen,
+  AlertCircle,
+  CheckCircle2,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import {
-  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
 } from "@/components/ui/select";
 import { useEditor, EditorContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -25,35 +38,39 @@ import { NumericFormat } from "react-number-format";
 import { format, addMinutes, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 
-const CustomTextStyle = TextStyle.extend({
-  addAttributes() {
-    return {
-      ...this.parent?.(),
-      fontSize: {
-        default: null,
-        parseHTML: element => element.style.fontSize,
-        renderHTML: attributes => {
-          if (!attributes.fontSize) return {};
-          return { style: `font-size: ${attributes.fontSize}` };
-        },
-      },
-    };
-  },
-});
-
-export default function SessionFormPage() {
+export default function EncounterPage() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
-  
+
   const sessionId = searchParams.get("id");
   const patientIdFromUrl = searchParams.get("patientId");
 
-  const [selectedPatient, setSelectedPatient] = useState<string | null>(patientIdFromUrl);
+  const [isLocked, setIsLocked] = useState(!!sessionId);
+
+  const CustomTextStyle = TextStyle.extend({
+    addAttributes() {
+      return {
+        ...this.parent?.(),
+        fontSize: {
+          default: null,
+          parseHTML: (element) => element.style.fontSize,
+          renderHTML: (attributes) => {
+            if (!attributes.fontSize) return {};
+            return { style: `font-size: ${attributes.fontSize}` };
+          },
+        },
+      };
+    },
+  });
+
+  const [selectedPatient, setSelectedPatient] = useState<string | null>(
+    patientIdFromUrl,
+  );
   const [startTime, setStartTime] = useState("");
   const [duration, setDuration] = useState("60");
   const [sessionValue, setSessionValue] = useState("");
-  const [insurance, setInsurance] = useState("particular"); // Novo estado
+  const [insurance, setInsurance] = useState("particular");
 
   const { data: existingSession, isLoading: isLoadingSession } = useQuery({
     queryKey: ["session", sessionId],
@@ -66,22 +83,30 @@ export default function SessionFormPage() {
 
   const editor = useEditor({
     extensions: [
-      StarterKit, 
-      CustomTextStyle, 
-      Color, 
-      Placeholder.configure({ placeholder: "Comece a descrever a evolução..." })
+      StarterKit,
+      CustomTextStyle,
+      Color,
+      Placeholder.configure({ placeholder: "Descreva a evolução..." }),
     ],
     immediatelyRender: false,
+    editable: !isLocked,
     editorProps: {
       attributes: {
         class: cn(
-          "prose prose-slate max-w-full focus:outline-none min-h-[650px] p-12 rounded-b-3xl border border-border/40 shadow-inner bg-card leading-relaxed",
+          "prose prose-slate max-w-full focus:outline-none min-h-[600px] p-12 rounded-b-3xl border border-border/40 bg-card leading-relaxed transition-all",
           "text-zinc-200 prose-headings:text-secondary prose-p:text-zinc-300 prose-strong:text-white",
+          isLocked && "opacity-80 grayscale-[0.3] cursor-not-allowed",
         ),
       },
     },
-    content: `<h2>Objetivo da Sessão</h2><p></p><h2>Desenvolvimento / Atividades</h2><p></p><h2>Comportamento e Regulação</h2><p></p><h2>Orientação à Família / Próximos Passos</h2><p></p>`,
+    content: `<h2>Objetivo</h2><p></p><h2>Desenvolvimento</h2><p></p><h2>Comportamento</h2><p></p><h2>Orientações</h2><p></p>`,
   });
+
+  useEffect(() => {
+    if (editor) {
+      editor.setEditable(!isLocked);
+    }
+  }, [isLocked, editor]);
 
   useEffect(() => {
     if (existingSession && editor) {
@@ -95,9 +120,7 @@ export default function SessionFormPage() {
   }, [existingSession, editor]);
 
   useEffect(() => {
-    if (!sessionId) {
-      setStartTime(format(new Date(), "HH:mm"));
-    }
+    if (!sessionId) setStartTime(format(new Date(), "HH:mm"));
   }, [sessionId]);
 
   const endTime = useMemo(() => {
@@ -105,31 +128,35 @@ export default function SessionFormPage() {
     try {
       const referenceDate = parse(startTime, "HH:mm", new Date());
       return format(addMinutes(referenceDate, Number(duration)), "HH:mm");
-    } catch { return "--:--"; }
+    } catch {
+      return "--:--";
+    }
   }, [startTime, duration]);
 
   const { mutate: saveSession, isPending } = useMutation({
     mutationFn: async (payload: any) => {
-      return sessionId 
+      return sessionId
         ? api.put(`/sessions/${sessionId}`, payload)
         : api.post("/sessions", payload);
     },
     onSuccess: () => {
-      toast.success(sessionId ? "Alterações salvas!" : "Atendimento registrado!");
+      toast.success(
+        sessionId ? "Registro atualizado!" : "Atendimento finalizado!",
+      );
       queryClient.invalidateQueries({ queryKey: ["sessions"] });
       router.back();
     },
-    onError: () => toast.error("Erro ao tentar salvar."),
+    onError: () => toast.error("Falha ao salvar."),
   });
 
-  
   const handleComplete = () => {
+    if (isLocked)
+      return toast.error("Desative o modo visualização para salvar.");
     if (!selectedPatient) return toast.error("Selecione um paciente.");
-    
+
     const val = parseFloat(sessionValue);
-    if (isNaN(val) || val < 1 || val > 1000) {
-      return toast.error("O valor da sessão deve estar entre R$ 1,00 e R$ 1.000,00.");
-    }
+    if (isNaN(val) || val < 1 || val > 1000)
+      return toast.error("Valor inválido.");
 
     saveSession({
       patientId: selectedPatient,
@@ -144,48 +171,94 @@ export default function SessionFormPage() {
   };
 
   return (
-    <div className="w-full mx-auto space-y-6 pb-20 px-8 animate-in fade-in duration-700">
-      <header className="flex items-center justify-between sticky top-0 z-20 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 py-5 border-b border-border/20">
+    <div className="w-full mx-auto space-y-6 pb-20 px-8 animate-in fade-in duration-500">
+      <header className="flex items-center justify-between sticky top-0 z-20 bg-background/95 backdrop-blur py-5 border-b border-border/20">
         <div className="flex items-center gap-4">
-          <Button variant="ghost" size="icon" onClick={() => router.back()} className="rounded-full">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => router.back()}
+            className="rounded-full"
+          >
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-primary tracking-tight italic">
-               {sessionId ? "Editar Atendimento" : "Atendimento Clínico"}
+            <h1 className="text-2xl font-bold text-white tracking-tight italic">
+              {sessionId ? "Prontuário Digital" : "Novo Atendimento"}
             </h1>
-            <p className="text-[10px] text-muted-foreground uppercase font-black tracking-[0.2em]">
-              {sessionId ? "Atualização de Prontuário" : "Evolução do Prontuário"}
+            <p className="text-[10px] text-zinc-500 uppercase font-black tracking-[0.2em]">
+              {sessionId ? "Histórico de Evolução" : "Evolução Clínica"}
             </p>
           </div>
         </div>
 
-        <Button onClick={handleComplete} disabled={isPending || isLoadingSession} className="bg-secondary text-secondary-foreground px-10 h-12 rounded-xl font-bold shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-95 transition-all">
-          {isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : <Save className="h-5 w-5 mr-2" />}
-          {sessionId ? "Salvar Alterações" : "Finalizar Atendimento"}
-        </Button>
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => setIsLocked(!isLocked)}
+            className={cn(
+              "rounded-xl border-2 gap-2 font-bold uppercase tracking-widest text-[10px] h-12 px-4 transition-all",
+              isLocked
+                ? "border-zinc-800 text-zinc-500 hover:bg-zinc-800"
+                : "border-secondary/50 text-secondary bg-secondary/5",
+            )}
+          >
+            {isLocked ? (
+              <>
+                <Lock className="w-3.5 h-3.5" /> Modo Visualização
+              </>
+            ) : (
+              <>
+                <LockOpen className="w-3.5 h-3.5" /> Modo Edição
+              </>
+            )}
+          </Button>
+
+          <Button
+            onClick={handleComplete}
+            disabled={isPending || isLoadingSession || isLocked}
+            className="bg-secondary text-secondary-foreground px-10 h-12 rounded-xl font-bold shadow-lg disabled:opacity-30 transition-all"
+          >
+            {isPending ? (
+              <Loader2 className="animate-spin h-5 w-5" />
+            ) : (
+              <Save className="h-5 w-5 mr-2" />
+            )}
+            Finalizar
+          </Button>
+        </div>
       </header>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
-        <aside className="lg:col-span-3 sticky top-[160px] space-y-6">
+        <aside
+          className={cn(
+            "lg:col-span-3 sticky top-[160px] space-y-6",
+            isLocked && "opacity-60 pointer-events-none",
+          )}
+        >
           <div className="space-y-6 p-8 rounded-3xl border border-border/40 bg-card/50 shadow-sm">
             <div className="space-y-3">
               <Label className="text-[11px] uppercase font-black text-muted-foreground tracking-widest italic text-secondary">
                 Paciente Vinculado
               </Label>
-              <PatientSelector selectedId={selectedPatient} onSelect={setSelectedPatient} />
+              <PatientSelector
+                selectedId={selectedPatient}
+                onSelect={setSelectedPatient}
+              />
             </div>
 
             <div className="space-y-4 border-t border-border/20 pt-6">
               <div className="space-y-2">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-2">
-                  <ShieldCheck className="h-3.5 w-3.5 text-secondary" /> Convênio
+                  <ShieldCheck className="h-3.5 w-3.5 text-secondary" />{" "}
+                  Convênio
                 </Label>
                 <Select value={insurance} onValueChange={setInsurance}>
                   <SelectTrigger className="h-12 rounded-xl bg-background border-border/40 font-medium text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-zinc-950 border-zinc-800 text-white font-bold">
                     <SelectItem value="particular">Particular</SelectItem>
                     <SelectItem value="cauzzo">Cauzzo</SelectItem>
                   </SelectContent>
@@ -196,7 +269,12 @@ export default function SessionFormPage() {
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-2">
                   <Clock8 className="h-3.5 w-3.5 text-secondary" /> Início (24h)
                 </Label>
-                <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className="w-full h-12 px-4 rounded-xl bg-background border border-border/40 font-mono text-sm outline-none focus:ring-2 focus:ring-secondary/20 transition-all" />
+                <input
+                  type="time"
+                  value={startTime}
+                  onChange={(e) => setStartTime(e.target.value)}
+                  className="w-full h-12 px-4 rounded-xl bg-background border border-border/40 font-mono text-sm outline-none focus:ring-2 focus:ring-secondary/20 transition-all"
+                />
               </div>
 
               <div className="space-y-2">
@@ -204,65 +282,72 @@ export default function SessionFormPage() {
                   <Timer className="h-3.5 w-3.5 text-secondary" /> Duração
                 </Label>
                 <Select value={duration} onValueChange={setDuration}>
-                  <SelectTrigger className="h-12 rounded-xl bg-background border-border/40 font-medium text-sm"><SelectValue /></SelectTrigger>
-                  <SelectContent>
+                  <SelectTrigger className="h-12 rounded-xl bg-background border-border/40 font-medium text-sm">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-zinc-950 border-zinc-800 text-white font-bold">
                     <SelectItem value="30">30 minutos</SelectItem>
                     <SelectItem value="50">50 minutos</SelectItem>
                     <SelectItem value="60">60 minutos</SelectItem>
-                    <SelectItem value="90">90 minutos</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
 
               <div className="p-4 rounded-2xl bg-secondary/5 border border-secondary/10 group transition-all">
-                <p className="text-[9px] uppercase font-black text-muted-foreground tracking-tighter">Previsão de Término</p>
-                <p className="text-xl font-mono font-black text-secondary tracking-tighter">{endTime}</p>
+                <p className="text-[9px] uppercase font-black text-muted-foreground tracking-tighter">
+                  Previsão de Término
+                </p>
+                <p className="text-xl font-mono font-black text-secondary tracking-tighter">
+                  {endTime}
+                </p>
               </div>
 
               <div className="space-y-2">
                 <Label className="text-[10px] uppercase font-bold text-muted-foreground flex items-center gap-2">
-                  <Banknote className="h-3.5 w-3.5 text-secondary" /> Valor da Sessão
+                  <Banknote className="h-3.5 w-3.5 text-secondary" /> Valor da
+                  Sessão
                 </Label>
-                <NumericFormat 
+                <NumericFormat
                   customInput={(props) => (
-                    <input 
-                      {...props} 
-                      className="w-full h-12 px-4 rounded-xl bg-background border border-border/40 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/20 transition-all" 
+                    <input
+                      {...props}
+                      className="w-full h-12 px-4 rounded-xl bg-background border border-border/40 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/20"
                     />
-                  )} 
-                  thousandSeparator="." 
-                  decimalSeparator="," 
-                  prefix="R$ " 
-                  value={sessionValue} 
+                  )}
+                  thousandSeparator="."
+                  decimalSeparator=","
+                  prefix="R$ "
+                  value={sessionValue}
                   onValueChange={(v) => setSessionValue(v.value)}
-                  isAllowed={(values) => {
-                    const { floatValue } = values;
-                    return floatValue === undefined || (floatValue >= 0 && floatValue <= 1000);
-                  }}
+                  isAllowed={(values) =>
+                    values.floatValue === undefined || values.floatValue <= 1000
+                  }
                 />
                 <p className="text-[9px] text-muted-foreground italic leading-tight ml-1">
                   Limite: R$ 1,00 a R$ 1.000,00
                 </p>
               </div>
-
             </div>
           </div>
 
           <div className="p-5 rounded-2xl bg-secondary/5 border border-secondary/10 flex gap-4 items-center">
             <CheckCircle2 className="h-5 w-5 text-secondary shrink-0" />
-            <span className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">Draft Auto-save</span>
+            <span className="text-[10px] text-muted-foreground font-black uppercase tracking-wider">
+              Draft Auto-save
+            </span>
           </div>
         </aside>
 
         <div className="lg:col-span-9 space-y-4">
-          <EditorMenuBar editor={editor} />
-          <EditorContent editor={editor} />
-          
-          <div className="flex items-center gap-2 px-2 py-4 text-muted-foreground/60 border-t border-border/10">
-            <AlertCircle className="h-4 w-4" />
-            <span className="text-[10px] font-medium italic leading-relaxed">
-              Sistema de prontuário em conformidade com as normas vigentes.
-            </span>
+          {!isLocked && <EditorMenuBar editor={editor} />}
+          <div className={cn("relative transition-all", isLocked && "mt-0")}>
+            <EditorContent editor={editor} />
+            {isLocked && (
+              <div
+                className="absolute inset-0 z-10 cursor-not-allowed"
+                title="Modo visualização ativado"
+              />
+            )}
           </div>
         </div>
       </div>

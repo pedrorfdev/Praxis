@@ -2,35 +2,15 @@
 
 import { Editor } from "@tiptap/react";
 import {
-  Bold,
-  Italic,
-  List,
-  ListOrdered,
-  Heading1,
-  Heading2,
-  Quote,
-  Undo,
-  Redo,
-  Palette,
-  Type,
+  Bold, Italic, List, ListOrdered, Heading1, Heading2,
+  Quote, Undo, Redo, Palette, Type, Baseline
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { cn } from "@/lib/utils";
-import { Label } from "./ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "./ui/select";
-import { useEffect, useState } from "react";
+import { Label } from "@/components/ui/label";
+import { useEffect, useState, useCallback } from "react";
 
 const colors = [
   { name: "Preto", color: "#000000" },
@@ -41,29 +21,27 @@ const colors = [
   { name: "Roxo", color: "#9333ea" },
 ];
 
-
 export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
   if (!editor) return null;
+  
   const [activeSize, setActiveSize] = useState("16px");
 
-  const currentColor = editor.getAttributes("textStyle").color || "#000000";
+  // Atualiza o label do tamanho da fonte baseado na seleção atual
+  const updateLabel = useCallback(() => {
+    const attrs = editor.getAttributes("textStyle");
+    setActiveSize(attrs.fontSize || "16px");
+  }, [editor]);
 
   useEffect(() => {
-    if (!editor) return;
-    
-    const updateLabel = () => {
-      const size = editor.getAttributes("textStyle").fontSize || "16px";
-      setActiveSize(size);
-    };
-
     editor.on("selectionUpdate", updateLabel);
     editor.on("transaction", updateLabel);
-
     return () => {
       editor.off("selectionUpdate", updateLabel);
       editor.off("transaction", updateLabel);
     };
-  }, [editor]);
+  }, [editor, updateLabel]);
+
+  const currentColor = editor.getAttributes("textStyle").color || "#000000";
 
   const toggleAction = (callback: () => void) => (e: React.MouseEvent) => {
     e.preventDefault();
@@ -71,196 +49,154 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 p-2 bg-secondary/5 border border-border/40 rounded-t-3xl border-b-0 sticky top-[73px] z-10 backdrop-blur-sm">
-     <div className="flex items-center gap-1 bg-background p-1 rounded-xl shadow-inner border border-border/20">
+    <div className="flex flex-wrap items-center gap-1.5 p-2 bg-zinc-900/50 border border-white/5 rounded-t-3xl border-b-0 sticky top-[73px] z-10 backdrop-blur-sm">
+      
+      {/* SELETOR DE TAMANHO DE FONTE */}
+      <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 shadow-inner">
         <Popover>
-        <PopoverTrigger asChild>
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            className="h-8 min-w-[75px] justify-between px-3 bg-secondary/10 hover:bg-secondary/20"
-          >
-            <span className="text-[11px] font-bold font-mono text-primary">
-              {activeSize}
-            </span>
-            <Type className="h-3 w-3 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        
-        <PopoverContent className="w-[100px] p-1 bg-background border-border/40 shadow-2xl z-[60]" align="start">
-          <div className="flex flex-col gap-0.5">
-            {["12px", "14px", "16px", "18px", "24px", "32px"].map((size) => (
-              <Button
-                key={size}
-                variant="ghost"
-                size="sm"
-                className={cn(
-                  "h-8 justify-start font-mono text-xs",
-                  activeSize === size && "bg-secondary/20 text-secondary"
-                )}
-                onClick={() => {
-                  editor.chain().focus().setMark("textStyle", { fontSize: size }).run();
-                  setActiveSize(size);
-                }}
-              >
-                {size}
-              </Button>
-            ))}
-          </div>
-        </PopoverContent>
-      </Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 min-w-[85px] justify-between px-3 hover:bg-white/5 text-secondary"
+            >
+              <span className="text-[11px] font-black font-mono">
+                {activeSize}
+              </span>
+              <Type className="h-3 w-3 opacity-50 ml-2" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-[120px] p-1 bg-zinc-950 border-white/10 shadow-2xl z-[60]" align="start">
+            <div className="flex flex-col gap-0.5">
+              {["12px", "14px", "16px", "18px", "20px", "24px", "32px"].map((size) => (
+                <Button
+                  key={size}
+                  variant="ghost"
+                  size="sm"
+                  className={cn(
+                    "h-8 justify-start font-mono text-xs text-zinc-400 hover:text-white hover:bg-white/5",
+                    activeSize === size && "bg-secondary/20 text-secondary font-black"
+                  )}
+                  onClick={() => {
+                    editor.chain().focus().setMark("textStyle", { fontSize: size }).run();
+                    setActiveSize(size);
+                  }}
+                >
+                  {size}
+                </Button>
+              ))}
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
-      <Separator orientation="vertical" className="h-6 bg-border/40" />
+      <Separator orientation="vertical" className="h-6 bg-white/5" />
 
-      <div className="flex items-center gap-1 bg-background p-1 rounded-xl shadow-inner border border-border/20">
+      {/* ESTILOS BÁSICOS */}
+      <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 shadow-inner">
         <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleAction(() =>
-            editor.chain().focus().toggleBold().run(),
-          )}
-          className={cn(
-            "h-8 w-8 p-0",
-            editor.isActive("bold") && "bg-secondary/15 text-secondary",
-          )}
+          variant="ghost" size="sm"
+          onClick={toggleAction(() => editor.chain().focus().toggleBold().run())}
+          className={cn("h-8 w-8 p-0", editor.isActive("bold") && "bg-secondary/15 text-secondary")}
         >
           <Bold className="h-4 w-4" />
         </Button>
         <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleAction(() =>
-            editor.chain().focus().toggleItalic().run(),
-          )}
-          className={cn(
-            "h-8 w-8 p-0",
-            editor.isActive("italic") && "bg-secondary/15 text-secondary",
-          )}
+          variant="ghost" size="sm"
+          onClick={toggleAction(() => editor.chain().focus().toggleItalic().run())}
+          className={cn("h-8 w-8 p-0", editor.isActive("italic") && "bg-secondary/15 text-secondary")}
         >
           <Italic className="h-4 w-4" />
         </Button>
 
+        {/* COR DO TEXTO */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 relative">
-              <Palette className="h-4 w-4" />
+              <Baseline className="h-4 w-4" />
               <div
-                className="absolute bottom-1 right-1 h-1.5 w-1.5 rounded-full border border-background shadow-xs"
+                className="absolute bottom-1 right-1 h-1 w-3 rounded-full border border-zinc-950"
                 style={{ backgroundColor: currentColor }}
               />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-52 p-3 space-y-3" align="start">
-            <Label className="text-[10px] uppercase font-bold text-muted-foreground">
-              Paleta Padrão
-            </Label>
+          <PopoverContent className="w-52 p-3 space-y-3 bg-zinc-950 border-white/10" align="start">
+            <Label className="text-[10px] uppercase font-black text-zinc-500 tracking-widest">Cores de Destaque</Label>
             <div className="grid grid-cols-5 gap-1.5">
               {colors.map((c) => (
                 <button
                   key={c.color}
                   onClick={() => editor.chain().focus().setColor(c.color).run()}
-                  className="h-7 w-7 rounded-md border border-border/40 transition-transform hover:scale-110 shadow-sm"
+                  className="h-7 w-7 rounded-lg border border-white/10 transition-transform hover:scale-110"
                   style={{ backgroundColor: c.color }}
                 />
               ))}
             </div>
-
-            <Separator className="bg-border/40" />
-
-            <div className="space-y-3">
-              <Label className="text-[10px] uppercase font-bold text-muted-foreground tracking-widest">
-                Cor Personalizada
-              </Label>
-
-              <div className="flex items-center gap-3">
-                <div className="relative group cursor-pointer">
-                  <div
-                    className="h-10 w-10 rounded-xl border-2 border-background shadow-lg ring-1 ring-border/50 transition-transform group-hover:scale-110 active:scale-95"
-                    style={{ backgroundColor: currentColor }}
-                  />
-
-                  <input
-                    type="color"
-                    value={currentColor}
-                    onChange={(e) =>
-                      editor.chain().focus().setColor(e.target.value).run()
-                    }
-                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
-                  />
-                </div>
-
-                <div className="flex-1 flex flex-col justify-center px-4 h-10 bg-secondary/5 rounded-xl border border-border/40">
-                  <span className="text-[10px] text-muted-foreground font-bold uppercase leading-none mb-1">
-                    Hex Code
-                  </span>
-                  <span className="text-xs font-mono font-black text-primary uppercase tracking-tighter">
-                    {currentColor}
-                  </span>
-                </div>
-              </div>
-            </div>
-
             <Button
-              variant="outline"
-              size="sm"
-              className="w-full h-8 text-[10px] uppercase font-bold"
+              variant="outline" size="sm"
+              className="w-full h-8 text-[10px] uppercase font-black border-white/5 hover:bg-white/5"
               onClick={() => editor.chain().focus().unsetColor().run()}
             >
-              Remover Cor
+              Resetar Cor
             </Button>
           </PopoverContent>
         </Popover>
       </div>
 
-      <Separator orientation="vertical" className="h-6 bg-border/40" />
+      <Separator orientation="vertical" className="h-6 bg-white/5" />
 
-      <div className="flex items-center gap-1 bg-background p-1 rounded-xl shadow-inner border border-border/20">
+      {/* BLOCOS E LISTAS */}
+      <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 shadow-inner">
         <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleAction(() =>
-            editor.chain().focus().toggleHeading({ level: 1 }).run(),
-          )}
-          className={cn(
-            "h-8 w-8 p-0",
-            editor.isActive("heading", { level: 1 }) &&
-              "bg-secondary/15 text-secondary",
-          )}
+          variant="ghost" size="sm"
+          onClick={toggleAction(() => editor.chain().focus().toggleHeading({ level: 1 }).run())}
+          className={cn("h-8 w-8 p-0", editor.isActive("heading", { level: 1 }) && "bg-secondary/15 text-secondary")}
         >
           <Heading1 className="h-4 w-4" />
         </Button>
+        
         <Button
-          variant="ghost"
-          size="sm"
-          onClick={toggleAction(() =>
-            editor.chain().focus().toggleBulletList().run(),
-          )}
-          className={cn(
-            "h-8 w-8 p-0",
-            editor.isActive("bulletList") && "bg-secondary/15 text-secondary",
-          )}
+          variant="ghost" size="sm"
+          onClick={toggleAction(() => editor.chain().focus().toggleBulletList().run())}
+          className={cn("h-8 w-8 p-0", editor.isActive("bulletList") && "bg-secondary/15 text-secondary")}
         >
           <List className="h-4 w-4" />
         </Button>
+
+        {/* LISTA ORDENADA - ADICIONADO */}
+        <Button
+          variant="ghost" size="sm"
+          onClick={toggleAction(() => editor.chain().focus().toggleOrderedList().run())}
+          className={cn("h-8 w-8 p-0", editor.isActive("orderedList") && "bg-secondary/15 text-secondary")}
+        >
+          <ListOrdered className="h-4 w-4" />
+        </Button>
+
+        {/* CITAÇÃO / QUOTE - ADICIONADO */}
+        <Button
+          variant="ghost" size="sm"
+          onClick={toggleAction(() => editor.chain().focus().toggleBlockquote().run())}
+          className={cn("h-8 w-8 p-0", editor.isActive("blockquote") && "bg-secondary/15 text-secondary")}
+        >
+          <Quote className="h-4 w-4" />
+        </Button>
       </div>
 
-      <div className="flex items-center gap-1 ml-auto bg-background p-1 rounded-xl shadow-inner border border-border/20">
+      {/* UNDO / REDO */}
+      <div className="flex items-center gap-1 ml-auto bg-zinc-950 p-1 rounded-xl border border-white/5 shadow-inner">
         <Button
-          variant="ghost"
-          size="sm"
+          variant="ghost" size="sm"
           onClick={toggleAction(() => editor.chain().focus().undo().run())}
           disabled={!editor.can().undo()}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 opacity-50 disabled:opacity-20"
         >
           <Undo className="h-4 w-4" />
         </Button>
         <Button
-          variant="ghost"
-          size="sm"
+          variant="ghost" size="sm"
           onClick={toggleAction(() => editor.chain().focus().redo().run())}
           disabled={!editor.can().redo()}
-          className="h-8 w-8 p-0"
+          className="h-8 w-8 p-0 opacity-50 disabled:opacity-20"
         >
           <Redo className="h-4 w-4" />
         </Button>
