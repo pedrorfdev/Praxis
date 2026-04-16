@@ -5,21 +5,20 @@ import { format, isYesterday, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { History, Search, ChevronRight, FileText } from "lucide-react";
 import { Input } from "@/components/ui/input";
-
-const mockActivities = [
-  { id: "1", patientName: "Ana Clara Silva", date: "2026-04-13T14:30:00" },
-  { id: "2", patientName: "João Pedro Santos", date: "2026-04-13T10:00:00" },
-  { id: "3", patientName: "Beatriz Oliveira", date: "2026-04-12T16:00:00" },
-  { id: "4", patientName: "Ricardo Menezes", date: "2026-04-11T09:00:00" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { listActivities } from "@/services/frontend-data";
 
 export default function ActivityPage() {
   const [search, setSearch] = useState("");
+  const { data: activities = [] } = useQuery({
+    queryKey: ["activities"],
+    queryFn: listActivities,
+  });
 
   const normalizeString = (str: string) =>
     str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-  const filteredActivities = mockActivities.filter((activity) =>
+  const filteredActivities = activities.filter((activity) =>
     normalizeString(activity.patientName).includes(normalizeString(search))
   );
 

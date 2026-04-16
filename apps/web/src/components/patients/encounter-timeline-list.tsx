@@ -9,96 +9,72 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useQuery } from "@tanstack/react-query";
+import { listEncounters } from "@/services/frontend-data";
 
 interface EncounterTimelineListProps {
-  limit?: number; // Prop opcional para limitar a exibição
+  limit?: number;
 }
-
-const mockEncounters = [
-  {
-    id: "1",
-    date: "21 Março, 2026",
-    duration: "50min",
-    content: "Paciente apresentou boa regulação sensorial hoje. Trabalhamos atividades de motricidade fina com foco em pinça. Demonstrou resistência inicial, mas finalizou a tarefa com suporte verbal."
-  },
-  {
-    id: "2",
-    date: "14 Março, 2026",
-    duration: "45min",
-    content: "Sessão focada em interação social. João conseguiu manter contato visual por períodos mais longos durante a atividade lúdica com blocos."
-  },
-  {
-    id: "3",
-    date: "07 Março, 2026",
-    duration: "60min",
-    content: "Análise de comportamento em ambiente controlado. O paciente respondeu bem aos estímulos visuais, porém apresentou fadiga nos últimos 15 minutos."
-  },
-  {
-    id: "4",
-    date: "28 Fevereiro, 2026",
-    duration: "50min",
-    content: "Sessão de anamnese com os responsáveis e observação lúdica inicial."
-  }
-];
 
 export function EncounterTimelineList({ limit }: EncounterTimelineListProps) {
   const router = useRouter();
+  const { data: encounters = [] } = useQuery({
+    queryKey: ["encounters-timeline"],
+    queryFn: listEncounters,
+  });
 
-  // Se houver limite, corta o array. Se não, mostra tudo.
-  const displayedEncounters = limit ? mockEncounters.slice(0, limit) : mockEncounters;
+  const displayedEncounters = limit ? encounters.slice(0, limit) : encounters;
 
   return (
     <div className="relative pl-8 sm:pl-12 space-y-10">
-      {/* Linha vertical da Timeline */}
-      <div className="absolute left-[15px] sm:left-[23px] top-4 bottom-4 w-[2px] bg-gradient-to-b from-secondary/50 via-secondary/20 to-transparent shadow-[0_0_10px_rgba(var(--secondary),0.1)]" />
+      {/* Linha vertical */}
+      <div className="absolute left-[15px] sm:left-[23px] top-4 bottom-4 w-[2px] bg-gradient-to-b from-secondary/40 via-secondary/15 to-transparent" />
 
       <div className="space-y-12">
         {displayedEncounters.map((encounter) => (
-          <div 
-            key={encounter.id} 
+          <div
+            key={encounter.id}
             className="relative group animate-in slide-in-from-left-4 duration-500"
           >
-            {/* Indicador Visual (Bolinha) */}
+            {/* Bolinha da timeline */}
             <div className="absolute left-[-17px] sm:left-[-25px] top-7 -translate-x-1/2 flex items-center justify-center">
-              <div className="absolute h-8 w-8 rounded-full bg-secondary/5 group-hover:bg-secondary/15 transition-all duration-500 blur-sm" />
-              <div className="relative h-5 w-5 rounded-full border-2 border-secondary/40 bg-background flex items-center justify-center group-hover:border-secondary transition-colors duration-300">
-                <div className="h-2 w-2 rounded-full bg-secondary shadow-[0_0_8px_rgba(var(--secondary),0.6)] group-hover:scale-110 transition-transform" />
+              <div className="relative h-5 w-5 rounded-full border-2 border-secondary/50 bg-background flex items-center justify-center group-hover:border-secondary transition-colors duration-300">
+                <div className="h-2 w-2 rounded-full bg-secondary group-hover:scale-110 transition-transform" />
               </div>
             </div>
 
-            {/* Card do Encontro */}
-            <div className="bg-[#0A0C10]/60 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-6 sm:p-8 shadow-2xl hover:border-secondary/30 transition-all duration-500 group/card">
+            {/* Card */}
+            <div className="bg-card border border-border rounded-[2.5rem] p-6 sm:p-8 shadow-sm hover:border-secondary/40 hover:shadow-md transition-all duration-500">
               <div className="flex items-center justify-between mb-6">
                 <div className="flex flex-col gap-1">
-                  <span className="text-[10px] font-black text-secondary bg-secondary/10 px-3 py-1 rounded-full uppercase tracking-[0.2em] border border-secondary/20 w-fit">
+                  <span className="text-[10px] font-black text-secondary bg-secondary/10 px-3 py-1 rounded-full uppercase tracking-[0.2em] border border-secondary/25 w-fit">
                     {encounter.date}
                   </span>
-                  <span className="text-[11px] text-zinc-500 font-medium italic mt-1 ml-1">
+                  <span className="text-[11px] text-muted-foreground font-medium italic mt-1 ml-1">
                     Duração: {encounter.duration}
                   </span>
                 </div>
-                
-                {/* Dropdown de Ações */}
+
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button 
-                      variant="ghost" 
-                      size="icon" 
+                    <Button
+                      variant="ghost"
+                      size="icon"
                       className="h-10 w-10 rounded-2xl shrink-0 hover:bg-secondary/10 hover:text-secondary text-muted-foreground transition-all"
                     >
                       <MoreVertical className="h-5 w-5" />
                     </Button>
                   </DropdownMenuTrigger>
-                  
-                  <DropdownMenuContent 
-                    align="end" 
-                    className="w-48 bg-zinc-950 border-zinc-800 rounded-2xl p-2 shadow-2xl"
+
+                  <DropdownMenuContent
+                    align="end"
+                    className="w-48 rounded-2xl p-2"
                   >
-                    <DropdownMenuItem 
+                    <DropdownMenuItem
                       onClick={() => router.push(`/encounters/new?id=${encounter.id}`)}
-                      className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-white/5 focus:bg-white/5 transition-colors group/item text-white"
+                      className="flex items-center gap-3 p-3 rounded-xl cursor-pointer group/item"
                     >
-                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10 text-secondary group-hover/item:bg-secondary group-hover/item:text-white transition-all">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10 text-secondary group-hover/item:bg-secondary group-hover/item:text-secondary-foreground transition-all">
                         <Pencil className="h-4 w-4" />
                       </div>
                       <span className="text-sm font-bold">Editar registro</span>
@@ -107,7 +83,7 @@ export function EncounterTimelineList({ limit }: EncounterTimelineListProps) {
                 </DropdownMenu>
               </div>
 
-              <p className="text-[15px] sm:text-[16px] text-zinc-200 leading-relaxed font-medium tracking-tight">
+              <p className="text-[15px] sm:text-[16px] text-foreground leading-relaxed font-medium tracking-tight">
                 {encounter.content}
               </p>
             </div>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useMemo } from "react";
+import { Suspense, useState, useEffect, useMemo } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import {
   Save,
@@ -38,7 +38,7 @@ import { NumericFormat } from "react-number-format";
 import { format, addMinutes, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 
-export default function EncounterPage() {
+function EncounterPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -111,10 +111,11 @@ export default function EncounterPage() {
   useEffect(() => {
     if (existingSession && editor) {
       setSelectedPatient(existingSession.patientId);
-      setStartTime(existingSession.startTime);
+      setStartTime(format(new Date(existingSession.startAt), "HH:mm"));
       setDuration(String(existingSession.durationInMinutes));
-      setSessionValue(String(existingSession.price));
-      setInsurance(existingSession.insurance || "particular");
+      setInsurance(
+        existingSession.billingType === "SUBSIDIZED" ? "cauzzo" : "particular",
+      );
       editor.commands.setContent(existingSession.content);
     }
   }, [existingSession, editor]);
@@ -136,7 +137,7 @@ export default function EncounterPage() {
   const { mutate: saveSession, isPending } = useMutation({
     mutationFn: async (payload: any) => {
       return sessionId
-        ? api.put(`/sessions/${sessionId}`, payload)
+        ? api.patch(`/sessions/${sessionId}`, payload)
         : api.post("/sessions", payload);
     },
     onSuccess: () => {
@@ -154,18 +155,12 @@ export default function EncounterPage() {
       return toast.error("Desative o modo visualização para salvar.");
     if (!selectedPatient) return toast.error("Selecione um paciente.");
 
-    const val = parseFloat(sessionValue);
-    if (isNaN(val) || val < 1 || val > 1000)
-      return toast.error("Valor inválido.");
-
     saveSession({
       patientId: selectedPatient,
       content: editor?.getHTML(),
-      startTime,
-      endTime,
+      startAt: new Date().toISOString(),
       durationInMinutes: Number(duration),
-      price: val,
-      insurance,
+      billingType: insurance === "cauzzo" ? "SUBSIDIZED" : "PRIVATE",
       status: "completed",
     });
   };
@@ -352,5 +347,13 @@ export default function EncounterPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function EncounterPage() {
+  return (
+    <Suspense fallback={<div className="p-8 text-sm text-muted-foreground">Carregando atendimento...</div>}>
+      <EncounterPageContent />
+    </Suspense>
   );
 }

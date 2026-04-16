@@ -3,7 +3,7 @@
 > @praxis/core@0.0.1 build /home/pedro/dev/praxis/packages/core
 > tsup src/index.ts src/domain/index.ts src/infra/index.ts --format cjs,esm --dts --clean
 
-[34mCLI[39m Building entry: src/domain/index.ts, src/infra/index.ts
+[34mCLI[39m Building entry: src/index.ts, src/domain/index.ts, src/infra/index.ts
 [34mCLI[39m Using tsconfig: tsconfig.json
 [34mCLI[39m tsup v8.5.1
 [34mCLI[39m Using tsup config: /home/pedro/dev/praxis/packages/core/tsup.config.ts
@@ -11,19 +11,29 @@
 [34mCLI[39m Cleaning output folder
 [34mCJS[39m Build start
 [34mESM[39m Build start
-[32mESM[39m [1mdist/domain/index.mjs     [22m[32m5.05 KB[39m
-[32mESM[39m [1mdist/infra/index.mjs      [22m[32m3.31 KB[39m
-[32mESM[39m [1mdist/domain/index.mjs.map [22m[32m9.69 KB[39m
-[32mESM[39m [1mdist/infra/index.mjs.map  [22m[32m6.37 KB[39m
-[32mESM[39m ⚡️ Build success in 90ms
+[32mESM[39m [1mdist/index.mjs              [22m[32m594.00 B[39m
+[32mESM[39m [1mdist/domain/index.mjs       [22m[32m487.00 B[39m
+[32mESM[39m [1mdist/chunk-YGQ3ADX5.mjs     [22m[32m5.06 KB[39m
+[32mESM[39m [1mdist/infra/index.mjs        [22m[32m154.00 B[39m
+[32mESM[39m [1mdist/chunk-A42XS5JA.mjs     [22m[32m3.31 KB[39m
+[32mESM[39m [1mdist/index.mjs.map          [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/domain/index.mjs.map   [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/chunk-YGQ3ADX5.mjs.map [22m[32m9.68 KB[39m
+[32mESM[39m [1mdist/infra/index.mjs.map    [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/chunk-A42XS5JA.mjs.map [22m[32m6.35 KB[39m
+[32mESM[39m ⚡️ Build success in 154ms
+[32mCJS[39m [1mdist/infra/index.js      [22m[32m5.71 KB[39m
 [32mCJS[39m [1mdist/domain/index.js     [22m[32m6.99 KB[39m
-[32mCJS[39m [1mdist/infra/index.js      [22m[32m5.67 KB[39m
-[32mCJS[39m [1mdist/domain/index.js.map [22m[32m9.86 KB[39m
-[32mCJS[39m [1mdist/infra/index.js.map  [22m[32m6.34 KB[39m
-[32mCJS[39m ⚡️ Build success in 91ms
+[32mCJS[39m [1mdist/infra/index.js.map  [22m[32m6.39 KB[39m
+[32mCJS[39m [1mdist/domain/index.js.map [22m[32m9.81 KB[39m
+[32mCJS[39m [1mdist/index.js            [22m[32m11.67 KB[39m
+[32mCJS[39m [1mdist/index.js.map        [22m[32m15.91 KB[39m
+[32mCJS[39m ⚡️ Build success in 157ms
 DTS Build start
-DTS ⚡️ Build success in 4624ms
+DTS ⚡️ Build success in 8183ms
+DTS dist/index.d.ts         541.00 B
 DTS dist/domain/index.d.ts  5.83 KB
-DTS dist/infra/index.d.ts   47.33 KB
+DTS dist/infra/index.d.ts   47.34 KB
+DTS dist/index.d.mts        543.00 B
 DTS dist/domain/index.d.mts 5.83 KB
-DTS dist/infra/index.d.mts  47.33 KB
+DTS dist/infra/index.d.mts  47.34 KB

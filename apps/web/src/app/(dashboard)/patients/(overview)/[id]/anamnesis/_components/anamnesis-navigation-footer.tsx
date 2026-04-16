@@ -2,10 +2,10 @@
 
 import { ChevronLeft, ChevronRight, Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { ANAMNESIS_STEPS, useAnamnesisNav } from "./anamnesis-provider";
+import { ANAMNESIS_STEPS, useAnamnesis } from "./anamnesis-provider";
 
 export function AnamnesisNavigationFooter() {
-  const { currentStep, setStep } = useAnamnesisNav();
+  const { currentStep, setStep } = useAnamnesis();
 
   const currentIndex = ANAMNESIS_STEPS.indexOf(currentStep);
   const isFirstStep = currentIndex === 0;

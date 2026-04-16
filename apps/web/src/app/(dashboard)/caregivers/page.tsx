@@ -20,42 +20,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-
-const mockCaregivers = [
-  {
-    id: "1",
-    name: "Mariana Silva",
-    document: "123.456.789-00",
-    kinship: "Mãe",
-    phone: "(11) 98888-7777",
-    patientCount: 2,
-  },
-  {
-    id: "2",
-    name: "Roberto Santos",
-    document: "987.654.321-11",
-    kinship: "Pai",
-    phone: "(21) 95555-4444",
-    patientCount: 1,
-  },
-  {
-    id: "3",
-    name: "Ana Oliveira",
-    document: "111.222.333-44",
-    kinship: "Tia",
-    phone: "(31) 97777-6666",
-    patientCount: 0,
-  },
-  {
-    id: "4",
-    name: "Dr. Marcos Paulo",
-    document: "555.666.777-88",
-    kinship: "Cuidador Profissional",
-    phone: "(11) 91234-5678",
-    patientCount: 5,
-  },
-];
+import { listCaregivers } from "@/services/frontend-data";
 
 export default function CaregiversPage() {
   const [view, setView] = useState("grid");
@@ -64,10 +29,7 @@ export default function CaregiversPage() {
 
   const { data: caregivers = [], isLoading } = useQuery({
     queryKey: ["caregivers"],
-    queryFn: async () => {
-      const response = await api.get("/caregivers");
-      return response.data;
-    },
+    queryFn: listCaregivers,
   });
 
   const filteredCaregivers = caregivers.filter((c: any) => {
@@ -86,10 +48,10 @@ export default function CaregiversPage() {
     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
-          <h1 className="text-4xl font-black tracking-tight text-white flex items-center gap-3">
+          <h1 className="text-4xl font-black tracking-tight text-primary flex items-center gap-3">
             Cuidadores
           </h1>
-          <p className="text-zinc-500 italic">
+          <p className="text-muted-foreground italic">
             Gerencie os responsáveis e contatos de emergência.
           </p>
         </div>
@@ -102,21 +64,25 @@ export default function CaregiversPage() {
         </Button>
       </div>
 
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-zinc-900/50 p-3 rounded-[2rem] border border-white/5">
-        <div className="relative w-full sm:max-w-md">
-          <Search className="absolute left-4 top-1/2 h-4 w-4 -translate-y-1/2 text-zinc-500" />
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between bg-secondary/5 p-2 rounded-2xl border border-border/40">
+        <div className="relative w-full sm:max-w-xs">
+          <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Busque por nome, CPF ou WhatsApp..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="pl-12 bg-zinc-950 border-zinc-800 h-12 rounded-xl focus-visible:ring-secondary/50"
+            className="pl-10 bg-background border-none shadow-none focus-visible:ring-1 focus-visible:ring-secondary/50"
           />
         </div>
 
         <Tabs value={view} onValueChange={setView} className="w-fit">
-          <TabsList className="bg-zinc-950 border border-zinc-800 p-1 h-12 rounded-xl">
-            <TabsTrigger value="grid" className="rounded-lg data-[state=active]:bg-zinc-800"><LayoutGrid className="h-4 w-4" /></TabsTrigger>
-            <TabsTrigger value="list" className="rounded-lg data-[state=active]:bg-zinc-800"><List className="h-4 w-4" /></TabsTrigger>
+          <TabsList className="bg-background border border-border/50">
+            <TabsTrigger value="grid" className="gap-2">
+              <LayoutGrid className="h-4 w-4" /> Cards
+            </TabsTrigger>
+            <TabsTrigger value="list" className="gap-2">
+              <List className="h-4 w-4" /> Lista
+            </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
@@ -131,13 +97,13 @@ export default function CaregiversPage() {
       <Tabs value={view} className="w-full">
         <TabsContent value="grid" className="mt-0 outline-none">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-            {mockCaregivers.map((caregiver: any) => (
+            {filteredCaregivers.map((caregiver) => (
               <CaregiverCard key={caregiver.id} caregiver={caregiver} />
             ))}
           </div>
         </TabsContent>
         <TabsContent value="list" className="mt-0 outline-none">
-          <CaregiverList caregivers={mockCaregivers} />
+          <CaregiverList caregivers={filteredCaregivers} />
         </TabsContent>
       </Tabs>
     </div>
@@ -149,11 +115,19 @@ function CaregiverCard({ caregiver }: { caregiver: any }) {
   const initials = caregiver.name.split(" ").filter(Boolean).map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
   return (
-    <Card className="group border-zinc-800 bg-zinc-900/30 hover:bg-zinc-900/60 hover:border-secondary/30 transition-all duration-300 rounded-[2rem] overflow-hidden relative border-b-4 border-b-transparent hover:border-b-secondary">
+    <Card
+      onClick={() => router.push(`/caregivers/${caregiver.id}`)}
+      className="group border border-border/40 bg-card/50 rounded-[2rem] shadow-sm hover:border-secondary/30 hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden relative"
+    >
       <div className="absolute top-4 right-4 z-10">
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
-            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full hover:bg-zinc-800">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={(e) => e.stopPropagation()}
+              className="h-8 w-8 rounded-full hover:bg-zinc-800"
+            >
               <MoreVertical className="h-4 w-4 text-zinc-500" />
             </Button>
           </DropdownMenuTrigger>
@@ -169,36 +143,36 @@ function CaregiverCard({ caregiver }: { caregiver: any }) {
       </div>
 
       <CardHeader className="flex flex-col items-center text-center pt-8 pb-4">
-        <Avatar className="h-20 w-20 border-4 border-zinc-800 group-hover:border-secondary/20 transition-all">
-          <AvatarFallback className="bg-zinc-800 text-zinc-400 font-black text-xl">
+        <Avatar className="h-20 w-20 border-4 border-secondary/20">
+          <AvatarFallback className="bg-secondary/10 text-secondary font-bold text-xl">
             {initials}
           </AvatarFallback>
         </Avatar>
         <div className="mt-4 space-y-1">
-          <h3 className="font-bold text-white text-lg leading-tight">{caregiver.name}</h3>
-          <p className="text-xs font-medium text-secondary uppercase tracking-tighter">{caregiver.kinship || "Vínculo não definido"}</p>
+          <h3 className="font-bold text-primary text-lg leading-tight">{caregiver.name}</h3>
+          <p className="text-xs text-muted-foreground italic">{caregiver.kinship || "Vínculo não definido"}</p>
         </div>
       </CardHeader>
 
       <CardContent className="px-6 pb-8 space-y-4">
-        <div className="flex flex-col gap-2 p-3 rounded-2xl bg-zinc-950/50 border border-white/5">
-          <div className="flex items-center justify-between text-[10px] uppercase font-bold tracking-widest text-zinc-600">
-            <span>Contato</span>
-            <span className="text-zinc-300 normal-case tracking-normal">{caregiver.phone}</span>
-          </div>
+        <div className="flex items-center justify-between text-xs text-muted-foreground">
+          <span>Contato</span>
+          <span className="font-medium text-foreground">{caregiver.phone}</span>
         </div>
-        
-        <div className="flex items-center justify-center gap-2">
-           {caregiver.patientCount > 0 ? (
-             <Badge variant="outline" className="rounded-full bg-secondary/5 border-secondary/20 text-secondary text-[10px] py-1 px-3">
-               <Users className="h-3 w-3 mr-1" /> {caregiver.patientCount} Pacientes
-             </Badge>
-           ) : (
-             <Badge variant="outline" className="rounded-full bg-zinc-800 border-zinc-700 text-zinc-500 text-[10px] py-1 px-3">
-               <AlertCircle className="h-3 w-3 mr-1" /> Sem Vínculo
-             </Badge>
-           )}
-        </div>
+        <Badge
+          variant={caregiver.patientCount > 0 ? "secondary" : "outline"}
+          className="rounded-full text-[10px] uppercase tracking-wider py-1 px-3"
+        >
+          {caregiver.patientCount > 0 ? (
+            <span className="inline-flex items-center gap-1">
+              <Users className="h-3 w-3" /> {caregiver.patientCount} Pacientes
+            </span>
+          ) : (
+            <span className="inline-flex items-center gap-1">
+              <AlertCircle className="h-3 w-3" /> Sem Vínculo
+            </span>
+          )}
+        </Badge>
       </CardContent>
     </Card>
   );
@@ -224,7 +198,7 @@ function CaregiverList({ caregivers }: { caregivers: any[] }) {
               <TableCell>
                 <div className="flex items-center gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary/10 text-[10px] font-bold text-secondary">
-                    {c.name.split(" ").map((n:any)=>n[0]).join("")}
+                    {c.name.split(" ").map((n: string) => n[0]).join("")}
                   </div>
                   <span className="font-semibold text-sm">{c.name}</span>
                 </div>

@@ -4,7 +4,7 @@ import { useRouter } from "next/navigation";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api";
+import { createPatient } from "@/services/frontend-data";
 import { PatientForm } from "@/components/patients/patient-form";
 import { toast } from "sonner";
 
@@ -14,7 +14,7 @@ export default function NewPatientPage() {
 
   const createMutation = useMutation({
     mutationFn: async (formData: any) => {
-      return await api.post("/patients", formData);
+      return await createPatient(formData);
     },
     onSuccess: () => {
       toast.success("Paciente cadastrado com sucesso!");
@@ -28,7 +28,7 @@ export default function NewPatientPage() {
   });
 
   return (
-    <div className="container max-w-4xl py-10 space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 p-8 pt-6 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-3 duration-500">
       <div className="flex flex-col gap-2">
         <Button 
           variant="ghost" 
@@ -46,13 +46,11 @@ export default function NewPatientPage() {
         </p>
       </div>
 
-      <div className="bg-card border border-border/40 rounded-[32px] p-10 shadow-sm">
-        <PatientForm 
-          onSubmit={(data) => createMutation.mutate(data)}
-          isLoading={createMutation.isPending}
-          isEditing={false}
-        />
-      </div>
+      <PatientForm 
+        onSubmit={(data) => createMutation.mutate(data)}
+        isLoading={createMutation.isPending}
+        isEditing={false}
+      />
     </div>
   );
 }

@@ -15,52 +15,52 @@ export function DiagnosisHistory() {
     <div className="space-y-8 animate-in fade-in duration-700">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-3 md:col-span-2">
-          <label className="text-[10px] font-black uppercase tracking-widest text-secondary/70">
+          <label className="text-xs font-black uppercase tracking-widest text-secondary/70">
             Diagnóstico
           </label>
           <input
             {...register("diagnosis.description")}
             disabled={isLocked}
             placeholder="Ex: TEA Nível 1, TDAH, etc."
-            className="w-full bg-[#0A0C10]/40 border border-white/5 rounded-2xl p-4 text-zinc-200 outline-none focus:border-secondary/40"
+            className="w-full bg-card border border-border rounded-lg p-4 text-foreground outline-none focus:border-secondary/40 focus:shadow-md"
           />
         </div>
 
         <div className="space-y-3">
-          <label className="text-[10px] font-black uppercase tracking-widest text-secondary/70">
+          <label className="text-xs font-black uppercase tracking-widest text-secondary/70">
             Como descobriu?
           </label>
           <input
             {...register("diagnosis.discovery_method")}
             disabled={isLocked}
-            className="w-full bg-[#0A0C10]/40 border border-white/5 rounded-2xl p-4 text-zinc-200 outline-none"
+            className="w-full bg-card border border-border rounded-lg p-4 text-foreground outline-none focus:border-secondary/40 focus:shadow-md"
           />
         </div>
 
         <div className="space-y-3">
-          <label className="text-[10px] font-black uppercase tracking-widest text-secondary/70">
+          <label className="text-xs font-black uppercase tracking-widest text-secondary/70">
             Idade do diagnóstico
           </label>
           <input
             {...register("diagnosis.age_at_diagnosis")}
             disabled={isLocked}
-            className="w-full bg-[#0A0C10]/40 border border-white/5 rounded-2xl p-4 text-zinc-200 outline-none"
+            className="w-full bg-card border border-border rounded-lg p-4 text-foreground outline-none focus:border-secondary/40 focus:shadow-md"
           />
         </div>
 
         <div className="space-y-3 col-span-full">
-          <label className="text-[10px] font-black uppercase tracking-widest text-secondary/70">
+          <label className="text-xs font-black uppercase tracking-widest text-secondary/70">
             Acompanhamentos
           </label>
           <input
             {...register("diagnosis.follow_ups")}
             disabled={isLocked}
-            className="w-full bg-[#0A0C10]/40 border border-white/5 rounded-2xl p-4 text-zinc-200 outline-none mt-3"
+            className="w-full bg-card border border-border rounded-lg p-4 text-foreground outline-none focus:border-secondary/40 focus:shadow-md mt-3"
           />
         </div>
 
         <div className="space-y-3 md:col-span-2">
-          <label className="text-[10px] font-black uppercase tracking-widest text-secondary/70">
+          <label className="text-xs font-black uppercase tracking-widest text-secondary/70">
             Uso de medicação?
           </label>
           
@@ -77,10 +77,10 @@ export function DiagnosisHistory() {
                       type="button"
                       onClick={() => field.onChange(op)}
                       className={cn(
-                        "flex-1 p-3 rounded-xl border text-xs font-bold transition-all duration-200",
+                        "flex-1 p-3 rounded-lg border text-xs font-bold transition-all duration-200",
                         isActive 
                           ? "border-secondary bg-secondary/10 text-secondary" 
-                          : "border-white/5 bg-white/[0.02] text-muted-foreground"
+                          : "border-border bg-card text-muted-foreground"
                       )}
                     >
                       {op}
@@ -101,7 +101,7 @@ export function DiagnosisHistory() {
             </label>
             <textarea 
               {...register("diagnosis.medication_details")} 
-              className="w-full bg-[#0A0C10]/40 border border-white/5 rounded-2xl p-4 text-zinc-200 outline-none" 
+              className="w-full bg-card border border-border rounded-lg p-4 text-foreground outline-none focus:border-secondary/40 focus:shadow-md" 
               placeholder="Descreva..."
             />
           </div>

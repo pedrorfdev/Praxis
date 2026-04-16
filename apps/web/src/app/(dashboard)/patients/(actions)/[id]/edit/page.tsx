@@ -5,7 +5,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { ChevronLeft, Loader2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { api } from "@/lib/api";
+import { getPatientById, updatePatient } from "@/services/frontend-data";
 import { toast } from "sonner";
 import { PatientForm } from "@/components/patients/patient-form";
 
@@ -18,15 +18,14 @@ export default function EditPatientPage() {
   const { data: patient, isLoading, isError } = useQuery({
     queryKey: ["patient", patientId],
     queryFn: async () => {
-      const response = await api.get(`/patients/${patientId}`);
-      return response.data;
+      return getPatientById(String(patientId));
     },
     enabled: !!patientId,
   });
 
   const updateMutation = useMutation({
     mutationFn: async (formData: any) => {
-      return await api.put(`/patients/${patientId}`, formData);
+      return await updatePatient(String(patientId), formData);
     },
     onSuccess: () => {
       toast.success("Ficha do paciente atualizada com sucesso!");
@@ -74,7 +73,7 @@ export default function EditPatientPage() {
             Editar Ficha Cadastral
           </h1>
           <p className="text-muted-foreground">
-            Altere as informações básicas e de contato de {patient?.name}.
+            Altere as informações básicas e de contato de {patient?.fullName}.
           </p>
         </div>
       </div>

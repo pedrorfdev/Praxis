@@ -1,20 +1,19 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import { CheckCircle2, Circle, Save, ChevronRight } from "lucide-react";
+import { CheckCircle2, Circle, ChevronRight } from "lucide-react";
 import { useAnamnesis, ANAMNESIS_STEPS } from "./anamnesis-provider";
 
 export function AnamnesisStepper() {
-  const { currentStep, setStep, completedSteps, toggleStepCheck } =
-    useAnamnesis();
+  const { currentStep, setStep, completedSteps, toggleStepCheck } = useAnamnesis();
 
   return (
-    <nav className="bg-[#0A0C10]/60 backdrop-blur-md border border-white/5 rounded-[2.5rem] p-5 shadow-2xl space-y-6 sticky top-8">
+    <nav className="bg-card border border-border rounded-[2.5rem] p-5 shadow-sm space-y-6 sticky top-8">
       <div className="px-3">
-        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/50">
+        <h3 className="text-[10px] font-black uppercase tracking-[0.2em] text-secondary/60">
           Progresso
         </h3>
-        <p className="text-sm font-bold text-primary/90">Sessões da Anamnese</p>
+        <p className="text-sm font-bold text-foreground">Sessões da Anamnese</p>
       </div>
 
       <ul className="space-y-2">
@@ -33,8 +32,8 @@ export function AnamnesisStepper() {
                 className={cn(
                   "w-full flex items-center gap-4 p-3 rounded-2xl text-left transition-all duration-300 group relative",
                   isActive
-                    ? "bg-secondary/10 border border-secondary/20 shadow-[0_0_15px_rgba(var(--secondary),0.05)]"
-                    : "hover:bg-white/[0.03] border border-transparent",
+                    ? "bg-secondary/10 border border-secondary/25"
+                    : "hover:bg-muted border border-transparent",
                 )}
               >
                 {isActive && (
@@ -56,7 +55,7 @@ export function AnamnesisStepper() {
                         "h-4 w-4 transition-colors",
                         isActive
                           ? "text-secondary"
-                          : "text-muted-foreground/30 group-hover:text-secondary/70",
+                          : "text-muted-foreground/40 group-hover:text-secondary/60",
                       )}
                     />
                   )}
@@ -75,9 +74,9 @@ export function AnamnesisStepper() {
                     className={cn(
                       "text-[13px] font-bold truncate transition-colors capitalize",
                       isActive
-                        ? "text-primary"
-                        : "text-primary/50 group-hover:text-primary/80",
-                      isDone && !isActive && "text-primary/30",
+                        ? "text-foreground"
+                        : "text-muted-foreground group-hover:text-foreground/80",
+                      isDone && !isActive && "text-muted-foreground/40",
                     )}
                   >
                     {stepId.replace(/-/g, " ")}

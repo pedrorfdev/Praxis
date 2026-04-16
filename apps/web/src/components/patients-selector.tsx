@@ -17,12 +17,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { useState } from 'react'
-
-const patientsMock = [
-  { id: "1", name: "João Silva", diagnostic: "ASD" },
-  { id: "2", name: "Maria Oliveira", diagnostic: "ADHD" },
-  { id: "3", name: "Pedro Santos", diagnostic: "Anxiety" },
-];
+import { useQuery } from "@tanstack/react-query";
+import { listPatients } from "@/services/frontend-data";
 
 interface PatientSelectorProps {
   onSelect: (id: string) => void;
@@ -31,7 +27,11 @@ interface PatientSelectorProps {
 
 export function PatientSelector({ onSelect, selectedId }: PatientSelectorProps) {
   const [open, setOpen] = useState(false);
-  const selectedPatient = patientsMock.find((p) => p.id === selectedId);
+  const { data: patients = [] } = useQuery({
+    queryKey: ["patients-selector"],
+    queryFn: listPatients,
+  });
+  const selectedPatient = patients.find((p) => p.id === selectedId);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -44,12 +44,12 @@ export function PatientSelector({ onSelect, selectedId }: PatientSelectorProps) 
           {selectedPatient ? (
             <div className="flex items-center gap-3">
               <div className="h-8 w-8 rounded-full bg-secondary/20 flex items-center justify-center text-[10px] font-black text-secondary">
-                {selectedPatient.name.substring(0, 2).toUpperCase()}
+                {selectedPatient.fullName.substring(0, 2).toUpperCase()}
               </div>
               <div className="text-left">
-                <p className="text-sm font-bold leading-none">{selectedPatient.name}</p>
+                <p className="text-sm font-bold leading-none">{selectedPatient.fullName}</p>
                 <p className="text-[10px] text-muted-foreground uppercase mt-1 tracking-tighter">
-                  {selectedPatient.diagnostic}
+                  {selectedPatient.diagnosis}
                 </p>
               </div>
             </div>
@@ -70,10 +70,10 @@ export function PatientSelector({ onSelect, selectedId }: PatientSelectorProps) 
               </Button>
             </CommandEmpty>
             <CommandGroup heading="Recent Patients">
-              {patientsMock.map((patient) => (
+              {patients.map((patient) => (
                 <CommandItem
                   key={patient.id}
-                  value={patient.name}
+                  value={patient.fullName}
                   onSelect={() => {
                     onSelect(patient.id);
                     setOpen(false);
@@ -85,11 +85,11 @@ export function PatientSelector({ onSelect, selectedId }: PatientSelectorProps) 
                       "h-8 w-8 rounded-full flex items-center justify-center text-[10px] font-bold",
                       selectedId === patient.id ? "bg-secondary text-secondary-foreground" : "bg-muted text-muted-foreground"
                     )}>
-                      {patient.name.substring(0, 2).toUpperCase()}
+                      {patient.fullName.substring(0, 2).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-sm font-bold">{patient.name}</p>
-                      <p className="text-[10px] text-muted-foreground">{patient.diagnostic}</p>
+                      <p className="text-sm font-bold">{patient.fullName}</p>
+                      <p className="text-[10px] text-muted-foreground">{patient.diagnosis}</p>
                     </div>
                   </div>
                   <Check className={cn("h-4 w-4 text-secondary", selectedId === patient.id ? "opacity-100" : "opacity-0")} />

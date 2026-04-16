@@ -29,15 +29,35 @@ async function main() {
     .values([
       {
         clinicId: mainClinic.id,
+        type: 'ADULT',
         fullName: 'João Silva',
+        birthDate: new Date('1990-06-12'),
+        gender: 'Masculino',
+        phone: '11999998888',
+        address: 'Rua A, 10',
+        city: 'São Paulo',
         cpf: '12345678901',
-        email: 'joao@email.com',
+        birthPlace: 'São Paulo - SP',
+        maritalStatus: 'Solteiro',
+        educationLevel: 'Superior completo',
+        profession: 'Analista',
+        religion: 'Nenhuma',
       },
       {
         clinicId: mainClinic.id,
+        type: 'ADULT',
         fullName: 'Maria Oliveira',
+        birthDate: new Date('1988-02-08'),
+        gender: 'Feminino',
+        phone: '11988887777',
+        address: 'Rua B, 22',
+        city: 'São Paulo',
         cpf: '98765432100',
-        email: 'maria@email.com',
+        birthPlace: 'Campinas - SP',
+        maritalStatus: 'Casada',
+        educationLevel: 'Superior completo',
+        profession: 'Professora',
+        religion: 'Nenhuma',
       },
     ])
     .returning()
@@ -47,7 +67,9 @@ async function main() {
     {
       clinicId: mainClinic.id,
       patientId: patient1.id,
-      scheduledAt: new Date(new Date().setHours(14, 0, 0, 0)),
+      startAt: new Date(new Date().setHours(14, 0, 0, 0)),
+      durationInMinutes: 50,
+      billingType: 'PRIVATE',
       content:
         'Primeira consulta de avaliação: Paciente apresenta sintomas de ansiedade leve.',
       status: 'completed',
@@ -55,10 +77,12 @@ async function main() {
     {
       clinicId: mainClinic.id,
       patientId: patient2.id,
-      scheduledAt: new Date(new Date().setDate(new Date().getDate() + 2)),
+      startAt: new Date(new Date().setDate(new Date().getDate() + 2)),
+      durationInMinutes: 60,
+      billingType: 'SUBSIDIZED',
       content:
         'Sessão de retorno quinzenal: Acompanhamento de progresso terapêutico.',
-      status: 'scheduled',
+      status: 'in_progress',
     },
   ])
 

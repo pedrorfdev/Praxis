@@ -36,31 +36,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
-import { api } from "@/lib/api";
-
-const mockPatients = [
-  {
-    id: "1",
-    name: "João Silva",
-    diagnosis: "TEA",
-    status: "Ativo",
-    lastSession: "20/03/2026",
-  },
-  {
-    id: "2",
-    name: "Maria Oliveira",
-    diagnosis: "TDAH",
-    status: "Ativo",
-    lastSession: "21/03/2026",
-  },
-  {
-    id: "3",
-    name: "Pedro Santos",
-    diagnosis: "Coordenação Motora",
-    status: "Pausado",
-    lastSession: "15/02/2026",
-  },
-];
+import { listPatients } from "@/services/frontend-data";
+import type { PatientSummary } from "@/mocks/entities";
 
 export default function PatientsPage() {
   const [view, setView] = useState("grid");
@@ -68,22 +45,16 @@ export default function PatientsPage() {
   const [search, setSearch] = useState("");
   const router = useRouter();
 
-  const filteredPatients = mockPatients.filter((p) =>
-    p.name.toLowerCase().includes(search.toLowerCase()),
-  );
-
   const {
-    data: apiPatients,
+    data: patients = [],
     isLoading,
-    isError,
   } = useQuery({
     queryKey: ["patients"],
-    queryFn: async () => {
-      const response = await api.get("/patients");
-      return response.data;
-    },
-    enabled: true,
+    queryFn: listPatients,
   });
+  const filteredPatients = patients.filter((p) =>
+    p.fullName.toLowerCase().includes(search.toLowerCase()),
+  );
 
   return (
     <div className="flex flex-col gap-8">
@@ -99,7 +70,7 @@ export default function PatientsPage() {
 
         <Button
           onClick={() => router.push("/patients/new")}
-          className="rounded-full shadow-lg hover:scale-105 transition-all bg-primary text-primary-foreground px-6"
+          className="rounded-2xl shadow-lg hover:scale-105 transition-all bg-secondary text-secondary-foreground px-8 h-12 font-bold"
         >
           <Plus className="w-4 h-4 mr-2" /> Novo Paciente
         </Button>
@@ -152,9 +123,9 @@ export default function PatientsPage() {
   );
 }
 
-function PatientCard({ patient }: { patient: any }) {
+function PatientCard({ patient }: { patient: PatientSummary }) {
   const router = useRouter();
-  const initials = patient.name
+  const initials = patient.fullName
     .split(" ")
     .map((n: string) => n[0])
     .join("");
@@ -162,7 +133,7 @@ function PatientCard({ patient }: { patient: any }) {
   return (
     <Card
       onClick={() => router.push(`/patients/${patient.id}`)}
-      className="group border border-border/40 bg-card hover:border-primary/50 hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden relative"
+      className="group border border-border/40 bg-card/50 rounded-[2rem] shadow-sm hover:border-secondary/30 hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden relative"
     >
       <div
         className="absolute top-4 right-2 z-10"
@@ -202,23 +173,23 @@ function PatientCard({ patient }: { patient: any }) {
         </DropdownMenu>
       </div>
 
-      <CardHeader className="flex flex-row items-center gap-4 pb-4">
-        <Avatar className="h-12 w-12 border-2 border-secondary/20">
-          <AvatarFallback className="bg-secondary/10 text-secondary font-bold">
+      <CardHeader className="flex flex-col items-center text-center pt-8 pb-4">
+        <Avatar className="h-20 w-20 border-4 border-secondary/20">
+          <AvatarFallback className="bg-secondary/10 text-secondary font-bold text-xl">
             {initials}
           </AvatarFallback>
         </Avatar>
-        <div className="flex flex-col pr-6">
-          <h3 className="font-bold text-primary truncate max-w-[140px]">
-            {patient.name}
+        <div className="mt-4 space-y-1">
+          <h3 className="font-bold text-primary text-lg leading-tight">
+            {patient.fullName}
           </h3>
-          <span className="text-xs text-muted-foreground">
+          <p className="text-xs text-muted-foreground italic">
             {patient.diagnosis}
-          </span>
+          </p>
         </div>
       </CardHeader>
 
-      <CardContent className="space-y-4">
+      <CardContent className="px-6 pb-8 space-y-4">
         <div className="flex items-center justify-between text-xs text-muted-foreground">
           <span>Última Evolução</span>
           <span className="font-medium text-foreground">
@@ -227,7 +198,7 @@ function PatientCard({ patient }: { patient: any }) {
         </div>
         <Badge
           variant={patient.status === "Ativo" ? "secondary" : "outline"}
-          className="rounded-md text-[10px] uppercase tracking-wider"
+          className="rounded-full text-[10px] uppercase tracking-wider py-1 px-3"
         >
           {patient.status}
         </Badge>
@@ -236,7 +207,7 @@ function PatientCard({ patient }: { patient: any }) {
   );
 }
 
-function PatientList({ patients }: { patients: any[] }) {
+function PatientList({ patients }: { patients: PatientSummary[] }) {
   const router = useRouter();
 
   return (
@@ -265,14 +236,14 @@ function PatientList({ patients }: { patients: any[] }) {
               <TableCell>
                 <div className="flex items-center gap-3">
                   <div className="flex h-8 w-8 items-center justify-center rounded-full bg-primary/10 text-[10px] font-bold text-primary">
-                    {patient.name
+                    {patient.fullName
                       .split(" ")
                       .map((n: string) => n[0])
                       .join("")}
                   </div>
                   <div className="flex flex-col">
                     <span className="font-semibold text-sm">
-                      {patient.name}
+                      {patient.fullName}
                     </span>
                     <span className="text-[10px] text-muted-foreground italic">
                       {patient.diagnosis}

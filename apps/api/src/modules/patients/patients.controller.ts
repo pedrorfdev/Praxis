@@ -15,7 +15,12 @@ import {
   ApiResponse,
   ApiTags,
 } from '@nestjs/swagger'
-import { createPatientSchema, updatePatientSchema, type CreateClinicInput, type UpdateClinicInput } from '@praxis/core/domain'
+import {
+  createPatientSchema,
+  updatePatientSchema,
+  type CreatePatientInput,
+  type UpdatePatientInput,
+} from '@praxis/core/domain'
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { PatientsService } from './patients.service'
@@ -75,7 +80,7 @@ export class PatientsController {
   @ApiResponse({ status: 400, description: 'Dados inválidos ou CPF duplicado nesta clínica.'})
   async create(
     @ActiveClinic() clinicId: string,
-    @Body(new ZodValidationPipe(createPatientSchema)) body: CreateClinicInput,
+    @Body(new ZodValidationPipe(createPatientSchema)) body: CreatePatientInput,
   ) {
     return this.patientsService.create(body, clinicId)
   }
@@ -119,7 +124,7 @@ export class PatientsController {
   async update(
     @Param('id') id: string,
     @ActiveClinic() clinicId: string,
-    @Body(new ZodValidationPipe(updatePatientSchema)) body: UpdateClinicInput,
+    @Body(new ZodValidationPipe(updatePatientSchema)) body: UpdatePatientInput,
   ) {
     return this.patientsService.update(id, clinicId, body)
   }

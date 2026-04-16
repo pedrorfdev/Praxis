@@ -23,16 +23,12 @@ export function MainComplaint() {
           Relato do Responsável
         </label>
         
-        <div className="relative group">
-          <div className="absolute -inset-0.5 bg-gradient-to-r from-secondary/20 to-transparent rounded-[2rem] blur opacity-0 group-focus-within:opacity-100 transition duration-500" />
-          
-          <textarea
-            {...register("main_complaint.description")}
-            disabled={isLocked}
-            placeholder="Ex: Dificuldade na fala, seletividade alimentar, atraso motor..."
-            className="relative w-full min-h-[250px] bg-[#0A0C10]/60 backdrop-blur-md border border-white/5 rounded-[2rem] p-8 text-zinc-200 placeholder:text-muted-foreground/30 outline-none focus:border-secondary/40 transition-all leading-relaxed antialiased"
-          />
-        </div>
+        <textarea
+          {...register("main_complaint.description")}
+          disabled={isLocked}
+          placeholder="Ex: Dificuldade na fala, seletividade alimentar, atraso motor..."
+          className="w-full min-h-[250px] bg-card border border-border rounded-lg p-8 text-foreground placeholder:text-muted-foreground outline-none focus:border-secondary/40 focus:shadow-md leading-relaxed antialiased"
+        />
       </div>
     </div>
   );

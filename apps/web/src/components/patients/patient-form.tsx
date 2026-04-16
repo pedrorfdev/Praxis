@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PatternFormat } from "react-number-format";
-import { ChevronRight, ChevronLeft, Check, CalendarIcon, Loader2 } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, CalendarIcon, Loader2, UserPlus } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { createPatientSchema } from "@praxis/core/domain";
@@ -15,6 +15,8 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
+import { useQuery } from "@tanstack/react-query";
+import { listCaregivers } from "@/services/frontend-data";
 import { cn } from "@/lib/utils";
 
 const FieldError = ({ message }: { message?: string }) =>
@@ -44,40 +46,54 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
       birthPlace: "",
       profession: "",
       birthDate: "",
+      responsibleName: "",
     },
+  });
+  const {
+    data: caregivers = [],
+    isLoading: isLoadingCaregivers,
+  } = useQuery({
+    queryKey: ["caregivers"],
+    queryFn: listCaregivers,
   });
 
   const patientType = watch("type");
 
   const nextStep = async () => {
     const stepsFields: Record<number, any[]> = {
-      1: ["fullName", "birthDate", "gender", "cpf"],
+      1: ["fullName", "birthDate", "gender", "cpf", "responsibleName"],
       2: ["address", "city", "phone", "birthPlace"],
-      3: ["diagnosis", "religion", "maritalStatus", "educationLevel", "profession", "responsibleName"],
+      3: ["diagnosis", "religion", "maritalStatus", "educationLevel", "profession"],
     };
     const isValid = await trigger(stepsFields[step]);
     if (isValid) setStep((s) => s + 1);
   };
 
   return (
-    <div className="space-y-8">
-      <div className="flex items-center justify-between mb-8">
-        <div className="flex gap-2">
-          {[1, 2, 3].map((i) => (
-            <div
-              key={i}
-              className={`h-1.5 w-12 rounded-full transition-all duration-500 ${
-                step >= i ? "bg-secondary" : "bg-muted"
-              }`}
-            />
-          ))}
+    <div className="space-y-8 mx-auto max-w-3xl">
+      <form
+        onSubmit={handleSubmit(onSubmit)}
+        className="space-y-8 bg-card/40 border border-border/40 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden"
+      >
+        <div className="absolute top-0 left-0 w-full h-1 bg-zinc-800">
+          <div
+            className="h-full bg-secondary transition-all duration-500"
+            style={{ width: `${(step / 3) * 100}%` }}
+          />
         </div>
-        <span className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
-          Passo {step} de 3
-        </span>
-      </div>
 
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        <div className="flex justify-between items-end mb-6">
+          <div className="space-y-1">
+            <h2 className="text-3xl font-black text-white flex items-center gap-3">
+              <UserPlus className="text-secondary" />
+              Novo Paciente
+            </h2>
+            <p className="text-zinc-500 text-sm italic">
+              Passo {step} de 3 — {step === 1 ? "Identificação" : step === 2 ? "Dados Pessoais" : "Detalhes Clínicos"}
+            </p>
+          </div>
+          <span className="text-4xl font-black text-zinc-800/50">0{step}</span>
+        </div>
         {step === 1 && (
           <div className="grid gap-6 animate-in fade-in slide-in-from-right-4">
             <div className="space-y-4">
@@ -101,7 +117,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
               <Controller
                 control={control}
                 name="fullName"
-                render={({ field }) => <Input className="bg-muted/10 border-none h-12 text-lg" {...field} />}
+                render={({ field }) => <Input className="bg-background/50 border-zinc-800 h-14 rounded-2xl text-lg px-4" {...field} />}
               />
               <FieldError message={errors.fullName?.message as string} />
             </div>
@@ -118,7 +134,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
                         <Button
                           variant="outline"
                           className={cn(
-                            "w-full justify-start text-left bg-muted/10 border-none h-12 rounded-xl",
+                            "w-full justify-start text-left bg-background/50 border-zinc-800 h-14 rounded-2xl px-4",
                             !field.value && "text-muted-foreground"
                           )}
                         >
@@ -142,7 +158,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
 
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Gênero</Label>
-                <Controller control={control} name="gender" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+                <Controller control={control} name="gender" render={({ field }) => <Input className="bg-background/50 border-zinc-800 h-14 rounded-2xl px-4" {...field} />} />
               </div>
 
               <div className="space-y-2">
@@ -155,13 +171,40 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
                       format="###.###.###-##"
                       mask="_"
                       customInput={Input}
-                      className="bg-muted/10 border-none h-12"
+                      className="bg-background/50 border-zinc-800 h-14 rounded-2xl px-4"
                       onValueChange={(v) => field.onChange(v.value)}
                       value={field.value}
                     />
                   )}
                 />
                 <FieldError message={errors.cpf?.message as string} />
+              </div>
+
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Responsável</Label>
+                <Controller
+                  control={control}
+                  name="responsibleName"
+                  render={({ field }) => (
+                    <select
+                      {...field}
+                      className="w-full bg-background/50 border border-zinc-800 h-14 rounded-2xl px-4 text-sm outline-none focus:ring-2 focus:ring-secondary/30"
+                    >
+                      <option value="" disabled>
+                        Selecione o responsável
+                      </option>
+                      {isLoadingCaregivers ? (
+                        <option>Carregando...</option>
+                      ) : (
+                        caregivers.map((caregiver: any) => (
+                          <option key={caregiver.id} value={caregiver.name}>
+                            {caregiver.name}
+                          </option>
+                        ))
+                      )}
+                    </select>
+                  )}
+                />
               </div>
             </div>
           </div>
@@ -171,12 +214,12 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
           <div className="grid gap-6 animate-in fade-in slide-in-from-right-4">
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-widest text-muted-foreground">Endereço Residencial</Label>
-              <Controller control={control} name="address" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+              <Controller control={control} name="address" render={({ field }) => <Input className="bg-background/50 border-zinc-800 h-14 rounded-2xl px-4" {...field} />} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Cidade</Label>
-                <Controller control={control} name="city" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+                <Controller control={control} name="city" render={({ field }) => <Input className="bg-background/50 border-zinc-800 h-14 rounded-2xl px-4" {...field} />} />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Telefone</Label>
@@ -188,7 +231,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
                       format="(##) #####-####"
                       mask="_"
                       customInput={Input}
-                      className="bg-muted/10 border-none h-12"
+                      className="bg-background/50 border-zinc-800 h-14 rounded-2xl px-4"
                       onValueChange={(v) => field.onChange(v.value)}
                       value={field.value}
                     />
@@ -197,7 +240,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
               </div>
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Naturalidade</Label>
-                <Controller control={control} name="birthPlace" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+                <Controller control={control} name="birthPlace" render={({ field }) => <Input className="bg-background/50 border-zinc-800 h-14 rounded-2xl" {...field} />} />
               </div>
             </div>
           </div>
@@ -209,49 +252,24 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label className="text-xs uppercase tracking-widest text-muted-foreground">Estado Civil</Label>
-                  <Controller control={control} name="maritalStatus" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+                  <Controller control={control} name="maritalStatus" render={({ field }) => <Input className="bg-background/50 border-zinc-800 h-14 rounded-2xl" {...field} />} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs uppercase tracking-widest text-muted-foreground">Escolaridade</Label>
-                  <Controller control={control} name="educationLevel" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+                  <Controller control={control} name="educationLevel" render={({ field }) => <Input className="bg-background/50 border-zinc-800 h-14 rounded-2xl" {...field} />} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs uppercase tracking-widest text-muted-foreground">Profissão</Label>
-                  <Controller control={control} name="profession" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+                  <Controller control={control} name="profession" render={({ field }) => <Input className="bg-background/50 border-zinc-800 h-14 rounded-2xl" {...field} />} />
                 </div>
               </div>
             )}
 
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-widest text-muted-foreground">Religião</Label>
-              <Controller control={control} name="religion" render={({ field }) => <Input className="bg-muted/10 border-none h-12" {...field} />} />
+              <Controller control={control} name="religion" render={({ field }) => <Input className="bg-background/50 border-zinc-800 h-14 rounded-2xl px-4" {...field} />} />
             </div>
 
-            {patientType === "CHILD" && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-6 rounded-2xl bg-secondary/5 border border-secondary/10">
-                <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-widest text-secondary font-bold">Responsável Legal</Label>
-                  <Controller control={control} name="responsibleName" render={({ field }) => <Input className="bg-background border-none h-10 shadow-sm" {...field} />} />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs uppercase tracking-widest text-secondary font-bold">Contato Responsável</Label>
-                  <Controller
-                    control={control}
-                    name="responsiblePhone"
-                    render={({ field }) => (
-                      <PatternFormat
-                        format="(##) #####-####"
-                        mask="_"
-                        customInput={Input}
-                        className="bg-background border-none h-10 shadow-sm"
-                        onValueChange={(v) => field.onChange(v.value)}
-                        value={field.value}
-                      />
-                    )}
-                  />
-                </div>
-              </div>
-            )}
           </div>
         )}
 
@@ -270,7 +288,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
             <Button
               type="button"
               onClick={nextStep}
-              className="rounded-full px-10 bg-primary text-primary-foreground font-semibold hover:scale-105 transition-all"
+              className="rounded-full px-10 bg-white text-black font-bold hover:bg-zinc-200 hover:scale-105 transition-all"
             >
               Próximo <ChevronRight className="w-4 h-4 ml-2" />
             </Button>
