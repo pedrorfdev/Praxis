@@ -7,7 +7,9 @@ async function main() {
   console.log('🌱 Iniciando o Seed Profissional...')
 
   console.log('🧹 Limpando dados antigos (CASCADE)...')
-  await db.execute(sql`TRUNCATE TABLE clinics, patients, sessions CASCADE`)
+  await db.execute(
+    sql`TRUNCATE TABLE clinics, patients, caregivers, patient_caregivers, encounters CASCADE`,
+  )
 
   console.log('🔐 Gerando hash de senha para conta Demo...')
   const hashedDemoPassword = await bcrypt.hash('praxis123', 10)
@@ -34,6 +36,7 @@ async function main() {
         birthDate: new Date('1990-06-12'),
         gender: 'Masculino',
         phone: '11999998888',
+        diagnosis: 'TDAH',
         address: 'Rua A, 10',
         city: 'São Paulo',
         cpf: '12345678901',
@@ -50,6 +53,7 @@ async function main() {
         birthDate: new Date('1988-02-08'),
         gender: 'Feminino',
         phone: '11988887777',
+        diagnosis: 'TEA',
         address: 'Rua B, 22',
         city: 'São Paulo',
         cpf: '98765432100',
@@ -62,8 +66,44 @@ async function main() {
     ])
     .returning()
 
-  console.log('📅 Criando sessões (Histórico e Futuro)...')
-  await db.insert(schemas.sessions).values([
+  console.log('👨‍👩‍👧 Criando cuidadores e vínculos...')
+  const [caregiver1, caregiver2] = await db
+    .insert(schemas.caregivers)
+    .values([
+      {
+        clinicId: mainClinic.id,
+        name: 'Carla Silva',
+        document: '11122233344',
+        phone: '11997776666',
+        address: 'Rua A, 10',
+      },
+      {
+        clinicId: mainClinic.id,
+        name: 'José Oliveira',
+        document: '55566677788',
+        phone: '11994443322',
+        address: 'Rua B, 22',
+      },
+    ])
+    .returning()
+
+  await db.insert(schemas.patientCaregivers).values([
+    {
+      clinicId: mainClinic.id,
+      patientId: patient1.id,
+      caregiverId: caregiver1.id,
+      isPrimary: true,
+    },
+    {
+      clinicId: mainClinic.id,
+      patientId: patient2.id,
+      caregiverId: caregiver2.id,
+      isPrimary: true,
+    },
+  ])
+
+  console.log('📅 Criando encontros (Histórico e Futuro)...')
+  await db.insert(schemas.encounters).values([
     {
       clinicId: mainClinic.id,
       patientId: patient1.id,

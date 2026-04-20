@@ -16,9 +16,9 @@ export default function DashboardPage() {
         </div>
         
         <Link href="/encounters/new">
-          <Button className="bg-secondary text-secondary-foreground gap-2 h-12 px-6 rounded-2xl font-bold">
+          <Button className="bg-secondary text-secondary-foreground gap-2 h-12 px-6 rounded-lg font-bold hover:scale-105 transition-all">
             <PlusCircle className="h-5 w-5" />
-            Nova Sessão
+            Nova Evolução
           </Button>
         </Link>
       </header>

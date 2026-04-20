@@ -6,8 +6,11 @@ import {
   uniqueIndex,
   uuid,
 } from 'drizzle-orm/pg-core'
+
 import { clinics } from './clinics'
-import { sessions } from './sessions'
+import { encounters } from './encounters'
+import { patientCaregivers } from './patient-caregivers'
+
 
 export const patients = pgTable('patients', {
   id: uuid().primaryKey().defaultRandom(),
@@ -42,5 +45,6 @@ export const patientsRelations = relations(patients, ({ one, many }) => ({
     fields: [patients.clinicId],
     references: [clinics.id],
   }),
-  sessions: many(sessions),
+  encounters: many(encounters),
+  caregiverLinks: many(patientCaregivers),
 }))

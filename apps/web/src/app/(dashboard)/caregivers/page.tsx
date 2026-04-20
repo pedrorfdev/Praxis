@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useQuery } from "@tanstack/react-query";
 import { listCaregivers } from "@/services/frontend-data";
+import type { CaregiverSummary } from "@/mocks/entities";
 
 export default function CaregiversPage() {
   const [view, setView] = useState("grid");
@@ -110,7 +111,7 @@ export default function CaregiversPage() {
   );
 }
 
-function CaregiverCard({ caregiver }: { caregiver: any }) {
+function CaregiverCard({ caregiver }: { caregiver: CaregiverSummary }) {
   const router = useRouter();
   const initials = caregiver.name.split(" ").filter(Boolean).map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
@@ -150,7 +151,7 @@ function CaregiverCard({ caregiver }: { caregiver: any }) {
         </Avatar>
         <div className="mt-4 space-y-1">
           <h3 className="font-bold text-primary text-lg leading-tight">{caregiver.name}</h3>
-          <p className="text-xs text-muted-foreground italic">{caregiver.kinship || "Vínculo não definido"}</p>
+          <p className="text-xs text-muted-foreground italic">{"Vínculo não definido"}</p>
         </div>
       </CardHeader>
 
@@ -178,7 +179,7 @@ function CaregiverCard({ caregiver }: { caregiver: any }) {
   );
 }
 
-function CaregiverList({ caregivers }: { caregivers: any[] }) {
+function CaregiverList({ caregivers }: { caregivers: CaregiverSummary[] }) {
   const router = useRouter();
 
   return (
@@ -203,7 +204,6 @@ function CaregiverList({ caregivers }: { caregivers: any[] }) {
                   <span className="font-semibold text-sm">{c.name}</span>
                 </div>
               </TableCell>
-              <TableCell className="text-center italic text-xs text-muted-foreground">{c.kinship}</TableCell>
               <TableCell className="text-center text-xs text-muted-foreground">{c.phone}</TableCell>
               <TableCell className="text-right px-6">
                 <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>

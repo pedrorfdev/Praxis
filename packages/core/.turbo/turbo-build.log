@@ -12,25 +12,25 @@
 [34mCJS[39m Build start
 [34mESM[39m Build start
 [32mESM[39m [1mdist/index.mjs              [22m[32m594.00 B[39m
-[32mESM[39m [1mdist/domain/index.mjs       [22m[32m487.00 B[39m
-[32mESM[39m [1mdist/infra/index.mjs        [22m[32m154.00 B[39m
-[32mESM[39m [1mdist/chunk-A42XS5JA.mjs     [22m[32m3.31 KB[39m
 [32mESM[39m [1mdist/chunk-YGQ3ADX5.mjs     [22m[32m5.06 KB[39m
+[32mESM[39m [1mdist/infra/index.mjs        [22m[32m154.00 B[39m
+[32mESM[39m [1mdist/domain/index.mjs       [22m[32m487.00 B[39m
+[32mESM[39m [1mdist/chunk-A42XS5JA.mjs     [22m[32m3.31 KB[39m
 [32mESM[39m [1mdist/index.mjs.map          [22m[32m71.00 B[39m
-[32mESM[39m [1mdist/domain/index.mjs.map   [22m[32m71.00 B[39m
-[32mESM[39m [1mdist/infra/index.mjs.map    [22m[32m71.00 B[39m
 [32mESM[39m [1mdist/chunk-YGQ3ADX5.mjs.map [22m[32m9.68 KB[39m
+[32mESM[39m [1mdist/infra/index.mjs.map    [22m[32m71.00 B[39m
+[32mESM[39m [1mdist/domain/index.mjs.map   [22m[32m71.00 B[39m
 [32mESM[39m [1mdist/chunk-A42XS5JA.mjs.map [22m[32m6.35 KB[39m
-[32mESM[39m ⚡️ Build success in 113ms
-[32mCJS[39m [1mdist/index.js            [22m[32m11.67 KB[39m
+[32mESM[39m ⚡️ Build success in 62ms
 [32mCJS[39m [1mdist/domain/index.js     [22m[32m6.99 KB[39m
 [32mCJS[39m [1mdist/infra/index.js      [22m[32m5.71 KB[39m
-[32mCJS[39m [1mdist/index.js.map        [22m[32m15.91 KB[39m
+[32mCJS[39m [1mdist/index.js            [22m[32m11.67 KB[39m
 [32mCJS[39m [1mdist/domain/index.js.map [22m[32m9.81 KB[39m
 [32mCJS[39m [1mdist/infra/index.js.map  [22m[32m6.39 KB[39m
-[32mCJS[39m ⚡️ Build success in 116ms
+[32mCJS[39m [1mdist/index.js.map        [22m[32m15.91 KB[39m
+[32mCJS[39m ⚡️ Build success in 67ms
 DTS Build start
-DTS ⚡️ Build success in 6445ms
+DTS ⚡️ Build success in 7503ms
 DTS dist/index.d.ts         541.00 B
 DTS dist/domain/index.d.ts  5.83 KB
 DTS dist/infra/index.d.ts   47.34 KB

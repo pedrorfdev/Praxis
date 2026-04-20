@@ -97,6 +97,7 @@ export default function CaregiverDetailsPage({
                     </p>
                   </div>
                 </div>
+                
                 <div className="text-right">
                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">
                     Último Atendimento
