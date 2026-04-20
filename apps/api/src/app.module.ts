@@ -5,7 +5,7 @@ import { AuthModule } from './modules/auth/auth.module'
 import { ClinicsModule } from './modules/clinics/clinics.module'
 import { HealthModule } from './modules/health/health.module'
 import { PatientsModule } from './modules/patients/patients.module'
-import { SessionsModule } from './modules/sessions/sessions.module'
+import { EncountersModule } from './modules/encounters/encounters.module'
 
 @Module({
   imports: [
@@ -13,7 +13,7 @@ import { SessionsModule } from './modules/sessions/sessions.module'
     AuthModule,
     ClinicsModule,
     PatientsModule,
-    SessionsModule,
+    EncountersModule,
   ],
   controllers: [],
   providers: [

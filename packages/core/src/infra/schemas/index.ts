@@ -3,7 +3,6 @@ import { caregivers } from './caregivers'
 import { encounters, encounterStatusEnum } from './encounters'
 import { patientCaregivers } from './patient-caregivers'
 import { patients } from './patients'
-import { sessionStatusEnum, sessions } from './sessions'
 
 export const schemas = {
   clinics,
@@ -12,6 +11,4 @@ export const schemas = {
   encounterStatusEnum,
   patientCaregivers,
   patients,
-  sessions,
-  sessionStatusEnum,
 }

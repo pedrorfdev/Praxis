@@ -18,6 +18,32 @@ const validateCpf = (cpf: string) => {
   );
 };
 
+// Common diagnoses used in clinical practice
+export const diagnosisEnum = z.enum(
+  [
+    'TDAH',
+    'TEA',
+    'DEPRESSAO',
+    'ANSIEDADE',
+    'BIPOLAR',
+    'ESQUIZOFRENIA',
+    'TOC',
+    'PTSD',
+    'AUTISMO',
+    'SINDROME_DOWN',
+    'DEFICIENCIA_INTELECTUAL',
+    'PARALISIA_CEREBRAL',
+    'DISTURBIO_APRENDIZAGEM',
+    'GAGUEZ',
+    'AFASIA',
+    'DYSPRAXIA',
+    'OUTRO'
+  ],
+  {
+    error: 'Diagnóstico inválido',
+  },
+);
+
 export const patientSchema = z.object({
   id: z.uuid(),
   clinicId: z.uuid(),
@@ -27,24 +53,39 @@ export const patientSchema = z.object({
   fullName: z
     .string()
     .min(3, "O nome do paciente deve ter no mínimo 3 caracteres")
-    .max(120, "Nome muito longo"),
+    .max(120, "Nome muito longo")
+    .trim(),
   birthDate: z.coerce.date({
     error: "Data de nascimento é obrigatória"
   }),
-  gender: z.string().min(1, "Esse campo é obrigatório"),
-  phone: z.string().min(10, "Telefone incompleto").nullable().optional(),
+  gender: z.string().min(1, "Gênero é obrigatório").trim(),
+  phone: z
+    .string()
+    .regex(/^\d{10,11}$/, "Telefone deve ter 10 ou 11 dígitos")
+    .nullable()
+    .optional(),
   
-  address: z.string().min(5, "Endereço muito curto"),
-  city: z.string().min(2, "Cidade muito curta"),
+  address: z
+    .string()
+    .min(5, "Endereço muito curto")
+    .max(200, "Endereço muito longo")
+    .trim(),
+  city: z
+    .string()
+    .min(2, "Cidade muito curta")
+    .max(50, "Cidade muito longa")
+    .trim(),
 
   responsibleName: z
     .string()
     .min(3, "Nome do responsável inválido")
+    .max(120, "Nome muito longo")
+    .trim()
     .nullable()
     .optional(),
   responsiblePhone: z
     .string()
-    .min(10, "Telefone do responsável incompleto")
+    .regex(/^\d{10,11}$/, "Telefone deve ter 10 ou 11 dígitos")
     .nullable()
     .optional(),
 
@@ -55,12 +96,29 @@ export const patientSchema = z.object({
     .nullable()
     .optional(),
 
-  birthPlace: z.string().min(1, "Esse campo é obrigatório"),
-  maritalStatus: z.string().min(1, "Esse campo é obrigatório"),
-  educationLevel: z.string().min(1, "Esse campo é obrigatório"),
-  profession: z.string().min(1, "Esse campo é obrigatório"),
-  religion: z.string().min(1, "Esse campo é obrigatório"),
-  diagnosis: z.string().optional().nullable(),
+  birthPlace: z
+    .string()
+    .min(1, "Esse campo é obrigatório")
+    .max(100, "Muito longo")
+    .trim(),
+  maritalStatus: z
+    .string()
+    .min(1, "Esse campo é obrigatório")
+    .trim(),
+  educationLevel: z
+    .string()
+    .min(1, "Esse campo é obrigatório")
+    .trim(),
+  profession: z
+    .string()
+    .min(1, "Esse campo é obrigatório")
+    .max(100, "Profissão muito longa")
+    .trim(),
+  religion: z
+    .string()
+    .min(1, "Esse campo é obrigatório")
+    .trim(),
+  diagnosis: diagnosisEnum.nullable().optional(),
 
   createdAt: z.date(),
   updatedAt: z.date(),
@@ -109,6 +167,11 @@ const basePatientSchema = patientSchema.omit({
 
 export const updatePatientSchema = basePatientSchema.partial();
 
+export const updatePatientDiagnosisSchema = z.object({
+  diagnosis: diagnosisEnum.nullable().optional(),
+});
+
 export type Patient = z.infer<typeof patientSchema>;
 export type CreatePatientInput = z.infer<typeof createPatientSchema>;
 export type UpdatePatientInput = z.infer<typeof updatePatientSchema>;
+export type UpdatePatientDiagnosisInput = z.infer<typeof updatePatientDiagnosisSchema>;

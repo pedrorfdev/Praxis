@@ -78,11 +78,11 @@ export async function listActivities(): Promise<ActivityItem[]> {
 
 export async function listEncounters(): Promise<EncounterItem[]> {
   if (frontendRuntimeConfig.useMocks) return fallback(encounterMocks);
-  const response = await api.get("/sessions");
-  return response.data.map((session: any) => ({
-    id: session.id,
-    date: new Date(session.startAt).toLocaleDateString("pt-BR"),
-    duration: `${session.durationInMinutes ?? 60}min`,
-    content: session.content ?? "Sem evolução registrada.",
+  const response = await api.get("/encounters");
+  return response.data.map((encounter: any) => ({
+    id: encounter.id,
+    date: new Date(encounter.startAt).toLocaleDateString("pt-BR"),
+    duration: `${encounter.durationInMinutes ?? 60}min`,
+    content: encounter.content ?? "Sem evolução registrada.",
   }));
 }

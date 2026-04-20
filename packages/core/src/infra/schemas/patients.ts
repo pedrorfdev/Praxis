@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm'
 import {
+  pgEnum,
   pgTable,
   text,
   timestamp,
@@ -11,28 +12,49 @@ import { clinics } from './clinics'
 import { encounters } from './encounters'
 import { patientCaregivers } from './patient-caregivers'
 
+export const patientTypeEnum = pgEnum('patient_type', ['ADULT', 'CHILD'])
+
+export const diagnosisEnum = pgEnum('diagnosis', [
+  'TDAH',
+  'TEA',
+  'DEPRESSAO',
+  'ANSIEDADE',
+  'BIPOLAR',
+  'ESQUIZOFRENIA',
+  'TOC',
+  'PTSD',
+  'AUTISMO',
+  'SINDROME_DOWN',
+  'DEFICIENCIA_INTELECTUAL',
+  'PARALISIA_CEREBRAL',
+  'DISTURBIO_APRENDIZAGEM',
+  'GAGUEZ',
+  'AFASIA',
+  'DYSPRAXIA',
+  'OUTRO',
+])
 
 export const patients = pgTable('patients', {
   id: uuid().primaryKey().defaultRandom(),
   clinicId: uuid().references(() => clinics.id, { onDelete: 'cascade' }).notNull(),
-  type: text().notNull(),
+  type: patientTypeEnum().notNull(),
   fullName: text().notNull(),
   birthDate: timestamp().notNull(),
-  gender: text(),
-  address: text(),
-  city: text(),
+  gender: text().notNull(),
+  address: text().notNull(),
+  city: text().notNull(),
   phone: text(),
-  diagnosis: text(),
-  cpf: text(),
+  diagnosis: diagnosisEnum(),
+  cpf: text().unique(),
   
   responsibleName: text(), 
   responsiblePhone: text(),
 
-  birthPlace: text(),
-  maritalStatus: text(),
-  educationLevel: text(),
-  profession: text(),
-  religion: text(),
+  birthPlace: text().notNull(),
+  maritalStatus: text().notNull(),
+  educationLevel: text().notNull(),
+  profession: text().notNull(),
+  religion: text().notNull(),
 
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().notNull(),

@@ -18,8 +18,10 @@ import {
 import {
   createPatientSchema,
   updatePatientSchema,
+  updatePatientDiagnosisSchema,
   type CreatePatientInput,
   type UpdatePatientInput,
+  type UpdatePatientDiagnosisInput,
 } from '@praxis/core/domain'
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
@@ -127,6 +129,41 @@ export class PatientsController {
     @Body(new ZodValidationPipe(updatePatientSchema)) body: UpdatePatientInput,
   ) {
     return this.patientsService.update(id, clinicId, body)
+  }
+
+  @Patch(':id/diagnosis')
+  @ApiOperation({ summary: 'Atualizar diagnóstico do paciente (após anamnese)' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        diagnosis: { 
+          type: 'string', 
+          enum: ['TDAH', 'TEA', 'DEPRESSAO', 'ANSIEDADE', 'BIPOLAR', 'ESQUIZOFRENIA', 'TOC', 'PTSD', 'AUTISMO', 'SINDROME_DOWN', 'DEFICIENCIA_INTELECTUAL', 'PARALISIA_CEREBRAL', 'DISTURBIO_APRENDIZAGEM', 'GAGUEZ', 'AFASIA', 'DYSPRAXIA', 'OUTRO'],
+          example: 'TDAH',
+          nullable: true,
+          description: 'Diagnóstico do paciente - pode ser nulo para começar vazio'
+        },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Diagnóstico atualizado com sucesso.',
+    schema: {
+      example: {
+        id: 'uuid-existente',
+        diagnosis: 'TDAH',
+        updatedAt: '2026-03-25T10:00:00Z',
+      },
+    },
+  })
+  async updateDiagnosis(
+    @Param('id') id: string,
+    @ActiveClinic() clinicId: string,
+    @Body(new ZodValidationPipe(updatePatientDiagnosisSchema)) body: UpdatePatientDiagnosisInput,
+  ) {
+    return this.patientsService.updateDiagnosis(id, clinicId, body)
   }
 
   @Delete(':id')

@@ -75,7 +75,7 @@ function EncounterPageContent() {
   const { data: existingSession, isLoading: isLoadingSession } = useQuery({
     queryKey: ["session", sessionId],
     queryFn: async () => {
-      const res = await api.get(`/sessions/${sessionId}`);
+      const res = await api.get(`/encounters/${sessionId}`);
       return res.data;
     },
     enabled: !!sessionId,
@@ -137,14 +137,14 @@ function EncounterPageContent() {
   const { mutate: saveSession, isPending } = useMutation({
     mutationFn: async (payload: any) => {
       return sessionId
-        ? api.patch(`/sessions/${sessionId}`, payload)
-        : api.post("/sessions", payload);
+        ? api.patch(`/encounters/${sessionId}`, payload)
+        : api.post("/encounters", payload);
     },
     onSuccess: () => {
       toast.success(
         sessionId ? "Registro atualizado!" : "Atendimento finalizado!",
       );
-      queryClient.invalidateQueries({ queryKey: ["sessions"] });
+      queryClient.invalidateQueries({ queryKey: ["encounters"] });
       router.back();
     },
     onError: () => toast.error("Falha ao salvar."),
