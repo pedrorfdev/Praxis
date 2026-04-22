@@ -29,6 +29,13 @@
       "when": 1776723542295,
       "tag": "0003_legal_galactus",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1776816541095,
+      "tag": "0004_rainy_exiles",
+      "breakpoints": true
     }
   ]
 }

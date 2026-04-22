@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common'
 import { ApiBody, ApiOperation, ApiResponse } from '@nestjs/swagger'
-import { type LoginInput, loginSchema } from '@praxis/core/domain'
+import { type LoginInput, loginSchema, type ForgotPasswordInput, forgotPasswordSchema, type ResetPasswordInput, resetPasswordSchema } from '@praxis/core/domain'
 import { Public } from '../../common/decorators/public.decorator'
 import { AuthService } from './auth.service'
 
@@ -40,7 +40,6 @@ export class AuthController {
       example: { accessToken: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...' },
     },
   })
-  @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() body: LoginInput) {
     const validatedData = loginSchema.parse(body);
@@ -49,5 +48,56 @@ export class AuthController {
 
     const clinic = await this.authService.validateClinic(validatedData);
     return this.authService.login(clinic);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Solicitar recuperação de senha' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['email'],
+      properties: {
+        email: { type: 'string', example: 'contato@praxis.com' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Solicitação processada',
+    schema: {
+      example: { message: 'Se o e-mail existir, você receberá as instruções.' },
+    },
+  })
+  @Post('forgot')
+  async forgotPassword(@Body() body: ForgotPasswordInput) {
+    const validatedData = forgotPasswordSchema.parse(body);
+    return this.authService.forgotPassword(validatedData);
+  }
+
+  @Public()
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Redefinir senha com token' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      required: ['token', 'password'],
+      properties: {
+        token: { type: 'string', example: 'abc123...' },
+        password: { type: 'string', example: 'novaSenha123' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Senha redefinida com sucesso',
+    schema: {
+      example: { message: 'Senha redefinida com sucesso' },
+    },
+  })
+  @Post('reset')
+  async resetPassword(@Body() body: ResetPasswordInput) {
+    const validatedData = resetPasswordSchema.parse(body);
+    return this.authService.resetPassword(validatedData);
   }
 }

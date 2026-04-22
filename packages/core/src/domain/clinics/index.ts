@@ -33,7 +33,22 @@ export const loginSchema = z.object({
   password: z.string().min(1, 'Senha é obrigatória'),
 })
 
+export const forgotPasswordSchema = z.object({
+  email: z.email('E-mail inválido'),
+})
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, 'Token é obrigatório'),
+  password: z
+    .string()
+    .min(8, 'A senha deve ter no mínimo 8 caracteres')
+    .regex(/[A-Z]/, 'Deve conter pelo menos uma letra maiúscula')
+    .regex(/[0-9]/, 'Deve conter pelo menos um número'),
+})
+
 export type Clinic = z.infer<typeof clinicSchema>
 export type CreateClinicInput = z.infer<typeof createClinicSchema>
 export type UpdateClinicInput = z.infer<typeof updateClinicSchema>
 export type LoginInput = z.infer<typeof loginSchema>
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>

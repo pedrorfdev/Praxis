@@ -20,6 +20,7 @@
     "@praxis/core": "workspace:*",
     "bcryptjs": "^3.0.3",
     "drizzle-orm": "^0.45.1",
+    "nodemailer": "^8.0.5",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "pg": "^8.20.0",

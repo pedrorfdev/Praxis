@@ -3,6 +3,8 @@ import { caregivers } from './caregivers'
 import { encounters, encounterStatusEnum } from './encounters'
 import { patientCaregivers } from './patient-caregivers'
 import { patients } from './patients'
+import { passwordResetTokens } from './auth'
+import { anamnesis } from './anamnesis'
 
 export const schemas = {
   clinics,
@@ -11,4 +13,6 @@ export const schemas = {
   encounterStatusEnum,
   patientCaregivers,
   patients,
+  passwordResetTokens,
+  anamnesis,
 }
