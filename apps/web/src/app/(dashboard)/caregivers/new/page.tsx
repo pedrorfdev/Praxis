@@ -14,7 +14,7 @@ export default function NewCaregiverPage() {
     <div className="space-y-8 p-8 pt-6 w-5xl mx-auto animate-in fade-in slide-in-from-bottom-3 duration-500">
       <Link 
         href="/caregivers" 
-        className="flex items-center gap-2 text-zinc-500 hover:text-secondary transition-colors text-sm font-bold uppercase tracking-widest"
+        className="flex items-center gap-2 text-muted-foreground hover:text-secondary transition-colors text-sm font-bold uppercase tracking-widest"
       >
         <ArrowLeft className="h-4 w-4" />
         Voltar

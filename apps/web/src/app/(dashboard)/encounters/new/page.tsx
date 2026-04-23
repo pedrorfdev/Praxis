@@ -94,7 +94,7 @@ function EncounterPageContent() {
       attributes: {
         class: cn(
           "prose prose-slate max-w-full focus:outline-none min-h-screen p-12 rounded-b-lg border border-border/40 bg-card leading-relaxed transition-all",
-          "text-zinc-200 prose-headings:text-secondary prose-p:text-zinc-300 prose-strong:text-white",
+          "text-foreground prose-headings:text-secondary prose-p:text-foreground/80 prose-strong:text-foreground",
           isLocked && "opacity-80 grayscale-[0.3] cursor-not-allowed",
         ),
       },
@@ -178,10 +178,10 @@ function EncounterPageContent() {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight italic">
+            <h1 className="text-2xl font-bold text-foreground tracking-tight italic">
               {sessionId ? "Prontuário Digital" : "Novo Atendimento"}
             </h1>
-            <p className="text-xs text-zinc-500 uppercase font-black tracking-widest">
+            <p className="text-xs text-muted-foreground uppercase font-black tracking-widest">
               {sessionId ? "Histórico de Evolução" : "Evolução Clínica"}
             </p>
           </div>
@@ -195,7 +195,7 @@ function EncounterPageContent() {
             className={cn(
               "rounded-lg border-2 gap-2 font-bold uppercase tracking-widest text-xs h-12 px-4 transition-all",
               isLocked
-                ? "border-zinc-800 text-zinc-500 hover:bg-zinc-800"
+                ? "border-border text-muted-foreground hover:bg-accent"
                 : "border-secondary/50 text-secondary bg-secondary/5",
             )}
           >
@@ -253,7 +253,7 @@ function EncounterPageContent() {
                   <SelectTrigger className="h-12 rounded-xl bg-background border-border/40 font-medium text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-950 border-zinc-800 text-white font-bold">
+                  <SelectContent className="bg-popover border-border text-popover-foreground font-bold">
                     <SelectItem value="particular">Particular</SelectItem>
                     <SelectItem value="cauzzo">Cauzzo</SelectItem>
                   </SelectContent>
@@ -280,7 +280,7 @@ function EncounterPageContent() {
                   <SelectTrigger className="h-12 rounded-xl bg-background border-border/40 font-medium text-sm">
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent className="bg-zinc-950 border-zinc-800 text-white font-bold">
+                  <SelectContent className="bg-popover border-border text-popover-foreground font-bold">
                     <SelectItem value="30">30 minutos</SelectItem>
                     <SelectItem value="50">50 minutos</SelectItem>
                     <SelectItem value="60">60 minutos</SelectItem>

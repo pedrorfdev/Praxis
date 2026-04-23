@@ -36,7 +36,7 @@ export default function DashboardPage() {
               <TrendingUp className="h-8 w-8 text-primary" />
            </div>
            <h3 className="text-xl font-bold">Pronta para crescer?</h3>
-           <p className="text-zinc-500 text-sm max-w-[280px]">
+           <p className="text-muted-foreground text-sm max-w-[280px]">
              Você já realizou 18 atendimentos. Mantenha o foco na evolução dos seus pacientes.
            </p>
            <Link href="/activity" className="text-secondary text-xs font-bold uppercase tracking-widest hover:underline">

@@ -1,1 +1,5 @@
-export * from './contracts/index'
+export * from './clinics'
+export * from './patients'
+export * from './encounters'
+export * from './anamnesis'
+export * from './caregivers'

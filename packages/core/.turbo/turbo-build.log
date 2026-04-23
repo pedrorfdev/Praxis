@@ -11,29 +11,29 @@
 [34mCLI[39m Cleaning output folder
 [34mCJS[39m Build start
 [34mESM[39m Build start
-[32mCJS[39m [1mdist/index.js            [22m[32m16.15 KB[39m
-[32mCJS[39m [1mdist/domain/index.js     [22m[32m8.29 KB[39m
-[32mCJS[39m [1mdist/infra/index.js      [22m[32m8.86 KB[39m
-[32mCJS[39m [1mdist/index.js.map        [22m[32m23.41 KB[39m
-[32mCJS[39m [1mdist/domain/index.js.map [22m[32m11.88 KB[39m
-[32mCJS[39m [1mdist/infra/index.js.map  [22m[32m11.73 KB[39m
-[32mCJS[39m ⚡️ Build success in 99ms
-[32mESM[39m [1mdist/index.mjs              [22m[32m788.00 B[39m
-[32mESM[39m [1mdist/domain/index.mjs       [22m[32m681.00 B[39m
+[32mCJS[39m [1mdist/index.js            [22m[32m20.57 KB[39m
+[32mCJS[39m [1mdist/infra/index.js      [22m[32m10.64 KB[39m
+[32mCJS[39m [1mdist/domain/index.js     [22m[32m10.94 KB[39m
+[32mCJS[39m [1mdist/index.js.map        [22m[32m30.35 KB[39m
+[32mCJS[39m [1mdist/infra/index.js.map  [22m[32m14.77 KB[39m
+[32mCJS[39m [1mdist/domain/index.js.map [22m[32m15.90 KB[39m
+[32mCJS[39m ⚡️ Build success in 93ms
+[32mESM[39m [1mdist/index.mjs              [22m[32m1.23 KB[39m
+[32mESM[39m [1mdist/domain/index.mjs       [22m[32m1.12 KB[39m
 [32mESM[39m [1mdist/infra/index.mjs        [22m[32m154.00 B[39m
-[32mESM[39m [1mdist/chunk-VIW6A3VR.mjs     [22m[32m6.21 KB[39m
-[32mESM[39m [1mdist/chunk-JI3MNZMD.mjs     [22m[32m6.14 KB[39m
+[32mESM[39m [1mdist/chunk-GG4OHXLO.mjs     [22m[32m7.76 KB[39m
+[32mESM[39m [1mdist/chunk-X3BHQLRD.mjs     [22m[32m7.98 KB[39m
 [32mESM[39m [1mdist/index.mjs.map          [22m[32m71.00 B[39m
-[32mESM[39m [1mdist/chunk-VIW6A3VR.mjs.map [22m[32m11.97 KB[39m
 [32mESM[39m [1mdist/domain/index.mjs.map   [22m[32m71.00 B[39m
 [32mESM[39m [1mdist/infra/index.mjs.map    [22m[32m71.00 B[39m
-[32mESM[39m [1mdist/chunk-JI3MNZMD.mjs.map [22m[32m11.73 KB[39m
-[32mESM[39m ⚡️ Build success in 119ms
+[32mESM[39m [1mdist/chunk-GG4OHXLO.mjs.map [22m[32m15.25 KB[39m
+[32mESM[39m [1mdist/chunk-X3BHQLRD.mjs.map [22m[32m15.60 KB[39m
+[32mESM[39m ⚡️ Build success in 95ms
 DTS Build start
-DTS ⚡️ Build success in 4963ms
-DTS dist/index.d.ts         665.00 B
-DTS dist/domain/index.d.ts  9.13 KB
-DTS dist/infra/index.d.ts   70.00 KB
-DTS dist/index.d.mts        667.00 B
-DTS dist/domain/index.d.mts 9.13 KB
-DTS dist/infra/index.d.mts  70.00 KB
+DTS ⚡️ Build success in 5180ms
+DTS dist/index.d.ts         1.06 KB
+DTS dist/domain/index.d.ts  12.26 KB
+DTS dist/infra/index.d.ts   87.18 KB
+DTS dist/index.d.mts        1.07 KB
+DTS dist/domain/index.d.mts 12.26 KB
+DTS dist/infra/index.d.mts  87.18 KB

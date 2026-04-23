@@ -1,18 +1,22 @@
 import { clinics } from './clinics'
-import { caregivers } from './caregivers'
-import { encounters, encounterStatusEnum } from './encounters'
-import { patientCaregivers } from './patient-caregivers'
-import { patients } from './patients'
+import { caregivers, caregiversRelations } from './caregivers'
+import { encounters, encounterStatusEnum, encountersRelations } from './encounters'
+import { patientCaregivers, patientCaregiversRelations } from './patient-caregivers'
+import { patients, patientsRelations } from './patients'
 import { passwordResetTokens } from './auth'
 import { anamnesis } from './anamnesis'
 
 export const schemas = {
   clinics,
   caregivers,
+  caregiversRelations,
   encounters,
   encounterStatusEnum,
+  encountersRelations,
   patientCaregivers,
+  patientCaregiversRelations,
   patients,
+  patientsRelations,
   passwordResetTokens,
   anamnesis,
 }

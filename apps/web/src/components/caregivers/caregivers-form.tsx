@@ -35,7 +35,7 @@ export function CaregiverForm({ initialData, onSubmit, isLoading }: CaregiverFor
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-card/40 border border-border/40 p-10 rounded-xl shadow-2xl relative overflow-hidden">
-      <div className="absolute top-0 left-0 w-full h-1 bg-zinc-800">
+      <div className="absolute top-0 left-0 w-full h-1 bg-muted">
         <div 
           className="h-full bg-secondary transition-all duration-500" 
           style={{ width: `${(step / 2) * 100}%` }}
@@ -44,24 +44,24 @@ export function CaregiverForm({ initialData, onSubmit, isLoading }: CaregiverFor
 
       <div className="flex justify-between items-end mb-6">
         <div className="space-y-1">
-          <h2 className="text-3xl font-black text-white flex items-center gap-3">
+          <h2 className="text-3xl font-black text-foreground flex items-center gap-3">
             {isEdit ? <Heart className="text-secondary" /> : <UserPlus className="text-secondary" />}
             {isEdit ? "Editar Cuidador" : "Novo Cuidador"}
           </h2>
-          <p className="text-zinc-500 text-sm italic">Passo {step} de 2 — {step === 1 ? "Identificação" : step === 2 ? "Contato e Endereço" : "Vínculo"}</p>
+          <p className="text-muted-foreground text-sm italic">Passo {step} de 2 — {step === 1 ? "Identificação" : step === 2 ? "Contato e Endereço" : "Vínculo"}</p>
         </div>
-        <span className="text-4xl font-black text-zinc-800/50">0{step}</span>
+        <span className="text-4xl font-black text-muted-foreground/30">0{step}</span>
       </div>
 
       {step === 1 && (
         <div className="grid gap-6 animate-in slide-in-from-right-4 duration-300">
           <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Nome Completo</Label>
-            <Input {...register("name")} placeholder="Ex: Mariana Silva" className="bg-background/50 h-14 rounded-2xl border-zinc-800" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Nome Completo</Label>
+            <Input {...register("name")} placeholder="Ex: Mariana Silva" className="bg-background/50 h-14 rounded-2xl border-border" />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">CPF (Documento)</Label>
-            <Input {...register("document")} placeholder="000.000.000-00" className="bg-background/50 h-14 rounded-2xl border-zinc-800" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">CPF (Documento)</Label>
+            <Input {...register("document")} placeholder="000.000.000-00" className="bg-background/50 h-14 rounded-2xl border-border" />
           </div>
         </div>
       )}
@@ -70,17 +70,17 @@ export function CaregiverForm({ initialData, onSubmit, isLoading }: CaregiverFor
         <div className="grid gap-6 animate-in slide-in-from-right-4 duration-300">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">WhatsApp</Label>
-              <Input {...register("phone")} placeholder="(11) 99999-9999" className="bg-background/50 h-14 rounded-2xl border-zinc-800" />
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">WhatsApp</Label>
+              <Input {...register("phone")} placeholder="(11) 99999-9999" className="bg-background/50 h-14 rounded-2xl border-border" />
             </div>
             <div className="space-y-2">
-              <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">CEP</Label>
-              <Input {...register("zipCode")} placeholder="00000-000" className="bg-background/50 h-14 rounded-2xl border-zinc-800" />
+              <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">CEP</Label>
+              <Input {...register("zipCode")} placeholder="00000-000" className="bg-background/50 h-14 rounded-2xl border-border" />
             </div>
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-zinc-500 ml-1">Endereço Completo</Label>
-            <Input {...register("address")} placeholder="Rua, Número, Bairro" className="bg-background/50 h-14 rounded-2xl border-zinc-800" />
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">Endereço Completo</Label>
+            <Input {...register("address")} placeholder="Rua, Número, Bairro" className="bg-background/50 h-14 rounded-2xl border-border" />
           </div>
         </div>
       )}
@@ -93,7 +93,7 @@ export function CaregiverForm({ initialData, onSubmit, isLoading }: CaregiverFor
         ) : <div />}
 
         {step < 2 ? (
-          <Button type="button" onClick={nextStep} className="h-14 px-8 rounded-2xl bg-white text-black hover:bg-zinc-200 font-bold ml-auto">
+          <Button type="button" onClick={nextStep} className="h-14 px-8 rounded-2xl bg-primary text-primary-foreground hover:bg-primary/90 font-bold ml-auto">
             Próximo <ArrowRight className="ml-2 h-4 w-4" />
           </Button>
         ) : (

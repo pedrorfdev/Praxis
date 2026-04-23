@@ -26,7 +26,6 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
   
   const [activeSize, setActiveSize] = useState("16px");
 
-  // Atualiza o label do tamanho da fonte baseado na seleção atual
   const updateLabel = useCallback(() => {
     const attrs = editor.getAttributes("textStyle");
     setActiveSize(attrs.fontSize || "16px");
@@ -49,10 +48,9 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1.5 p-2 bg-zinc-900/50 border border-white/5 rounded-t-3xl border-b-0 sticky top-[73px] z-10 backdrop-blur-sm">
+    <div className="flex flex-wrap items-center gap-1.5 p-2 bg-primary/10 border border-white/5 rounded-t-3xl border-b-0 sticky top-[73px] z-10 backdrop-blur-sm">
       
-      {/* SELETOR DE TAMANHO DE FONTE */}
-      <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 shadow-inner">
+      <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-white/5 shadow-inner">
         <Popover>
           <PopoverTrigger asChild>
             <Button 
@@ -66,7 +64,7 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
               <Type className="h-3 w-3 opacity-50 ml-2" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-[120px] p-1 bg-zinc-950 border-white/10 shadow-2xl z-[60]" align="start">
+          <PopoverContent className="w-[120px] p-1 bg-background border-white/10 shadow-2xl z-10" align="start">
             <div className="flex flex-col gap-0.5">
               {["12px", "14px", "16px", "18px", "20px", "24px", "32px"].map((size) => (
                 <Button
@@ -74,7 +72,7 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
                   variant="ghost"
                   size="sm"
                   className={cn(
-                    "h-8 justify-start font-mono text-xs text-zinc-400 hover:text-white hover:bg-white/5",
+                    "h-8 justify-start font-mono text-xs text-primary hover:text-secondary hover:bg-white/5",
                     activeSize === size && "bg-secondary/20 text-secondary font-black"
                   )}
                   onClick={() => {
@@ -92,8 +90,8 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
 
       <Separator orientation="vertical" className="h-6 bg-white/5" />
 
-      {/* ESTILOS BÁSICOS */}
-      <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 shadow-inner">
+
+      <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-white/5 shadow-inner">
         <Button
           variant="ghost" size="sm"
           onClick={toggleAction(() => editor.chain().focus().toggleBold().run())}
@@ -109,7 +107,6 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
           <Italic className="h-4 w-4" />
         </Button>
 
-        {/* COR DO TEXTO */}
         <Popover>
           <PopoverTrigger asChild>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0 relative">
@@ -145,8 +142,7 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
 
       <Separator orientation="vertical" className="h-6 bg-white/5" />
 
-      {/* BLOCOS E LISTAS */}
-      <div className="flex items-center gap-1 bg-zinc-950 p-1 rounded-xl border border-white/5 shadow-inner">
+      <div className="flex items-center gap-1 bg-muted/40 p-1 rounded-xl border border-white/5 shadow-inner">
         <Button
           variant="ghost" size="sm"
           onClick={toggleAction(() => editor.chain().focus().toggleHeading({ level: 1 }).run())}
@@ -163,7 +159,6 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
           <List className="h-4 w-4" />
         </Button>
 
-        {/* LISTA ORDENADA - ADICIONADO */}
         <Button
           variant="ghost" size="sm"
           onClick={toggleAction(() => editor.chain().focus().toggleOrderedList().run())}
@@ -172,7 +167,6 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
           <ListOrdered className="h-4 w-4" />
         </Button>
 
-        {/* CITAÇÃO / QUOTE - ADICIONADO */}
         <Button
           variant="ghost" size="sm"
           onClick={toggleAction(() => editor.chain().focus().toggleBlockquote().run())}
@@ -182,8 +176,7 @@ export const EditorMenuBar = ({ editor }: { editor: Editor | null }) => {
         </Button>
       </div>
 
-      {/* UNDO / REDO */}
-      <div className="flex items-center gap-1 ml-auto bg-zinc-950 p-1 rounded-xl border border-white/5 shadow-inner">
+      <div className="flex items-center gap-1 ml-auto bg-muted/40 p-1 rounded-xl border border-white/5 shadow-inner">
         <Button
           variant="ghost" size="sm"
           onClick={toggleAction(() => editor.chain().focus().undo().run())}

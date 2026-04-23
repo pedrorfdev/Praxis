@@ -16,9 +16,7 @@ export class AuthController {
   constructor(
     @Inject(AuthService)
     private readonly authService: AuthService
-  ) {
-    console.log('🔍 AuthService injetado?', !!this.authService);
-  }
+  ) {}
 
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -43,9 +41,6 @@ export class AuthController {
   @Post('login')
   async login(@Body() body: LoginInput) {
     const validatedData = loginSchema.parse(body);
-    console.log('🔍 AuthService injetado?', !!this.authService);
-    console.log('🔍 chegou no validate?', validatedData);
-
     const clinic = await this.authService.validateClinic(validatedData);
     return this.authService.login(clinic);
   }

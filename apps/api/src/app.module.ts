@@ -6,6 +6,7 @@ import { ClinicsModule } from './modules/clinics/clinics.module'
 import { HealthModule } from './modules/health/health.module'
 import { PatientsModule } from './modules/patients/patients.module'
 import { EncountersModule } from './modules/encounters/encounters.module'
+import { CaregiversModule } from './modules/caregivers/caregivers.module'
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { EncountersModule } from './modules/encounters/encounters.module'
     ClinicsModule,
     PatientsModule,
     EncountersModule,
+    CaregiversModule,
   ],
   controllers: [],
   providers: [

@@ -36,13 +36,13 @@ export default function ActivityPage() {
           <History className="h-6 w-6" />
           Atividade Recente
         </h2>
-        <p className="text-zinc-500 text-sm">
+        <p className="text-muted-foreground text-sm">
           Histórico cronológico de todos os atendimentos realizados.
         </p>
       </div>
 
       <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           placeholder="Buscar paciente..."
           value={search}
@@ -63,21 +63,21 @@ export default function ActivityPage() {
                   <FileText className="h-5 w-5 text-primary" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-zinc-500 group-hover:text-primary/40 transition-colors">
+                  <h3 className="font-semibold text-muted-foreground group-hover:text-primary/40 transition-colors">
                     {activity.patientName}
                   </h3>
-                  <span className="text-xs uppercase tracking-wider text-zinc-500 font-bold">
+                  <span className="text-xs uppercase tracking-wider text-muted-foreground font-bold">
                     {formatDateLabel(activity.date)}
                   </span>
                 </div>
               </div>
               
-              <ChevronRight className="h-4 w-4 text-zinc-600 group-hover:text-secondary group-hover:translate-x-1 transition-all" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-secondary group-hover:translate-x-1 transition-all" />
             </div>
           ))
         ) : (
           <div className="text-center py-20 border-2 border-dashed border-border/20 rounded-3xl">
-            <p className="text-zinc-500 text-sm italic">Nenhuma atividade encontrada.</p>
+            <p className="text-muted-foreground text-sm italic">Nenhuma atividade encontrada.</p>
           </div>
         )}
       </div>

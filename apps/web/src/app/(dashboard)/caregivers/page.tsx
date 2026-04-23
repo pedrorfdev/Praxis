@@ -89,7 +89,7 @@ export default function CaregiversPage() {
       </div>
 
       {isLoading && (
-        <div className="flex items-center gap-3 text-sm text-zinc-500">
+        <div className="flex items-center gap-3 text-sm text-muted-foreground">
           <Loader2 className="h-4 w-4 animate-spin text-secondary" /> 
           Sincronizando base de cuidadores...
         </div>
@@ -127,12 +127,12 @@ function CaregiverCard({ caregiver }: { caregiver: CaregiverSummary }) {
               variant="ghost"
               size="icon"
               onClick={(e) => e.stopPropagation()}
-              className="h-8 w-8 rounded-full hover:bg-zinc-800"
+              className="h-8 w-8 rounded-full hover:bg-accent"
             >
-              <MoreVertical className="h-4 w-4 text-zinc-500" />
+              <MoreVertical className="h-4 w-4 text-muted-foreground" />
             </Button>
           </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="rounded-xl w-48 bg-zinc-950 border-zinc-800 text-white">
+          <DropdownMenuContent align="end" className="rounded-xl w-48 bg-popover border-border text-popover-foreground">
             <DropdownMenuItem onClick={() => router.push(`/caregivers/${caregiver.id}`)} className="cursor-pointer">
               <Eye className="w-4 h-4 mr-2" /> Visualizar Perfil
             </DropdownMenuItem>

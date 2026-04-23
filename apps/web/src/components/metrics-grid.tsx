@@ -6,7 +6,7 @@ const metrics = [
     title: "Pacientes Ativos",
     value: "42",
     icon: Users,
-    color: "text-blue-400",
+    color: "text-primary",
     className: "md:col-span-2 lg:col-span-2",
   },
   {
@@ -20,7 +20,7 @@ const metrics = [
     title: "Evoluções Finalizadas",
     value: "156",
     icon: FileCheck,
-    color: "text-green-400",
+    color: "text-secondary",
     className: "md:col-span-2 lg:col-span-2",
   },
 ];
