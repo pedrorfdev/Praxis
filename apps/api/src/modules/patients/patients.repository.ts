@@ -51,4 +51,32 @@ export class PatientsRepository {
         and(eq(schema.patients.id, id), eq(schema.patients.clinicId, clinicId)),
       )
   }
+
+  async getAnamnesis(patientId: string, clinicId: string) {
+    return db.query.anamnesis.findFirst({
+      where: and(
+        eq(schema.anamnesis.patientId, patientId),
+        eq(schema.anamnesis.clinicId, clinicId),
+      ),
+    })
+  }
+
+  async upsertAnamnesis(patientId: string, clinicId: string, content: any) {
+    const [anamnesis] = await db
+      .insert(schema.anamnesis)
+      .values({
+        patientId,
+        clinicId,
+        content,
+      })
+      .onConflictDoUpdate({
+        target: schema.anamnesis.patientId,
+        set: {
+          content,
+          updatedAt: new Date(),
+        },
+      })
+      .returning()
+    return anamnesis
+  }
 }

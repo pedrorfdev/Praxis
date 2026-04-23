@@ -7,6 +7,7 @@ import {
   Param,
   Patch,
   Post,
+  Put,
 } from '@nestjs/common'
 import {
   ApiBearerAuth,
@@ -19,9 +20,11 @@ import {
   createPatientSchema,
   updatePatientSchema,
   updatePatientDiagnosisSchema,
+  updateAnamnesisSchema,
   type CreatePatientInput,
   type UpdatePatientInput,
   type UpdatePatientDiagnosisInput,
+  type UpdateAnamnesisInput,
 } from '@praxis/core/domain'
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
@@ -180,5 +183,37 @@ export class PatientsController {
   })
   async remove(@Param('id') id: string, @ActiveClinic() clinicId: string) {
     return this.patientsService.remove(id, clinicId)
+  }
+
+  @Get(':id/anamnesis')
+  @ApiOperation({ summary: 'Obter a anamnese de um paciente' })
+  @ApiResponse({
+    status: 200,
+    description: 'Anamnese recuperada com sucesso.',
+  })
+  async getAnamnesis(@Param('id') id: string, @ActiveClinic() clinicId: string) {
+    return this.patientsService.getAnamnesis(id, clinicId)
+  }
+
+  @Put(':id/anamnesis')
+  @ApiOperation({ summary: 'Salvar ou atualizar a anamnese de um paciente' })
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        content: { type: 'object', description: 'Dados flexíveis da anamnese' },
+      },
+    },
+  })
+  @ApiResponse({
+    status: 200,
+    description: 'Anamnese salva com sucesso.',
+  })
+  async saveAnamnesis(
+    @Param('id') id: string,
+    @ActiveClinic() clinicId: string,
+    @Body(new ZodValidationPipe(updateAnamnesisSchema)) body: UpdateAnamnesisInput,
+  ) {
+    return this.patientsService.saveAnamnesis(id, clinicId, body.content)
   }
 }
