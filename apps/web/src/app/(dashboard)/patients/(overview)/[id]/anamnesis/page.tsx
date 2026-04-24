@@ -1,8 +1,12 @@
 "use client";
 
 import { useFormContext } from "react-hook-form";
+import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Lock, LockOpen, Save } from "lucide-react";
+import { ChevronLeft, ChevronRight, Lock, LockOpen, Save, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { upsertAnamnesis } from "@/services/frontend-data";
 import { MainComplaint } from "./_components/segments/main-complaint";
 import { GestationalHistory } from "./_components/segments/gestational-history";
 import { NeonatalHistory } from "./_components/segments/neonatal-history";
@@ -21,10 +25,14 @@ import { PatientMiniHeader } from "./_components/patient-mini-header";
 import { cn } from "@/lib/utils";
 
 export default function AnamnesisPage() {
+  const params = useParams();
+  const router = useRouter();
+  const patientId = params.id as string;
+  const [isSaving, setIsSaving] = useState(false);
   const { currentStep, nextStep, prevStep, isLastStep, isLocked, setIsLocked } = useAnamnesis();
   const { handleSubmit } = useFormContext();
 
-  const onFinalSubmit = (data: any) => {
+  const onFinalSubmit = async (data: any) => {
     const sanitize = (obj: any): any => {
       return Object.keys(obj).reduce((acc: any, key) => {
         const value = obj[key];
@@ -41,8 +49,23 @@ export default function AnamnesisPage() {
     };
 
     const cleanData = sanitize(data);
-    console.log("Dados Prontos para o Backend:", cleanData);
-    alert("Anamnese finalizada com sucesso!");
+    
+    setIsSaving(true);
+    try {
+      await upsertAnamnesis(patientId, cleanData);
+      toast.success("Anamnese finalizada e salva com sucesso!");
+      
+      // Redirect to patient overview after success
+      setTimeout(() => {
+        router.push(`/patients/${patientId}`);
+      }, 1500);
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Erro ao salvar anamnese";
+      toast.error(errorMessage);
+      console.error("Erro ao salvar anamnese:", error);
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const renderSegment = () => {
@@ -84,6 +107,7 @@ export default function AnamnesisPage() {
             type="button"
             variant="outline"
             onClick={() => setIsLocked(!isLocked)}
+            disabled={isSaving}
             className={cn(
               "rounded-xl border-2 gap-2 font-bold uppercase tracking-widest text-xs transition-all cursor-pointer",
               isLocked 
@@ -106,7 +130,7 @@ export default function AnamnesisPage() {
             type="button"
             variant="ghost"
             onClick={prevStep}
-            disabled={currentStep === ANAMNESIS_STEPS[0]}
+            disabled={currentStep === ANAMNESIS_STEPS[0] || isSaving}
             className="text-muted-foreground hover:text-primary transition-colors"
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
@@ -117,6 +141,7 @@ export default function AnamnesisPage() {
             <Button
               type="button"
               onClick={nextStep}
+              disabled={isSaving}
               className="bg-secondary text-secondary-foreground font-bold px-8 rounded-xl hover:scale-105 transition-all"
             >
               Próximo Passo
@@ -126,10 +151,20 @@ export default function AnamnesisPage() {
             <Button
               type="button"
               onClick={handleSubmit(onFinalSubmit)}
-              className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-8 rounded-xl hover:scale-105 transition-all"
+              disabled={isSaving}
+              className="bg-emerald-500 hover:bg-emerald-600 text-white font-bold px-8 rounded-xl hover:scale-105 transition-all disabled:opacity-50"
             >
-              <Save className="w-4 h-4 mr-2" />
-              Finalizar Anamnese
+              {isSaving ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Salvando...
+                </>
+              ) : (
+                <>
+                  <Save className="w-4 h-4 mr-2" />
+                  Finalizar Anamnese
+                </>
+              )}
             </Button>
           )}
         </div>

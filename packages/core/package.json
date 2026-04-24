@@ -38,8 +38,10 @@
     "zod": "latest"
   },
   "devDependencies": {
+    "@faker-js/faker": "^10.4.0",
     "@praxis/typescript-config": "workspace:*",
     "@types/bcryptjs": "^3.0.0",
+    "@types/node": "^25.6.0",
     "drizzle-kit": "latest",
     "drizzle-seed": "^0.3.1",
     "tsup": "latest",

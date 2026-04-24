@@ -143,10 +143,6 @@ export async function updateEncounter(id: string, data: any) {
   return response.data;
 }
 
-/* ============================================================================
-   MÓDULO DE ANAMNESE
-   ============================================================================ */
-
 export async function getPatientAnamnesis(patientId: string) {
   if (frontendRuntimeConfig.useMocks) return fallback({ content: {} });
   
@@ -155,6 +151,6 @@ export async function getPatientAnamnesis(patientId: string) {
 }
 
 export async function upsertAnamnesis(patientId: string, content: any) {
-  const response = await api.post(`/patients/${patientId}/anamnesis`, { content });
+  const response = await api.put(`/patients/${patientId}/anamnesis`, { content });
   return response.data;
 }
