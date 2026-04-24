@@ -69,7 +69,7 @@ export function LinkPatientDialog({ caregiverId }: { caregiverId: string }) {
         </DialogHeader>
 
         <div className="py-4">
-          <Command className="rounded-lg border border-border/40 bg-card">
+          <Command className="rounded-lg border border-border/40 bg-card" value={selectedId} onValueChange={setSelectedId}>
             <CommandInput placeholder="Buscar paciente..." className="border-0 focus-visible:ring-0" />
             <CommandList>
               <CommandEmpty className="text-muted-foreground text-sm py-6 text-center">Nenhum paciente encontrado.</CommandEmpty>
@@ -77,8 +77,7 @@ export function LinkPatientDialog({ caregiverId }: { caregiverId: string }) {
                 {patients.map((patient) => (
                   <CommandItem
                     key={patient.id}
-                    value={patient.fullName}
-                    onSelect={() => setSelectedId(patient.id)}
+                    value={patient.id}
                     className="flex items-center justify-between p-3 cursor-pointer hover:bg-secondary/10 transition-all rounded-lg mx-1 my-1"
                   >
                     <div className="flex flex-col">

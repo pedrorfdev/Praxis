@@ -134,6 +134,13 @@ function EncounterPageContent() {
     }
   }, [startTime, duration]);
 
+  const CustomNumericInput = (props: any) => (
+    <input
+      {...props}
+      className="w-full h-12 px-4 rounded-xl bg-background border border-border/40 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/20"
+    />
+  );
+
   const { mutate: saveSession, isPending } = useMutation({
     mutationFn: async (payload: any) => {
       return sessionId
@@ -303,12 +310,7 @@ function EncounterPageContent() {
                   Sessão
                 </Label>
                 <NumericFormat
-                  customInput={(props) => (
-                    <input
-                      {...props}
-                      className="w-full h-12 px-4 rounded-xl bg-background border border-border/40 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/20"
-                    />
-                  )}
+                  customInput={CustomNumericInput}
                   thousandSeparator="."
                   decimalSeparator=","
                   prefix="R$ "
