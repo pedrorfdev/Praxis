@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { api } from "@/lib/api";
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
@@ -24,9 +25,10 @@ export default function ForgotPasswordPage() {
     setIsPending(true);
 
     try {
-      // O backend ainda não expõe endpoint de recuperação.
-      await new Promise((resolve) => setTimeout(resolve, 700));
+      await api.post("/auth/forgot", { email });
       toast.success("Se o e-mail existir, enviaremos instruções de recuperação.");
+    } catch (error: any) {
+      toast.error("Ocorreu um erro ao processar sua solicitação.");
     } finally {
       setIsPending(false);
     }

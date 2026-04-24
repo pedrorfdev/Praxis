@@ -16,10 +16,10 @@ export default function NewPatientPage() {
     mutationFn: async (formData: any) => {
       return await createPatient(formData);
     },
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast.success("Paciente cadastrado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["patients"] });
-      router.push("/patients");
+      router.push(`/patients/${data.id}/anamnesis`);
     },
     onError: (error: any) => {
       console.error(error);

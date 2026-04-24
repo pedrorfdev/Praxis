@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun, ChevronRight } from "lucide-react";
+import { Moon, Sun, ChevronRight, LogOut } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";
@@ -23,12 +23,50 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import Link from "next/link";
 
+import { useQuery } from "@tanstack/react-query";
+import { getPatientById } from "@/services/frontend-data";
+
 const routeMap: Record<string, string> = {
   agenda: "Agenda",
-  pacientes: "Pacientes",
+  patients: "Pacientes",
+  caregivers: "Cuidadores",
   prontuarios: "Prontuários",
   settings: "Configurações",
 };
+
+function BreadcrumbSegment({ segment, index, pathSegments }: { segment: string, index: number, pathSegments: string[] }) {
+  const isLast = index === pathSegments.length - 1;
+  const href = `/${pathSegments.slice(0, index + 1).join('/')}`;
+  
+  // UUID pattern check
+  const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(segment);
+  
+  const { data: patient } = useQuery({
+    queryKey: ["patient", segment],
+    queryFn: () => getPatientById(segment),
+    enabled: isUuid,
+    staleTime: 1000 * 60 * 5, // 5 minutes cache
+  });
+
+  const label = isUuid ? (patient?.fullName || "Carregando...") : (routeMap[segment] || segment);
+
+  return (
+    <div className="flex items-center gap-2">
+      <BreadcrumbItem>
+        {isLast ? (
+          <BreadcrumbPage className="font-bold text-primary italic capitalize">
+            {label}
+          </BreadcrumbPage>
+        ) : (
+          <BreadcrumbLink asChild>
+            <Link href={href} className="capitalize">{label}</Link>
+          </BreadcrumbLink>
+        )}
+      </BreadcrumbItem>
+      {!isLast && <BreadcrumbSeparator />}
+    </div>
+  );
+}
 
 export function DashboardHeader() {
   const { setTheme } = useTheme();
@@ -55,43 +93,34 @@ export function DashboardHeader() {
                 <BreadcrumbPage className="font-bold text-primary italic">Dashboard</BreadcrumbPage>
               </BreadcrumbItem>
             ) : (
-              pathSegments.map((segment, index) => {
-                const isLast = index === pathSegments.length - 1;
-                const href = `/${pathSegments.slice(0, index + 1).join('/')}`;
-                const label = routeMap[segment] || segment;
-
-                return (
-                  <div key={href} className="flex items-center gap-2">
-                    <BreadcrumbItem>
-                      {isLast ? (
-                        <BreadcrumbPage className="font-bold text-primary italic capitalize">
-                          {label}
-                        </BreadcrumbPage>
-                      ) : (
-                        <BreadcrumbLink asChild>
-                          <Link href={href} className="capitalize">{label}</Link>
-                        </BreadcrumbLink>
-                      )}
-                    </BreadcrumbItem>
-                    {!isLast && <BreadcrumbSeparator />}
-                  </div>
-                );
-              })
+              pathSegments.map((segment, index) => (
+                <BreadcrumbSegment 
+                  key={segment + index} 
+                  segment={segment} 
+                  index={index} 
+                  pathSegments={pathSegments} 
+                />
+              ))
             )}
           </BreadcrumbList>
         </Breadcrumb>
       </div>
 
       <div className="ml-auto flex items-center gap-4">
-      {/*   {pathname.includes('/pacientes') ? (
-           <NewPatientDialog />
-        ) : pathname.includes('/agenda') ? (
-          <Button className="bg-secondary text-secondary-foreground hover:bg-secondary/90 rounded-xl font-bold shadow-lg shadow-secondary/10">
-            Novo Atendimento
-          </Button>
-        ) : null} */}
-        
         <Separator orientation="vertical" className="h-6 opacity-40" />
+
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            localStorage.removeItem("praxis:token");
+            window.location.href = "/login";
+            toast.success("Sessão encerrada!");
+          }}
+          className="h-9 w-9 hover:bg-destructive/10 rounded-xl transition-colors group"
+        >
+          <LogOut className="h-5 w-5 text-muted-foreground group-hover:text-destructive transition-colors" />
+        </Button>
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>

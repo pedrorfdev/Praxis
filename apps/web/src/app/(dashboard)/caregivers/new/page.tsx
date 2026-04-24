@@ -3,11 +3,31 @@
 import { CaregiverForm } from "@/components/caregivers/caregivers-form";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { createCaregiver } from "@/services/frontend-data";
+import { toast } from "sonner";
 
 export default function NewCaregiverPage() {
 
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  const mutation = useMutation({
+    mutationFn: createCaregiver,
+    onSuccess: () => {
+      toast.success("Cuidador cadastrado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["caregivers"] });
+      router.push("/caregivers");
+    },
+    onError: (error) => {
+      console.error("Erro ao salvar cuidador:", error);
+      toast.error("Erro ao salvar cuidador. Verifique os dados e tente novamente.");
+    }
+  });
+
   const handleSave = (data: any) => {
-    console.log("Payload enviado:", data);
+    mutation.mutate(data);
   };
 
   return (

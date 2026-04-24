@@ -35,15 +35,25 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useQuery } from "@tanstack/react-query";
-import { listPatients } from "@/services/frontend-data";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { listPatients, deletePatient } from "@/services/frontend-data";
 import type { PatientSummary } from "@/mocks/entities";
+import { toast } from "sonner";
 
 export default function PatientsPage() {
   const [view, setView] = useState("grid");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [patientToDelete, setPatientToDelete] = useState<PatientSummary | null>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const {
     data: patients = [],
@@ -52,12 +62,52 @@ export default function PatientsPage() {
     queryKey: ["patients"],
     queryFn: listPatients,
   });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deletePatient(id),
+    onSuccess: () => {
+      toast.success("Paciente removido com sucesso.");
+      queryClient.invalidateQueries({ queryKey: ["patients"] });
+      setPatientToDelete(null);
+    },
+    onError: () => {
+      toast.error("Erro ao remover paciente.");
+    }
+  });
+
   const filteredPatients = patients.filter((p) =>
     p.fullName.toLowerCase().includes(search.toLowerCase()),
   );
 
   return (
     <div className="flex flex-col gap-8">
+      {/* Modal de Confirmação de Deleção */}
+      <Dialog open={!!patientToDelete} onOpenChange={(open) => !open && setPatientToDelete(null)}>
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja remover o paciente <strong>{patientToDelete?.fullName}</strong>? 
+              Esta ação não pode ser desfeita e todos os dados vinculados serão perdidos.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setPatientToDelete(null)} className="rounded-xl">
+              Cancelar
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => patientToDelete && deleteMutation.mutate(patientToDelete.id)}
+              disabled={deleteMutation.isPending}
+              className="rounded-xl"
+            >
+              {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+              Excluir Paciente
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight text-primary">
@@ -110,20 +160,20 @@ export default function PatientsPage() {
         <TabsContent value="grid" className="mt-0 outline-none">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredPatients.map((patient) => (
-              <PatientCard key={patient.id} patient={patient} />
+              <PatientCard key={patient.id} patient={patient} onDelete={() => setPatientToDelete(patient)} />
             ))}
           </div>
         </TabsContent>
 
         <TabsContent value="list" className="mt-0 outline-none">
-          <PatientList patients={filteredPatients} />
+          <PatientList patients={filteredPatients} onDelete={(p) => setPatientToDelete(p)} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-function PatientCard({ patient }: { patient: PatientSummary }) {
+function PatientCard({ patient, onDelete }: { patient: PatientSummary, onDelete: () => void }) {
   const router = useRouter();
   const initials = patient.fullName
     .split(" ")
@@ -164,14 +214,18 @@ function PatientCard({ patient }: { patient: PatientSummary }) {
               <Pencil className="w-4 h-4 mr-2" /> Editar
             </DropdownMenuItem>
             <DropdownMenuItem
-              className="text-destructive"
-              onClick={(e) => e.stopPropagation()}
+              className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }}
             >
               <Trash2 className="w-4 h-4 mr-2" /> Remover
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
 
       <CardHeader className="flex flex-col items-center text-center pt-8 pb-4">
         <Avatar className="h-20 w-20 border-4 border-secondary/20">
@@ -207,7 +261,7 @@ function PatientCard({ patient }: { patient: PatientSummary }) {
   );
 }
 
-function PatientList({ patients }: { patients: PatientSummary[] }) {
+function PatientList({ patients, onDelete }: { patients: PatientSummary[], onDelete: (p: PatientSummary) => void }) {
   const router = useRouter();
 
   return (
@@ -283,6 +337,7 @@ function PatientList({ patients }: { patients: PatientSummary[] }) {
                   <Button
                     variant="ghost"
                     size="icon"
+                    onClick={() => onDelete(patient)}
                     title="Remover"
                     className="hover:text-destructive"
                   >

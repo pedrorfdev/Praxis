@@ -23,7 +23,9 @@ export default function ActivityPage() {
   );
 
   const formatDateLabel = (dateStr: string) => {
+    if (!dateStr) return "Data não informada";
     const date = new Date(dateStr);
+    if (isNaN(date.getTime())) return "Data inválida";
     if (isToday(date)) return "Hoje";
     if (isYesterday(date)) return "Ontem";
     return format(date, "dd 'de' MMMM", { locale: ptBR });

@@ -58,33 +58,30 @@ export default function EditPatientPage() {
   }
 
   return (
-    <div className="container max-w-4xl py-10 space-y-8">
-      <div className="flex items-center justify-between">
-        <div className="space-y-1">
-          <Button 
-            variant="ghost" 
-            size="sm" 
-            onClick={() => router.back()} 
-            className="pl-0 hover:bg-transparent -ml-1 text-muted-foreground"
-          >
-            <ChevronLeft className="h-4 w-4 mr-1" /> Voltar
-          </Button>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">
-            Editar Ficha Cadastral
-          </h1>
-          <p className="text-muted-foreground">
-            Altere as informações básicas e de contato de {patient?.fullName}.
-          </p>
-        </div>
+    <div className="space-y-8 p-8 pt-6 max-w-5xl mx-auto animate-in fade-in slide-in-from-bottom-3 duration-500">
+      <div className="flex flex-col gap-2">
+        <Button 
+          variant="ghost" 
+          size="sm" 
+          onClick={() => router.back()} 
+          className="w-fit pl-0 hover:bg-transparent text-muted-foreground"
+        >
+          <ChevronLeft className="h-4 w-4 mr-1" /> Voltar para listagem
+        </Button>
+        <h1 className="text-4xl font-bold tracking-tight text-primary italic">
+          Editar Paciente
+        </h1>
+        <p className="text-muted-foreground">
+          Altere as informações de {patient?.fullName} conforme necessário.
+        </p>
       </div>
 
-      <div className="bg-card border border-border/40 rounded-2xl p-6 shadow-sm">
-        <PatientForm 
-          initialData={patient} 
-          onSubmit={(data) => updateMutation.mutate(data)}
-          isLoading={updateMutation.isPending}
-        />
-      </div>
+      <PatientForm 
+        initialData={patient} 
+        isEditing={true}
+        onSubmit={(data) => updateMutation.mutate(data)}
+        isLoading={updateMutation.isPending}
+      />
     </div>
   );
 }

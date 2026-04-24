@@ -35,7 +35,7 @@ export default function LoginPage() {
     setIsPending(true);
     try {
       const response = await api.post("/auth/login", { email, password });
-      localStorage.setItem("praxis:token", response.data?.accessToken ?? "");
+      localStorage.setItem("praxis:token", response.data?.access_token ?? "");
       toast.success("Login realizado com sucesso.");
       router.replace("/");
     } catch (error) {

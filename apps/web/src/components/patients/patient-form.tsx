@@ -31,6 +31,7 @@ interface PatientFormProps {
 
 export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: PatientFormProps) {
   const [step, setStep] = useState(1);
+  const [isNavigating, setIsNavigating] = useState(false);
 
   const { control, handleSubmit, watch, trigger, formState: { errors } } = useForm<any>({
     resolver: zodResolver(createPatientSchema),
@@ -60,13 +61,28 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
   const patientType = watch("type");
 
   const nextStep = async () => {
+    if (isNavigating) return;
+    
     const stepsFields: Record<number, any[]> = {
       1: ["fullName", "birthDate", "gender", "cpf", "responsibleName"],
       2: ["address", "city", "phone", "birthPlace"],
-      3: ["diagnosis", "religion", "maritalStatus", "educationLevel", "profession"],
+      3: ["religion", "maritalStatus", "educationLevel", "profession"], // Removido diagnosis da validação obrigatória
     };
+
     const isValid = await trigger(stepsFields[step]);
-    if (isValid) setStep((s) => s + 1);
+    if (isValid) {
+      setIsNavigating(true);
+      setStep((s) => s + 1);
+      // Pequeno delay para evitar clique duplo/pulo de step
+      setTimeout(() => setIsNavigating(false), 500);
+    }
+  };
+
+  const prevStep = () => {
+    if (isNavigating) return;
+    setIsNavigating(true);
+    setStep((s) => s - 1);
+    setTimeout(() => setIsNavigating(false), 500);
   };
 
   return (
@@ -86,7 +102,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
           <div className="space-y-1">
             <h2 className="text-3xl font-black text-foreground flex items-center gap-3">
               <UserPlus className="text-secondary" />
-              Novo Paciente
+              {isEditing ? "Editar Paciente" : "Novo Paciente"}
             </h2>
             <p className="text-muted-foreground text-sm italic">
               Passo {step} de 3 — {step === 1 ? "Identificação" : step === 2 ? "Dados Pessoais" : "Detalhes Clínicos"}
@@ -94,6 +110,8 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
           </div>
           <span className="text-4xl font-black text-muted-foreground/30">0{step}</span>
         </div>
+        
+        {/* ... (campos dos steps 1 e 2 permanecem iguais) ... */}
         {step === 1 && (
           <div className="grid gap-6 animate-in fade-in slide-in-from-right-4">
             <div className="space-y-4">
@@ -248,6 +266,31 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
 
         {step === 3 && (
           <div className="grid gap-6 animate-in fade-in slide-in-from-right-4">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">Diagnóstico Principal</Label>
+                <span className="text-[10px] text-muted-foreground bg-muted/30 px-2 py-0.5 rounded-full uppercase tracking-tighter">Opcional</span>
+              </div>
+              <Controller
+                control={control}
+                name="diagnosis"
+                render={({ field }) => (
+                  <select
+                    {...field}
+                    className="w-full bg-background/50 border border-border h-14 rounded-2xl px-4 text-sm outline-none focus:ring-2 focus:ring-secondary/30"
+                  >
+                    <option value="">Selecione depois (opcional)</option>
+                    <option value="TDAH">TDAH</option>
+                    <option value="TEA">TEA</option>
+                    <option value="ANSIEDADE">Ansiedade</option>
+                    <option value="DEPRESSAO">Depressão</option>
+                    <option value="OUTRO">Outro</option>
+                  </select>
+                )}
+              />
+              <FieldError message={errors.diagnosis?.message as string} />
+            </div>
+
             {patientType === "ADULT" && (
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
@@ -269,7 +312,6 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
               <Label className="text-xs uppercase tracking-widest text-muted-foreground">Religião</Label>
               <Controller control={control} name="religion" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} />} />
             </div>
-
           </div>
         )}
 
@@ -277,8 +319,8 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
           <Button
             type="button"
             variant="ghost"
-            onClick={() => setStep(step - 1)}
-            disabled={step === 1 || isLoading}
+            onClick={prevStep}
+            disabled={step === 1 || isLoading || isNavigating}
             className={step === 1 ? "invisible" : "rounded-full px-6"}
           >
             <ChevronLeft className="w-4 h-4 mr-2" /> Voltar
@@ -288,6 +330,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
             <Button
               type="button"
               onClick={nextStep}
+              disabled={isNavigating}
               className="rounded-full px-10 bg-primary text-primary-foreground font-bold hover:bg-primary/90 hover:scale-105 transition-all"
             >
               Próximo <ChevronRight className="w-4 h-4 ml-2" />
@@ -295,7 +338,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
           ) : (
             <Button
               type="submit"
-              disabled={isLoading}
+              disabled={isLoading || isNavigating}
               className="rounded-full px-12 bg-secondary text-secondary-foreground font-bold shadow-xl shadow-secondary/20 transition-all hover:scale-105"
             >
               {isLoading ? (

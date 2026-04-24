@@ -11,6 +11,8 @@ import { useRouter } from "next/navigation";
 import { LinkPatientDialog } from "@/components/caregivers/link-patient-dialog";
 import { CaregiverSidebar } from "@/components/caregivers/caregiver-sidebar";
 import { use } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { getCaregiverById } from "@/services/frontend-data";
 
 export default function CaregiverDetailsPage({
   params,
@@ -21,27 +23,13 @@ export default function CaregiverDetailsPage({
   const { id } = resolvedParams as { id: string };
   const router = useRouter();
 
-  const caregiver = {
-    name: "Mariana Silva",
-    kinship: "Mãe",
-    phone: "(11) 98888-7777",
-    email: "mariana@email.com",
-    address: "Rua das Oliveiras, 450 - SP",
-    patients: [
-      {
-        id: "p1",
-        name: "João Silva",
-        diagnosis: "TEA",
-        lastSession: "20/03/2026",
-      },
-      {
-        id: "p2",
-        name: "Ana Silva",
-        diagnosis: "TDAH",
-        lastSession: "22/03/2026",
-      },
-    ],
-  };
+  const { data: caregiver, isLoading } = useQuery({
+    queryKey: ["caregiver", id],
+    queryFn: () => getCaregiverById(id),
+  });
+
+  if (isLoading) return <div className="p-8 text-center">Carregando...</div>;
+  if (!caregiver) return <div className="p-8 text-center">Cuidador não encontrado.</div>;
 
   return (
     <div className="flex flex-col gap-8 animate-in slide-in-from-bottom-2 duration-500">
@@ -74,26 +62,26 @@ export default function CaregiverDetailsPage({
             <h3 className="text-2xl md:text-3xl font-black text-primary flex items-center gap-3">
               <Users className="h-6 w-6 text-secondary" /> Pacientes Vinculados
             </h3>
-            <LinkPatientDialog />
+            <LinkPatientDialog caregiverId={id} />
           </div>
 
           <div className="grid gap-4">
-            {caregiver.patients.map((p) => (
+            {caregiver.patientLinks?.map((link: any) => (
               <Card
-                key={p.id}
-                onClick={() => router.push(`/patients/${p.id}`)}
+                key={link.patient.id}
+                onClick={() => router.push(`/patients/${link.patient.id}`)}
                 className="group cursor-pointer bg-card border border-border rounded-xl p-5 hover:border-secondary/40 hover:shadow-md transition-all"
               >
                 <div className="flex items-center gap-4">
                   <div className="h-10 w-10 rounded-full bg-primary/5 flex items-center justify-center font-bold text-primary text-xs">
-                    {p.name[0]}
+                    {link.patient.fullName[0]}
                   </div>
                   <div>
                     <p className="font-bold group-hover:text-secondary transition-colors">
-                      {p.name}
+                      {link.patient.fullName}
                     </p>
                     <p className="text-xs text-muted-foreground italic">
-                      {p.diagnosis}
+                      {link.patient.diagnosis || "Não informado"}
                     </p>
                   </div>
                 </div>
@@ -102,7 +90,7 @@ export default function CaregiverDetailsPage({
                   <p className="text-xs text-muted-foreground uppercase font-bold tracking-widest">
                     Último Atendimento
                   </p>
-                  <p className="text-xs font-medium">{p.lastSession}</p>
+                  <p className="text-xs font-medium">{link.patient.lastSession ? new Date(link.patient.lastSession).toLocaleDateString('pt-BR') : "-"}</p>
                 </div>
               </Card>
             ))}

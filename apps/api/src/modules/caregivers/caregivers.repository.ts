@@ -20,6 +20,9 @@ export class CaregiversRepository {
   async findAllByClinic(clinicId: string) {
     return db.query.caregivers.findMany({
       where: eq(schema.caregivers.clinicId, clinicId),
+      with: {
+        patientLinks: true,
+      },
       orderBy: [desc(schema.caregivers.createdAt)],
     })
   }

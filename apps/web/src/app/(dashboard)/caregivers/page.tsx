@@ -19,18 +19,42 @@ import {
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useQuery } from "@tanstack/react-query";
-import { listCaregivers } from "@/services/frontend-data";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { listCaregivers, deleteCaregiver } from "@/services/frontend-data";
 import type { CaregiverSummary } from "@/mocks/entities";
+import { toast } from "sonner";
+import { Trash2 } from "lucide-react";
 
 export default function CaregiversPage() {
   const [view, setView] = useState("grid");
   const [search, setSearch] = useState("");
+  const [caregiverToDelete, setCaregiverToDelete] = useState<CaregiverSummary | null>(null);
   const router = useRouter();
+  const queryClient = useQueryClient();
 
   const { data: caregivers = [], isLoading } = useQuery({
     queryKey: ["caregivers"],
     queryFn: listCaregivers,
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => deleteCaregiver(id),
+    onSuccess: () => {
+      toast.success("Cuidador removido com sucesso.");
+      queryClient.invalidateQueries({ queryKey: ["caregivers"] });
+      setCaregiverToDelete(null);
+    },
+    onError: () => {
+      toast.error("Erro ao remover cuidador. Verifique se ele ainda possui pacientes vinculados.");
+    }
   });
 
   const filteredCaregivers = caregivers.filter((c: any) => {
@@ -47,6 +71,32 @@ export default function CaregiversPage() {
 
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-500">
+      <Dialog open={!!caregiverToDelete} onOpenChange={(open) => !open && setCaregiverToDelete(null)}>
+        <DialogContent className="rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Confirmar Exclusão</DialogTitle>
+            <DialogDescription>
+              Tem certeza que deseja remover o cuidador <strong>{caregiverToDelete?.name}</strong>? 
+              Esta ação não pode ser desfeita.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2 sm:gap-0">
+            <Button variant="ghost" onClick={() => setCaregiverToDelete(null)} className="rounded-xl">
+              Cancelar
+            </Button>
+            <Button 
+              variant="destructive" 
+              onClick={() => caregiverToDelete && deleteMutation.mutate(caregiverToDelete.id)}
+              disabled={deleteMutation.isPending}
+              className="rounded-xl"
+            >
+              {deleteMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Trash2 className="w-4 h-4 mr-2" />}
+              Excluir Cuidador
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-4xl font-black tracking-tight text-primary flex items-center gap-3">
@@ -99,19 +149,19 @@ export default function CaregiversPage() {
         <TabsContent value="grid" className="mt-0 outline-none">
           <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {filteredCaregivers.map((caregiver) => (
-              <CaregiverCard key={caregiver.id} caregiver={caregiver} />
+              <CaregiverCard key={caregiver.id} caregiver={caregiver} onDelete={() => setCaregiverToDelete(caregiver)} />
             ))}
           </div>
         </TabsContent>
         <TabsContent value="list" className="mt-0 outline-none">
-          <CaregiverList caregivers={filteredCaregivers} />
+          <CaregiverList caregivers={filteredCaregivers} onDelete={(c) => setCaregiverToDelete(c)} />
         </TabsContent>
       </Tabs>
     </div>
   );
 }
 
-function CaregiverCard({ caregiver }: { caregiver: CaregiverSummary }) {
+function CaregiverCard({ caregiver, onDelete }: { caregiver: CaregiverSummary, onDelete: () => void }) {
   const router = useRouter();
   const initials = caregiver.name.split(" ").filter(Boolean).map((n: string) => n[0]).join("").toUpperCase().slice(0, 2);
 
@@ -138,6 +188,15 @@ function CaregiverCard({ caregiver }: { caregiver: CaregiverSummary }) {
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => router.push(`/caregivers/${caregiver.id}/edit`)} className="cursor-pointer">
               <Pencil className="w-4 h-4 mr-2" /> Editar Dados
+            </DropdownMenuItem>
+            <DropdownMenuItem 
+              onClick={(e) => {
+                e.stopPropagation();
+                onDelete();
+              }} 
+              className="cursor-pointer text-destructive focus:bg-destructive/10 focus:text-destructive"
+            >
+              <Trash2 className="w-4 h-4 mr-2" /> Remover Registro
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
@@ -179,7 +238,7 @@ function CaregiverCard({ caregiver }: { caregiver: CaregiverSummary }) {
   );
 }
 
-function CaregiverList({ caregivers }: { caregivers: CaregiverSummary[] }) {
+function CaregiverList({ caregivers, onDelete }: { caregivers: CaregiverSummary[], onDelete: (c: CaregiverSummary) => void }) {
   const router = useRouter();
 
   return (
@@ -188,7 +247,7 @@ function CaregiverList({ caregivers }: { caregivers: CaregiverSummary[] }) {
         <TableHeader className="bg-secondary/5">
           <TableRow className="hover:bg-transparent border-border/40">
             <TableHead className="font-bold text-primary">Cuidador</TableHead>
-            <TableHead className="font-bold text-primary text-center">Parentesco</TableHead>
+            <TableHead className="font-bold text-primary text-center">Documento</TableHead>
             <TableHead className="font-bold text-primary text-center">Telefone</TableHead>
             <TableHead className="text-right font-bold text-primary px-6">Ações</TableHead>
           </TableRow>
@@ -204,9 +263,14 @@ function CaregiverList({ caregivers }: { caregivers: CaregiverSummary[] }) {
                   <span className="font-semibold text-sm">{c.name}</span>
                 </div>
               </TableCell>
+              <TableCell className="text-center text-xs text-muted-foreground">{c.document}</TableCell>
               <TableCell className="text-center text-xs text-muted-foreground">{c.phone}</TableCell>
-              <TableCell className="text-right px-6">
-                <Button variant="ghost" size="icon"><Eye className="h-4 w-4" /></Button>
+              <TableCell className="text-right px-6" onClick={(e) => e.stopPropagation()}>
+                <div className="flex justify-end gap-2">
+                  <Button variant="ghost" size="icon" onClick={() => router.push(`/caregivers/${c.id}`)}><Eye className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => router.push(`/caregivers/${c.id}/edit`)}><Pencil className="h-4 w-4" /></Button>
+                  <Button variant="ghost" size="icon" onClick={() => onDelete(c)} className="text-destructive hover:bg-destructive/10"><Trash2 className="h-4 w-4" /></Button>
+                </div>
               </TableCell>
             </TableRow>
           ))}

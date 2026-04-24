@@ -21,20 +21,36 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-const patientsMock = [
-  { id: "p3", name: "Lucas Ferreira", diagnosis: "TDAH" },
-  { id: "p4", name: "Beatriz Souza", diagnosis: "TEA" },
-  { id: "p5", name: "Gabriel Lima", diagnosis: "TOD" },
-];
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { listPatients, linkPatientToCaregiver } from "@/services/frontend-data";
+import { toast } from "sonner";
 
-export function LinkPatientDialog() {
+export function LinkPatientDialog({ caregiverId }: { caregiverId: string }) {
   const [open, setOpen] = React.useState(false);
   const [selectedId, setSelectedId] = React.useState("");
+  const queryClient = useQueryClient();
+
+  const { data: patients = [] } = useQuery({
+    queryKey: ["patients"],
+    queryFn: listPatients,
+  });
+
+  const mutation = useMutation({
+    mutationFn: () => linkPatientToCaregiver(caregiverId, selectedId),
+    onSuccess: () => {
+      toast.success("Paciente vinculado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["caregiver", caregiverId] });
+      setOpen(false);
+    },
+    onError: (error) => {
+      console.error("Erro ao vincular paciente:", error);
+      toast.error("Erro ao vincular paciente. Tente novamente.");
+    }
+  });
 
   const handleLink = () => {
     if (!selectedId) return;
-    console.log("Vinculando paciente ID:", selectedId);
-    setOpen(false);
+    mutation.mutate();
   };
 
   return (
@@ -58,15 +74,15 @@ export function LinkPatientDialog() {
             <CommandList>
               <CommandEmpty className="text-muted-foreground text-sm py-6 text-center">Nenhum paciente encontrado.</CommandEmpty>
               <CommandGroup>
-                {patientsMock.map((patient) => (
+                {patients.map((patient) => (
                   <CommandItem
                     key={patient.id}
-                    value={patient.name}
+                    value={patient.fullName}
                     onSelect={() => setSelectedId(patient.id)}
                     className="flex items-center justify-between p-3 cursor-pointer hover:bg-secondary/10 transition-all rounded-lg mx-1 my-1"
                   >
                     <div className="flex flex-col">
-                      <span className="font-bold text-foreground">{patient.name}</span>
+                      <span className="font-bold text-foreground">{patient.fullName}</span>
                       <span className="text-xs text-muted-foreground">{patient.diagnosis}</span>
                     </div>
                     <Check
@@ -88,10 +104,10 @@ export function LinkPatientDialog() {
           </Button>
           <Button 
             onClick={handleLink} 
-            disabled={!selectedId}
+            disabled={!selectedId || mutation.isPending}
             className="bg-secondary text-secondary-foreground font-bold px-6 rounded-lg hover:scale-105 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            Confirmar Vínculo
+            {mutation.isPending ? "Vinculando..." : "Confirmar Vínculo"}
           </Button>
         </div>
       </DialogContent>
