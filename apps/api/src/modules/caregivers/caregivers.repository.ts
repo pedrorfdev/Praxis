@@ -33,6 +33,13 @@ export class CaregiversRepository {
         eq(schema.caregivers.id, id),
         eq(schema.caregivers.clinicId, clinicId),
       ),
+      with: {
+        patientLinks: {
+          with: {
+            patient: true,
+          },
+        },
+      },
     })
   }
 
@@ -65,7 +72,11 @@ export class CaregiversRepository {
         isPrimary,
       })
       .onConflictDoUpdate({
-        target: [schema.patientCaregivers.patientId, schema.patientCaregivers.caregiverId],
+        target: [
+          schema.patientCaregivers.clinicId,
+          schema.patientCaregivers.patientId,
+          schema.patientCaregivers.caregiverId,
+        ],
         set: { isPrimary, updatedAt: new Date() },
       })
       .returning()

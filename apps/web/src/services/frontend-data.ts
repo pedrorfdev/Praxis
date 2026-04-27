@@ -18,6 +18,28 @@ const fallback = async <T>(data: T): Promise<T> => {
   return new Promise((resolve) => setTimeout(() => resolve(data), 400));
 };
 
+const caregiverPatientLinksMock = new Map<string, Set<string>>([
+  ["1", new Set(["1", "2"])],
+  ["2", new Set(["3"])],
+  ["3", new Set()],
+]);
+
+const getMockLinkedPatients = (caregiverId: string) => {
+  const linkedPatientIds = caregiverPatientLinksMock.get(caregiverId) ?? new Set<string>();
+
+  return Array.from(linkedPatientIds)
+    .map((patientId) => patientMocks.find((p) => p.id === patientId))
+    .filter((patient): patient is PatientSummary => Boolean(patient))
+    .map((patient) => ({
+      patient: {
+        id: patient.id,
+        fullName: patient.fullName,
+        diagnosis: patient.diagnosis,
+        lastSession: patient.lastSession,
+      },
+    }));
+};
+
 /* ============================================================================
    MÓDULO DE PACIENTES
    ============================================================================ */
@@ -62,7 +84,13 @@ export async function deletePatient(id: string) {
 }
 
 export async function listCaregivers(): Promise<CaregiverSummary[]> {
-  if (frontendRuntimeConfig.useMocks) return fallback(caregiverMocks);
+  if (frontendRuntimeConfig.useMocks) {
+    const caregivers = caregiverMocks.map((caregiver) => ({
+      ...caregiver,
+      patientCount: getMockLinkedPatients(caregiver.id).length,
+    }));
+    return fallback(caregivers);
+  }
   
   const response = await api.get("/caregivers");
   return response.data.map((c: any) => ({
@@ -75,7 +103,13 @@ export async function listCaregivers(): Promise<CaregiverSummary[]> {
 }
 
 export async function getCaregiverById(id: string) {
-  if (frontendRuntimeConfig.useMocks) return fallback(caregiverMocks[0]);
+  if (frontendRuntimeConfig.useMocks) {
+    const caregiver = caregiverMocks.find((c) => c.id === id) || caregiverMocks[0];
+    return fallback({
+      ...caregiver,
+      patientLinks: getMockLinkedPatients(caregiver.id),
+    });
+  }
   const response = await api.get(`/caregivers/${id}`);
   return response.data;
 }
@@ -99,6 +133,14 @@ export async function deleteCaregiver(id: string) {
 }
 
 export async function linkPatientToCaregiver(caregiverId: string, patientId: string) {
+  if (frontendRuntimeConfig.useMocks) {
+    const links = caregiverPatientLinksMock.get(caregiverId) ?? new Set<string>();
+    links.add(patientId);
+    caregiverPatientLinksMock.set(caregiverId, links);
+
+    return fallback({ success: true });
+  }
+
   const response = await api.post(`/caregivers/${caregiverId}/patients/${patientId}`, { isPrimary: true });
   return response.data;
 }

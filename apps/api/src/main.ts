@@ -1,9 +1,40 @@
 import 'reflect-metadata'
+import { existsSync } from 'node:fs'
+import { resolve } from 'node:path'
 import { NestFactory } from '@nestjs/core'
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger'
-import { AppModule } from './app.module'
+
+function loadEnvironment() {
+  const loadEnvFile = (process as any).loadEnvFile as
+    | ((path?: string) => void)
+    | undefined
+
+  if (typeof loadEnvFile !== 'function') {
+    return
+  }
+
+  const candidates = [
+    resolve(process.cwd(), 'apps/api/.env'),
+    resolve(process.cwd(), '.env'),
+  ]
+
+  const envFile = candidates.find((filePath) => existsSync(filePath))
+  if (!envFile) {
+    return
+  }
+
+  try {
+    loadEnvFile(envFile)
+  } catch (error) {
+    console.warn(`Falha ao carregar arquivo de ambiente: ${envFile}`, error)
+  }
+}
+
+loadEnvironment()
 
 async function bootstrap() {
+  const { AppModule } = await import('./app.module')
+
   console.log('🏗️  Inicializando NestFactory...')
   const app = await NestFactory.create(AppModule)
 
@@ -34,7 +65,6 @@ async function bootstrap() {
     .build()
 
   const document = SwaggerModule.createDocument(app, config)
-
   SwaggerModule.setup('api/docs', app, document)
 
   console.log('📡  Tentando abrir a porta 3333...')
@@ -43,6 +73,7 @@ async function bootstrap() {
   console.log('🚀 API Praxis is running on: http://localhost:3333/api')
   console.log('📑 Swagger Docs: http://localhost:3333/api/docs')
 }
+
 bootstrap().catch((err) => {
   console.error('💥 Erro fatal no bootstrap:', err)
 })

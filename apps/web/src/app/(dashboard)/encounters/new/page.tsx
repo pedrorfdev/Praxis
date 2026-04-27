@@ -38,6 +38,15 @@ import { NumericFormat } from "react-number-format";
 import { format, addMinutes, parse } from "date-fns";
 import { cn } from "@/lib/utils";
 
+function CustomNumericInput(props: React.ComponentProps<"input">) {
+  return (
+    <input
+      {...props}
+      className="w-full h-12 px-4 rounded-xl bg-background border border-border/40 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/20"
+    />
+  );
+}
+
 function EncounterPageContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
@@ -133,13 +142,6 @@ function EncounterPageContent() {
       return "--:--";
     }
   }, [startTime, duration]);
-
-  const CustomNumericInput = (props: any) => (
-    <input
-      {...props}
-      className="w-full h-12 px-4 rounded-xl bg-background border border-border/40 font-bold text-sm outline-none focus:ring-2 focus:ring-secondary/20"
-    />
-  );
 
   const { mutate: saveSession, isPending } = useMutation({
     mutationFn: async (payload: any) => {

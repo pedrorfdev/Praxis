@@ -1,7 +1,7 @@
 "use client";
 
 import * as React from "react";
-import { Check, ChevronsUpDown, Search, UserPlus } from "lucide-react";
+import { Check, UserPlus } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -33,13 +33,16 @@ export function LinkPatientDialog({ caregiverId }: { caregiverId: string }) {
   const { data: patients = [] } = useQuery({
     queryKey: ["patients"],
     queryFn: listPatients,
+    enabled: open,
   });
 
   const mutation = useMutation({
-    mutationFn: () => linkPatientToCaregiver(caregiverId, selectedId),
+    mutationFn: (patientId: string) =>
+      linkPatientToCaregiver(caregiverId, patientId),
     onSuccess: () => {
       toast.success("Paciente vinculado com sucesso!");
       queryClient.invalidateQueries({ queryKey: ["caregiver", caregiverId] });
+      queryClient.invalidateQueries({ queryKey: ["caregivers"] });
       setOpen(false);
     },
     onError: (error) => {
@@ -48,13 +51,21 @@ export function LinkPatientDialog({ caregiverId }: { caregiverId: string }) {
     }
   });
 
-  const handleLink = () => {
+  const handleLink = React.useCallback(() => {
     if (!selectedId) return;
-    mutation.mutate();
-  };
+    mutation.mutate(selectedId);
+  }, [mutation, selectedId]);
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
+    <Dialog
+      open={open}
+      onOpenChange={(nextOpen) => {
+        setOpen(nextOpen);
+        if (!nextOpen) {
+          setSelectedId("");
+        }
+      }}
+    >
       <DialogTrigger asChild>
         <Button variant="outline" className="rounded-lg border-2 border-secondary/30 gap-2 hover:bg-secondary/10 hover:border-secondary/50 cursor-pointer font-bold text-xs uppercase tracking-widest transition-all">
           <UserPlus className="h-4 w-4" /> Vincular Paciente
@@ -69,7 +80,7 @@ export function LinkPatientDialog({ caregiverId }: { caregiverId: string }) {
         </DialogHeader>
 
         <div className="py-4">
-          <Command className="rounded-lg border border-border/40 bg-card" value={selectedId} onValueChange={setSelectedId}>
+          <Command className="rounded-lg border border-border/40 bg-card">
             <CommandInput placeholder="Buscar paciente..." className="border-0 focus-visible:ring-0" />
             <CommandList>
               <CommandEmpty className="text-muted-foreground text-sm py-6 text-center">Nenhum paciente encontrado.</CommandEmpty>
@@ -77,7 +88,9 @@ export function LinkPatientDialog({ caregiverId }: { caregiverId: string }) {
                 {patients.map((patient) => (
                   <CommandItem
                     key={patient.id}
-                    value={patient.id}
+                    value={patient.fullName}
+                    keywords={[patient.id, patient.diagnosis ?? ""]}
+                    onSelect={() => setSelectedId(patient.id)}
                     className="flex items-center justify-between p-3 cursor-pointer hover:bg-secondary/10 transition-all rounded-lg mx-1 my-1"
                   >
                     <div className="flex flex-col">

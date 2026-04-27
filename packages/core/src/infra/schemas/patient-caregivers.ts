@@ -22,7 +22,11 @@ export const patientCaregivers = pgTable(
     updatedAt: timestamp().defaultNow().notNull(),
   },
   (table) => [
-    uniqueIndex('patient_caregiver_unique').on(table.patientId, table.caregiverId),
+    uniqueIndex('patient_caregiver_unique').on(
+      table.clinicId,
+      table.patientId,
+      table.caregiverId,
+    ),
   ],
 )
 

@@ -1,4 +1,4 @@
-import {
+﻿import {
   Body,
   Controller,
   Delete,
@@ -10,11 +10,15 @@ import {
   Put,
 } from '@nestjs/common'
 import {
+  ApiBadRequestResponse,
   ApiBearerAuth,
   ApiBody,
+  ApiNotFoundResponse,
+  ApiOkResponse,
   ApiOperation,
-  ApiResponse,
+  ApiParam,
   ApiTags,
+  ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
 import {
   createPatientSchema,
@@ -40,49 +44,79 @@ export class PatientsController {
   ) {}
 
   @Post()
-  @ApiOperation({ summary: 'Cadastrar um novo paciente (Adulto ou Criança)' })
+  @ApiOperation({ summary: 'Cadastrar um novo paciente (adulto ou crianca)' })
   @ApiBody({
     schema: {
       type: 'object',
-      required: ['type', 'fullName', 'birthDate', 'cpf'],
+      required: [
+        'type',
+        'fullName',
+        'birthDate',
+        'gender',
+        'address',
+        'city',
+        'birthPlace',
+        'maritalStatus',
+        'educationLevel',
+        'profession',
+        'religion',
+      ],
       properties: {
-        type: { type: 'string', example: 'ADULT', enum: ['ADULT', 'CHILD'] },
+        type: { type: 'string', enum: ['ADULT', 'CHILD'], example: 'ADULT' },
         fullName: { type: 'string', example: 'Pedro Ferreira' },
         birthDate: { type: 'string', format: 'date', example: '2006-03-30' },
-        cpf: { type: 'string', example: '12345678901' },
-        
-        gender: { type: 'string', example: 'Masculino', nullable: true },
+        gender: { type: 'string', example: 'Masculino' },
         phone: { type: 'string', example: '11988887777', nullable: true },
-        email: { type: 'string', example: 'paciente@email.com', nullable: true },
-        address: { type: 'string', example: 'Rua das Flores, 123', nullable: true },
-        city: { type: 'string', example: 'São Paulo', nullable: true },
-        diagnosis: { type: 'string', example: 'Avaliação Inicial', nullable: true },
-        
+        address: { type: 'string', example: 'Rua das Flores, 123' },
+        city: { type: 'string', example: 'Sao Paulo' },
+        diagnosis: {
+          type: 'string',
+          enum: [
+            'TDAH',
+            'TEA',
+            'DEPRESSAO',
+            'ANSIEDADE',
+            'BIPOLAR',
+            'ESQUIZOFRENIA',
+            'TOC',
+            'PTSD',
+            'AUTISMO',
+            'SINDROME_DOWN',
+            'DEFICIENCIA_INTELECTUAL',
+            'PARALISIA_CEREBRAL',
+            'DISTURBIO_APRENDIZAGEM',
+            'GAGUEZ',
+            'AFASIA',
+            'DYSPRAXIA',
+            'OUTRO',
+          ],
+          nullable: true,
+          example: 'TDAH',
+        },
+        cpf: { type: 'string', example: '12345678901', nullable: true },
         responsibleName: { type: 'string', example: 'Maria Souza', nullable: true },
         responsiblePhone: { type: 'string', example: '11977776666', nullable: true },
-        
-        birthPlace: { type: 'string', example: 'São Paulo - SP', nullable: true },
-        maritalStatus: { type: 'string', example: 'Solteiro', nullable: true },
-        educationLevel: { type: 'string', example: 'Superior Completo', nullable: true },
-        profession: { type: 'string', example: 'Engenheiro', nullable: true },
-        religion: { type: 'string', example: 'Católico', nullable: true },
+        birthPlace: { type: 'string', example: 'Sao Paulo - SP' },
+        maritalStatus: { type: 'string', example: 'Solteiro' },
+        educationLevel: { type: 'string', example: 'Superior Completo' },
+        profession: { type: 'string', example: 'Engenheiro' },
+        religion: { type: 'string', example: 'Catolico' },
       },
     },
   })
-  @ApiResponse({
-    status: 201,
+  @ApiOkResponse({
     description: 'Paciente criado com sucesso.',
     schema: {
       example: {
-        id: 'uuid-gerado',
-        fullName: 'João da Silva',
-        email: 'joao@email.com',
+        id: '67f9aa31-cc41-4014-b0e4-6af6a88fcd00',
+        fullName: 'Joao da Silva',
         cpf: '12345678901',
         createdAt: '2026-03-23T14:00:00Z',
       },
     },
   })
-  @ApiResponse({ status: 400, description: 'Dados inválidos ou CPF duplicado nesta clínica.'})
+  @ApiBadRequestResponse({ description: 'Dados invalidos ou CPF duplicado nesta clinica.' })
+  @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })
   async create(
     @ActiveClinic() clinicId: string,
     @Body(new ZodValidationPipe(createPatientSchema)) body: CreatePatientInput,
@@ -91,41 +125,40 @@ export class PatientsController {
   }
 
   @Get()
-  @ApiOperation({ summary: 'Listar todos os pacientes da clínica' })
+  @ApiOperation({ summary: 'Listar todos os pacientes da clinica' })
+  @ApiOkResponse({ description: 'Lista de pacientes retornada com sucesso.' })
+  @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })
   async findAll(@ActiveClinic() clinicId: string) {
-    return this.patientsService.findAll(clinicId);
+    return this.patientsService.findAll(clinicId)
   }
 
   @Get(':id')
-  @ApiOperation({ summary: 'Obter detalhes de um paciente específico' })
+  @ApiOperation({ summary: 'Obter detalhes de um paciente especifico' })
+  @ApiParam({ name: 'id', description: 'ID do paciente', format: 'uuid' })
+  @ApiOkResponse({ description: 'Paciente encontrado com sucesso.' })
+  @ApiNotFoundResponse({ description: 'Paciente nao encontrado nesta clinica.' })
+  @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })
   async findOne(@Param('id') id: string, @ActiveClinic() clinicId: string) {
     return this.patientsService.findOne(id, clinicId)
   }
 
   @Patch(':id')
   @ApiOperation({ summary: 'Atualizar dados do paciente' })
+  @ApiParam({ name: 'id', description: 'ID do paciente', format: 'uuid' })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        fullName: { type: 'string' },
-        phone: { type: 'string' },
-        email: { type: 'string' },
+        fullName: { type: 'string', example: 'Joao Silva Sauro' },
+        phone: { type: 'string', example: '11988887777' },
+        address: { type: 'string', example: 'Av. Paulista, 1000' },
       },
     },
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Paciente atualizado.',
-    schema: {
-      example: {
-        id: 'uuid-existente',
-        fullName: 'João Silva Sauro',
-        phone: '11988887777',
-        updatedAt: '2026-03-23T15:30:00Z',
-      },
-    },
-  })
+  @ApiOkResponse({ description: 'Paciente atualizado.' })
+  @ApiBadRequestResponse({ description: 'Dados invalidos.' })
+  @ApiNotFoundResponse({ description: 'Paciente nao encontrado nesta clinica.' })
+  @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })
   async update(
     @Param('id') id: string,
     @ActiveClinic() clinicId: string,
@@ -135,32 +168,44 @@ export class PatientsController {
   }
 
   @Patch(':id/diagnosis')
-  @ApiOperation({ summary: 'Atualizar diagnóstico do paciente (após anamnese)' })
+  @ApiOperation({ summary: 'Atualizar diagnostico do paciente' })
+  @ApiParam({ name: 'id', description: 'ID do paciente', format: 'uuid' })
   @ApiBody({
     schema: {
       type: 'object',
       properties: {
-        diagnosis: { 
-          type: 'string', 
-          enum: ['TDAH', 'TEA', 'DEPRESSAO', 'ANSIEDADE', 'BIPOLAR', 'ESQUIZOFRENIA', 'TOC', 'PTSD', 'AUTISMO', 'SINDROME_DOWN', 'DEFICIENCIA_INTELECTUAL', 'PARALISIA_CEREBRAL', 'DISTURBIO_APRENDIZAGEM', 'GAGUEZ', 'AFASIA', 'DYSPRAXIA', 'OUTRO'],
-          example: 'TDAH',
+        diagnosis: {
+          type: 'string',
+          enum: [
+            'TDAH',
+            'TEA',
+            'DEPRESSAO',
+            'ANSIEDADE',
+            'BIPOLAR',
+            'ESQUIZOFRENIA',
+            'TOC',
+            'PTSD',
+            'AUTISMO',
+            'SINDROME_DOWN',
+            'DEFICIENCIA_INTELECTUAL',
+            'PARALISIA_CEREBRAL',
+            'DISTURBIO_APRENDIZAGEM',
+            'GAGUEZ',
+            'AFASIA',
+            'DYSPRAXIA',
+            'OUTRO',
+          ],
           nullable: true,
-          description: 'Diagnóstico do paciente - pode ser nulo para começar vazio'
+          example: 'TDAH',
+          description: 'Diagnostico do paciente, pode ser nulo.',
         },
       },
     },
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Diagnóstico atualizado com sucesso.',
-    schema: {
-      example: {
-        id: 'uuid-existente',
-        diagnosis: 'TDAH',
-        updatedAt: '2026-03-25T10:00:00Z',
-      },
-    },
-  })
+  @ApiOkResponse({ description: 'Diagnostico atualizado com sucesso.' })
+  @ApiBadRequestResponse({ description: 'Dados invalidos.' })
+  @ApiNotFoundResponse({ description: 'Paciente nao encontrado nesta clinica.' })
+  @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })
   async updateDiagnosis(
     @Param('id') id: string,
     @ActiveClinic() clinicId: string,
@@ -170,45 +215,56 @@ export class PatientsController {
   }
 
   @Delete(':id')
-  @ApiOperation({ summary: 'Remover um paciente e seu histórico' })
-  @ApiResponse({
-    status: 200,
+  @ApiOperation({ summary: 'Remover um paciente e seu historico' })
+  @ApiParam({ name: 'id', description: 'ID do paciente', format: 'uuid' })
+  @ApiOkResponse({
     description: 'Paciente removido com sucesso.',
     schema: {
       example: {
         message: 'Paciente removido com sucesso',
-        id: 'uuid-deletado',
+        id: '67f9aa31-cc41-4014-b0e4-6af6a88fcd00',
       },
     },
   })
+  @ApiNotFoundResponse({ description: 'Paciente nao encontrado nesta clinica.' })
+  @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })
   async remove(@Param('id') id: string, @ActiveClinic() clinicId: string) {
     return this.patientsService.remove(id, clinicId)
   }
 
   @Get(':id/anamnesis')
   @ApiOperation({ summary: 'Obter a anamnese de um paciente' })
-  @ApiResponse({
-    status: 200,
-    description: 'Anamnese recuperada com sucesso.',
-  })
+  @ApiParam({ name: 'id', description: 'ID do paciente', format: 'uuid' })
+  @ApiOkResponse({ description: 'Anamnese recuperada com sucesso.' })
+  @ApiNotFoundResponse({ description: 'Paciente nao encontrado nesta clinica.' })
+  @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })
   async getAnamnesis(@Param('id') id: string, @ActiveClinic() clinicId: string) {
     return this.patientsService.getAnamnesis(id, clinicId)
   }
 
   @Put(':id/anamnesis')
   @ApiOperation({ summary: 'Salvar ou atualizar a anamnese de um paciente' })
+  @ApiParam({ name: 'id', description: 'ID do paciente', format: 'uuid' })
   @ApiBody({
     schema: {
       type: 'object',
+      required: ['content'],
       properties: {
-        content: { type: 'object', description: 'Dados flexíveis da anamnese' },
+        content: {
+          type: 'object',
+          description: 'Dados flexiveis da anamnese.',
+          example: {
+            queixaPrincipal: 'Dificuldade de concentracao',
+            historiaAtual: 'Sintomas ha cerca de 6 meses',
+          },
+        },
       },
     },
   })
-  @ApiResponse({
-    status: 200,
-    description: 'Anamnese salva com sucesso.',
-  })
+  @ApiOkResponse({ description: 'Anamnese salva com sucesso.' })
+  @ApiBadRequestResponse({ description: 'Dados invalidos.' })
+  @ApiNotFoundResponse({ description: 'Paciente nao encontrado nesta clinica.' })
+  @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })
   async saveAnamnesis(
     @Param('id') id: string,
     @ActiveClinic() clinicId: string,

@@ -1,6 +1,7 @@
 import { Inject, Injectable, NotFoundException, InternalServerErrorException, BadRequestException, Logger } from '@nestjs/common'
 import { CaregiversRepository } from './caregivers.repository'
 import type { UpdateCaregiverInput } from '@praxis/core/domain'
+import { PatientsService } from '../patients/patients.service'
 
 @Injectable()
 export class CaregiversService {
@@ -8,7 +9,9 @@ export class CaregiversService {
 
   constructor(
     @Inject(CaregiversRepository)
-    private readonly repository: CaregiversRepository
+    private readonly repository: CaregiversRepository,
+    @Inject(PatientsService)
+    private readonly patientsService: PatientsService,
   ) {}
 
   async create(data: any, clinicId: string) {
@@ -73,6 +76,7 @@ export class CaregiversService {
 
   async linkToPatient(patientId: string, caregiverId: string, clinicId: string, isPrimary: boolean) {
     await this.findOne(caregiverId, clinicId)
+    await this.patientsService.findOne(patientId, clinicId)
     try {
       return await this.repository.linkToPatient(patientId, caregiverId, clinicId, isPrimary)
     } catch (error: any) {
