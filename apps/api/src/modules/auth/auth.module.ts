@@ -5,7 +5,7 @@ import { ClinicsModule } from '../clinics/clinics.module'
 import { AuthController } from './auth.controller'
 import { AuthService } from './auth.service'
 import { JwtStrategy } from './strategies/jwt-strategy'
-import { MailerService } from './services/mailer.service'
+import { AuthMailerService } from './services/mailer.service'
 import { PasswordResetTokenRepository } from './repositories/password-reset-token.repository'
 
 @Module({
@@ -17,7 +17,12 @@ import { PasswordResetTokenRepository } from './repositories/password-reset-toke
       signOptions: { expiresIn: '7d' },
     }),
   ],
-  providers: [AuthService, JwtStrategy, MailerService, PasswordResetTokenRepository],
+  providers: [
+    AuthService,
+    JwtStrategy,
+    AuthMailerService,
+    PasswordResetTokenRepository,
+  ],
   controllers: [AuthController],
   exports: [AuthService],
 })
