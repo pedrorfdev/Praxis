@@ -7,7 +7,6 @@ import { HealthModule } from './modules/health/health.module'
 import { PatientsModule } from './modules/patients/patients.module'
 import { EncountersModule } from './modules/encounters/encounters.module'
 import { CaregiversModule } from './modules/caregivers/caregivers.module'
-import { MailerModule } from '@nestjs-modules/mailer'
 
 @Module({
   imports: [
@@ -17,12 +16,6 @@ import { MailerModule } from '@nestjs-modules/mailer'
     PatientsModule,
     EncountersModule,
     CaregiversModule,
-    MailerModule.forRoot({
-      transport: process.env.SMTP,
-      defaults: {
-        from: `"Praxis" <${process.env.EMAIL_USER}>`,
-      },
-    })
   ],
   controllers: [],
   providers: [
