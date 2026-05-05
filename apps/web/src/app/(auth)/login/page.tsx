@@ -1,8 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowRight, Loader2, LogIn, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -14,14 +16,25 @@ import {
 } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import { FieldError } from "@/components/ui/field-error";
 import { api } from "@/lib/api";
 import { toast } from "sonner";
+import { loginSchema, type LoginInput } from "@praxis/core/domain";
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [isPending, setIsPending] = useState(false);
+
+  const {
+    register,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = useForm<LoginInput>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
 
   useEffect(() => {
     const existingToken = localStorage.getItem("praxis:token");
@@ -30,18 +43,14 @@ export default function LoginPage() {
     }
   }, [router]);
 
-  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    setIsPending(true);
+  async function onSubmit(data: LoginInput) {
     try {
-      const response = await api.post("/auth/login", { email, password });
+      const response = await api.post("/auth/login", data);
       localStorage.setItem("praxis:token", response.data?.access_token ?? "");
       toast.success("Login realizado com sucesso.");
       router.replace("/");
     } catch (error) {
       toast.error("Não foi possível entrar. Verifique seu e-mail e senha.");
-    } finally {
-      setIsPending(false);
     }
   }
 
@@ -79,18 +88,17 @@ export default function LoginPage() {
             </CardDescription>
           </CardHeader>
           <CardContent className="px-8 pb-8 md:px-10 md:pb-10">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="space-y-2.5">
                 <Label htmlFor="email">E-mail</Label>
                 <Input
                   id="email"
                   type="email"
                   placeholder="contato@praxis.com.br"
-                  value={email}
-                  onChange={(event) => setEmail(event.target.value)}
+                  {...register("email")}
                   className="h-11 rounded-xl bg-background/70 px-3.5"
-                  required
                 />
+                <FieldError message={errors.email?.message} />
               </div>
               <div className="space-y-2.5">
                 <div className="flex items-center justify-between">
@@ -106,18 +114,17 @@ export default function LoginPage() {
                   id="password"
                   type="password"
                   placeholder="Digite sua senha"
-                  value={password}
-                  onChange={(event) => setPassword(event.target.value)}
+                  {...register("password")}
                   className="h-11 rounded-xl bg-background/70 px-3.5"
-                  required
                 />
+                <FieldError message={errors.password?.message} />
               </div>
               <Button
-                disabled={isPending}
+                disabled={isSubmitting}
                 type="submit"
                 className="h-11 w-full gap-2 rounded-xl text-sm font-semibold shadow-lg shadow-primary/20"
               >
-                {isPending ? (
+                {isSubmitting ? (
                   <>
                     <Loader2 className="h-4 w-4 animate-spin" />
                     Entrando...

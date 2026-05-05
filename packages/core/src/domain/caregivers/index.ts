@@ -9,6 +9,7 @@ export const caregiverSchema = z.object({
   email: z.string().email().nullable().optional(),
   zipCode: z.string().nullable().optional(),
   address: z.string().nullable().optional(),
+  isActive: z.boolean().default(true),
   createdAt: z.date(),
   updatedAt: z.date(),
 })

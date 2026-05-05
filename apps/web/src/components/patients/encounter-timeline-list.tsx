@@ -44,10 +44,13 @@ export function EncounterTimelineList({ limit }: EncounterTimelineListProps) {
             </div>
 
             {/* Card */}
-            <div className="bg-card border border-border rounded-xl p-6 sm:p-8 shadow-sm hover:border-secondary/40 hover:shadow-md transition-all duration-500">
+            <div 
+              onClick={() => router.push(`/encounters/new?id=${encounter.id}`)}
+              className="bg-card border border-border rounded-xl p-6 sm:p-8 shadow-sm hover:border-secondary/60 hover:shadow-md transition-all duration-500 cursor-pointer group/card"
+            >
               <div className="flex items-center justify-between mb-6">
                 <div className="flex flex-col gap-1">
-                  <span className="text-xs font-black text-secondary bg-secondary/10 px-3 py-1 rounded-full uppercase tracking-widest border border-secondary/25 w-fit">
+                  <span className="text-xs font-black text-secondary bg-secondary/10 px-3 py-1 rounded-full uppercase tracking-widest border border-secondary/25 w-fit group-hover/card:bg-secondary group-hover/card:text-secondary-foreground transition-colors">
                     {encounter.date}
                   </span>
                   <span className="text-xs text-muted-foreground font-medium italic mt-1 ml-1">
@@ -60,6 +63,7 @@ export function EncounterTimelineList({ limit }: EncounterTimelineListProps) {
                     <Button
                       variant="ghost"
                       size="icon"
+                      onClick={(e) => e.stopPropagation()}
                       className="h-10 w-10 rounded-2xl shrink-0 hover:bg-secondary/10 hover:text-secondary text-muted-foreground transition-all"
                     >
                       <MoreVertical className="h-5 w-5" />
@@ -71,7 +75,10 @@ export function EncounterTimelineList({ limit }: EncounterTimelineListProps) {
                     className="w-48 rounded-lg p-2"
                   >
                     <DropdownMenuItem
-                      onClick={() => router.push(`/encounters/new?id=${encounter.id}`)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/encounters/new?id=${encounter.id}`);
+                      }}
                       className="flex items-center gap-3 p-3 rounded-lg cursor-pointer group/item"
                     >
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-secondary/10 text-secondary group-hover/item:bg-secondary group-hover/item:text-secondary-foreground transition-all">
@@ -83,9 +90,10 @@ export function EncounterTimelineList({ limit }: EncounterTimelineListProps) {
                 </DropdownMenu>
               </div>
 
-              <p className="text-base sm:text-lg text-foreground leading-relaxed font-medium tracking-tight">
-                {encounter.content}
-              </p>
+              <div 
+                className="text-base sm:text-lg text-foreground leading-relaxed font-medium tracking-tight line-clamp-3 overflow-hidden"
+                dangerouslySetInnerHTML={{ __html: encounter.content }}
+              />
             </div>
           </div>
         ))}

@@ -6,8 +6,8 @@ import { fakerPT_BR as faker } from '@faker-js/faker'
 
 // Lista extraída EXATAMENTE do seu diagnosisEnum no schema
 const DIAGNOSES = [
-  'TDAH', 'TEA', 'DEPRESSAO', 'ANSIEDADE', 'BIPOLAR', 'ESQUIZOFRENIA', 'TOC', 
-  'PTSD', 'AUTISMO', 'SINDROME_DOWN', 'DEFICIENCIA_INTELECTUAL', 'PARALISIA_CEREBRAL', 
+  'TDAH', 'TEA', 'DEPRESSAO', 'ANSIEDADE', 'BIPOLAR', 'ESQUIZOFRENIA', 'TOC',
+  'PTSD', 'AUTISMO', 'SINDROME_DOWN', 'DEFICIENCIA_INTELECTUAL', 'PARALISIA_CEREBRAL',
   'DISTURBIO_APRENDIZAGEM', 'GAGUEZ', 'AFASIA', 'DYSPRAXIA', 'OUTRO'
 ] as const
 
@@ -28,7 +28,7 @@ async function main() {
     .values({
       name: 'Clínica Praxis - Demo',
       slug: 'clinica-demo',
-      email: 'demo@praxis.com.br',
+      email: 'pedrorf2006@gmail.com',
       password: hashedDemoPassword,
     })
     .returning()
@@ -49,22 +49,19 @@ async function main() {
       }),
       gender: faker.helpers.arrayElement(['Masculino', 'Feminino', 'Outro']),
       phone: faker.string.numeric(11),
-      
-      // Os 3 primeiros pacientes ficam sem diagnóstico para testar o fluxo clínico posterior
+
       diagnosis: index < 3 ? undefined : faker.helpers.arrayElement(DIAGNOSES),
-      
+
       address: `${faker.location.street()}, ${faker.number.int({ min: 1, max: 2000 })}`,
       city: faker.location.city(),
       cpf: faker.string.numeric(11),
       birthPlace: `${faker.location.city()} - ${faker.location.state({ abbreviated: true })}`,
-      
-      // Como maritalStatus, profession, religion e educationLevel são NOT NULL no schema,
-      // precisamos preencher mesmo para crianças (usando fallbacks lógicos)
+
       maritalStatus: isAdult ? faker.helpers.arrayElement(['Solteiro(a)', 'Casado(a)', 'Divorciado(a)', 'Viúvo(a)']) : 'Não se aplica',
       educationLevel: isAdult ? 'Ensino Superior Completo' : 'Ensino Fundamental',
       profession: isAdult ? faker.person.jobTitle() : 'Estudante',
       religion: faker.helpers.arrayElement(['Católica', 'Evangélica', 'Espírita', 'Nenhuma']),
-      
+
       responsibleName: !isAdult ? faker.person.fullName() : undefined,
       responsiblePhone: !isAdult ? faker.string.numeric(11) : undefined,
     }
@@ -126,7 +123,7 @@ async function main() {
 ✅ Seed dinâmico finalizado com sucesso!
 -------------------------------
 🚀 Conta Demo Criada:
-📧 E-mail: demo@praxis.com.br
+📧 E-mail: pedrorf2006@gmail.com
 🔑 Senha: praxis123
 📊 Pacientes gerados: ${patients.length}
 👥 Cuidadores gerados: ${caregivers.length}

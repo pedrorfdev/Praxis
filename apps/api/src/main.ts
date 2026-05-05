@@ -41,8 +41,10 @@ async function bootstrap() {
   console.log('🛠️  Configurando Prefixo, CORS e Swagger...')
   app.setGlobalPrefix('api')
   app.enableCors({
-    origin: '*',
-    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+    origin: true,
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   })
 
   const config = new DocumentBuilder()

@@ -24,6 +24,7 @@ export const encounterSchema = z.object({
 export const createEncounterSchema = encounterSchema
   .omit({
     id: true,
+    clinicId: true,
     createdAt: true,
     updatedAt: true,
   })

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { PatternFormat } from "react-number-format";
-import { ChevronRight, ChevronLeft, Check, CalendarIcon, Loader2, UserPlus } from "lucide-react";
+import { ChevronRight, ChevronLeft, Check, CalendarIcon, Loader2, UserPlus, PlusCircle } from "lucide-react";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { createPatientSchema } from "@praxis/core/domain";
@@ -15,12 +15,14 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { useQuery } from "@tanstack/react-query";
-import { listCaregivers } from "@/services/frontend-data";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { listCaregivers, createCaregiver } from "@/services/frontend-data";
 import { cn } from "@/lib/utils";
-
-const FieldError = ({ message }: { message?: string }) =>
-  message ? <span className="text-xs font-medium text-destructive">{message}</span> : null;
+import { FieldError } from "@/components/ui/field-error";
+import { CaregiverForm } from "@/components/caregivers/caregivers-form";
+import { toast } from "sonner";
+import { Switch } from "@/components/ui/switch";
 
 interface PatientFormProps {
   initialData?: any;
@@ -32,8 +34,10 @@ interface PatientFormProps {
 export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: PatientFormProps) {
   const [step, setStep] = useState(1);
   const [isNavigating, setIsNavigating] = useState(false);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const queryClient = useQueryClient();
 
-  const { control, handleSubmit, watch, trigger, formState: { errors } } = useForm<any>({
+  const { control, handleSubmit, watch, trigger, setValue, formState: { errors } } = useForm<any>({
     resolver: zodResolver(createPatientSchema),
     defaultValues: initialData || {
       type: "ADULT",
@@ -48,14 +52,30 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
       profession: "",
       birthDate: "",
       responsibleName: "",
+      isActive: true,
     },
   });
+
   const {
     data: caregivers = [],
     isLoading: isLoadingCaregivers,
   } = useQuery({
     queryKey: ["caregivers"],
     queryFn: listCaregivers,
+  });
+
+  const createCaregiverMutation = useMutation({
+    mutationFn: createCaregiver,
+    onSuccess: (data) => {
+      toast.success("Responsável cadastrado com sucesso!");
+      queryClient.invalidateQueries({ queryKey: ["caregivers"] });
+      setValue("responsibleName", data.name);
+      setIsModalOpen(false);
+    },
+    onError: (error) => {
+      console.error(error);
+      toast.error("Erro ao cadastrar responsável.");
+    },
   });
 
   const patientType = watch("type");
@@ -66,14 +86,13 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
     const stepsFields: Record<number, any[]> = {
       1: ["fullName", "birthDate", "gender", "cpf", "responsibleName"],
       2: ["address", "city", "phone", "birthPlace"],
-      3: ["religion", "maritalStatus", "educationLevel", "profession"], // Removido diagnosis da validação obrigatória
+      3: ["religion", "maritalStatus", "educationLevel", "profession"],
     };
 
     const isValid = await trigger(stepsFields[step]);
     if (isValid) {
       setIsNavigating(true);
       setStep((s) => s + 1);
-      // Pequeno delay para evitar clique duplo/pulo de step
       setTimeout(() => setIsNavigating(false), 500);
     }
   };
@@ -108,10 +127,29 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
               Passo {step} de 3 — {step === 1 ? "Identificação" : step === 2 ? "Dados Pessoais" : "Detalhes Clínicos"}
             </p>
           </div>
-          <span className="text-4xl font-black text-muted-foreground/30">0{step}</span>
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-4xl font-black text-muted-foreground/30 leading-none">0{step}</span>
+            <div className="flex items-center gap-2 mt-2">
+              <Label className="text-[10px] font-black uppercase tracking-tighter text-muted-foreground">Status</Label>
+              <Controller
+                control={control}
+                name="isActive"
+                render={({ field }) => (
+                  <div className="flex items-center gap-2">
+                    <span className={cn("text-[10px] font-bold uppercase", field.value ? "text-emerald-500" : "text-amber-500")}>
+                      {field.value ? "Ativo" : "Pausado"}
+                    </span>
+                    <Switch 
+                      checked={field.value} 
+                      onCheckedChange={field.onChange}
+                    />
+                  </div>
+                )}
+              />
+            </div>
+          </div>
         </div>
         
-        {/* ... (campos dos steps 1 e 2 permanecem iguais) ... */}
         {step === 1 && (
           <div className="grid gap-6 animate-in fade-in slide-in-from-right-4">
             <div className="space-y-4">
@@ -167,16 +205,20 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
                           onSelect={(date) => field.onChange(date?.toISOString())}
                           locale={ptBR}
                           captionLayout="dropdown"
+                          fromYear={1900}
+                          toYear={new Date().getFullYear()}
                         />
                       </PopoverContent>
                     </Popover>
                   )}
                 />
+                <FieldError message={errors.birthDate?.message as string} />
               </div>
 
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Gênero</Label>
                 <Controller control={control} name="gender" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} />} />
+                <FieldError message={errors.gender?.message as string} />
               </div>
 
               <div className="space-y-2">
@@ -198,31 +240,53 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
                 <FieldError message={errors.cpf?.message as string} />
               </div>
 
-              <div className="space-y-2">
+              <div className="space-y-2 md:col-span-3">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Responsável</Label>
-                <Controller
-                  control={control}
-                  name="responsibleName"
-                  render={({ field }) => (
-                    <select
-                      {...field}
-                      className="w-full bg-background/50 border border-border h-14 rounded-2xl px-4 text-sm outline-none focus:ring-2 focus:ring-secondary/30"
-                    >
-                      <option value="" disabled>
-                        Selecione o responsável
-                      </option>
-                      {isLoadingCaregivers ? (
-                        <option>Carregando...</option>
-                      ) : (
-                        caregivers.map((caregiver: any) => (
-                          <option key={caregiver.id} value={caregiver.name}>
-                            {caregiver.name}
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Controller
+                      control={control}
+                      name="responsibleName"
+                      render={({ field }) => (
+                        <select
+                          {...field}
+                          className="w-full bg-background/50 border border-border h-14 rounded-2xl px-4 text-sm outline-none focus:ring-2 focus:ring-secondary/30"
+                        >
+                          <option value="" disabled>
+                            Selecione o responsável
                           </option>
-                        ))
+                          {isLoadingCaregivers ? (
+                            <option>Carregando...</option>
+                          ) : (
+                            caregivers.map((caregiver: any) => (
+                              <option key={caregiver.id} value={caregiver.name}>
+                                {caregiver.name}
+                              </option>
+                            ))
+                          )}
+                        </select>
                       )}
-                    </select>
-                  )}
-                />
+                    />
+                  </div>
+                  <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                    <DialogTrigger asChild>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="h-14 w-14 rounded-2xl border-dashed border-secondary/50 text-secondary hover:bg-secondary/10"
+                      >
+                        <PlusCircle className="h-6 w-6" />
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="max-w-2xl p-0 overflow-hidden bg-transparent border-none">
+                      <CaregiverForm 
+                        onSubmit={(data) => createCaregiverMutation.mutate(data)}
+                        isLoading={createCaregiverMutation.isPending}
+                      />
+                    </DialogContent>
+                  </Dialog>
+                </div>
+                <FieldError message={errors.responsibleName?.message as string} />
               </div>
             </div>
           </div>
@@ -233,11 +297,13 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-widest text-muted-foreground">Endereço Residencial</Label>
               <Controller control={control} name="address" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} />} />
+              <FieldError message={errors.address?.message as string} />
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Cidade</Label>
                 <Controller control={control} name="city" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} />} />
+                <FieldError message={errors.city?.message as string} />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Telefone</Label>
@@ -255,10 +321,12 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
                     />
                   )}
                 />
+                <FieldError message={errors.phone?.message as string} />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Naturalidade</Label>
-                <Controller control={control} name="birthPlace" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl" {...field} />} />
+                <Controller control={control} name="birthPlace" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} />} />
+                <FieldError message={errors.birthPlace?.message as string} />
               </div>
             </div>
           </div>
@@ -295,15 +363,18 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div className="space-y-2">
                   <Label className="text-xs uppercase tracking-widest text-muted-foreground">Estado Civil</Label>
-                  <Controller control={control} name="maritalStatus" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl" {...field} />} />
+                  <Controller control={control} name="maritalStatus" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} />} />
+                  <FieldError message={errors.maritalStatus?.message as string} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs uppercase tracking-widest text-muted-foreground">Escolaridade</Label>
-                  <Controller control={control} name="educationLevel" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl" {...field} />} />
+                  <Controller control={control} name="educationLevel" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} />} />
+                  <FieldError message={errors.educationLevel?.message as string} />
                 </div>
                 <div className="space-y-2">
                   <Label className="text-xs uppercase tracking-widest text-muted-foreground">Profissão</Label>
-                  <Controller control={control} name="profession" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl" {...field} />} />
+                  <Controller control={control} name="profession" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} />} />
+                  <FieldError message={errors.profession?.message as string} />
                 </div>
               </div>
             )}
@@ -311,6 +382,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
             <div className="space-y-2">
               <Label className="text-xs uppercase tracking-widest text-muted-foreground">Religião</Label>
               <Controller control={control} name="religion" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} />} />
+              <FieldError message={errors.religion?.message as string} />
             </div>
           </div>
         )}

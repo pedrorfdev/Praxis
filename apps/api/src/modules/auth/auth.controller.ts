@@ -1,4 +1,4 @@
-﻿import {
+import {
   Body,
   Controller,
   HttpCode,
@@ -31,7 +31,7 @@ export class AuthController {
   constructor(
     @Inject(AuthService)
     private readonly authService: AuthService,
-  ) {}
+  ) { }
 
   @Public()
   @HttpCode(HttpStatus.OK)
@@ -59,8 +59,7 @@ export class AuthController {
   @Post('login')
   async login(@Body() body: LoginInput) {
     const validatedData = loginSchema.parse(body)
-    const clinic = await this.authService.validateClinic(validatedData)
-    return this.authService.login(clinic)
+    return this.authService.login(validatedData)
   }
 
   @Public()

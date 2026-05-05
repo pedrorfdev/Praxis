@@ -119,6 +119,7 @@ export const patientSchema = z.object({
     .min(1, "Esse campo é obrigatório")
     .trim(),
   diagnosis: diagnosisEnum.nullable().optional(),
+  isActive: z.boolean().default(true),
 
   createdAt: z.date(),
   updatedAt: z.date(),

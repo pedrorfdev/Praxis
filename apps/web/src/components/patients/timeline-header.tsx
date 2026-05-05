@@ -2,11 +2,12 @@
 
 import { Clock, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
+import { useRouter, useParams } from "next/navigation";
 
 export function TimelineHeader() {
   const router = useRouter();
-  const patientId = "1";
+  const params = useParams();
+  const patientId = params.id as string;
 
   const handleNewSession = () => {
     router.push(`/encounters/new?patientId=${patientId}`);
