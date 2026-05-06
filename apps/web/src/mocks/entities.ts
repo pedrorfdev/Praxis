@@ -14,11 +14,13 @@ export interface CaregiverSummary {
   document: string;
   address: string;
   phone: string;
+  status: PatientStatus;
   patientCount: number;
 }
 
 export interface ActivityItem {
   id: string;
+  patientId: string;
   patientName: string;
   date: string;
 }

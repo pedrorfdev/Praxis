@@ -19,6 +19,6 @@ export const anamnesis = pgTable(
   (table) => ({
     clinicIdIdx: index().on(table.clinicId),
     patientIdIdx: index().on(table.patientId),
-    patientUnique: unique().on(table.patientId),
+    clinicPatientUnique: unique().on(table.clinicId, table.patientId),
   })
 )

@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, Plus } from "lucide-react";
+import { Clock, Pencil, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter, useParams } from "next/navigation";
 
@@ -11,6 +11,9 @@ export function TimelineHeader() {
 
   const handleNewSession = () => {
     router.push(`/encounters/new?patientId=${patientId}`);
+  };
+  const handleEditPatient = () => {
+    router.push(`/patients/${patientId}/edit`);
   };
 
   return (
@@ -24,13 +27,24 @@ export function TimelineHeader() {
           <p className="text-xs text-muted-foreground uppercase font-bold tracking-wider">Prontuário Digital</p>
         </div>
       </div>
-      <Button 
-        onClick={handleNewSession}
-        className="bg-secondary text-secondary-foreground px-6 h-11 rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-95 transition-all"
-      >
-        <Plus className="h-4 w-4 mr-2" />
-        Nova evolução
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button
+          type="button"
+          variant="outline"
+          onClick={handleEditPatient}
+          className="px-4 h-11 rounded-xl text-sm font-bold"
+        >
+          <Pencil className="h-4 w-4 mr-2" />
+          Editar paciente
+        </Button>
+        <Button 
+          onClick={handleNewSession}
+          className="bg-secondary text-secondary-foreground px-6 h-11 rounded-xl text-sm font-bold shadow-lg shadow-secondary/20 hover:scale-[1.02] active:scale-95 transition-all"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Nova evolução
+        </Button>
+      </div>
     </div>
   );
 }

@@ -70,7 +70,10 @@ export class PatientsRepository {
         content,
       })
       .onConflictDoUpdate({
-        target: schema.anamnesis.patientId,
+        target: [
+          schema.anamnesis.clinicId,
+          schema.anamnesis.patientId,
+        ],
         set: {
           content,
           updatedAt: new Date(),

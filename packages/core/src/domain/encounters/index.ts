@@ -14,6 +14,7 @@ export const encounterSchema = z.object({
   patientId: z.uuid(),
   startAt: z.date(),
   durationInMinutes: z.number().int().positive('Duração deve ser um número positivo').default(60),
+  sessionValueInCents: z.number().int().min(0).default(0),
   content: z.string().optional().nullable().default(''),
   status: encounterStatusEnum.default('in_progress'),
   billingType: billingTypeEnum.default('PRIVATE'),

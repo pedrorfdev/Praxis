@@ -48,13 +48,16 @@ export async function listPatients(): Promise<PatientSummary[]> {
   if (frontendRuntimeConfig.useMocks) return fallback(patientMocks);
   
   const response = await api.get("/patients");
-  return response.data.map((p: any) => ({
+  return response.data.map((p: any) => {
+    const isPaused = p.status === "paused" || p.status === "PAUSED" || p.isActive === false;
+    return {
     id: p.id,
     fullName: p.fullName,
     diagnosis: p.diagnosis || "Não informado",
-    status: p.status === "paused" ? "Pausado" : "Ativo",
+    status: isPaused ? "Pausado" : "Ativo",
     lastSession: p.lastSession ? new Date(p.lastSession).toLocaleDateString('pt-BR') : "-",
-  }));
+    };
+  });
 }
 
 export async function getPatientById(id: string) {
@@ -87,19 +90,25 @@ export async function listCaregivers(): Promise<CaregiverSummary[]> {
   if (frontendRuntimeConfig.useMocks) {
     const caregivers = caregiverMocks.map((caregiver) => ({
       ...caregiver,
+      status: caregiver.status ?? "Ativo",
       patientCount: getMockLinkedPatients(caregiver.id).length,
     }));
     return fallback(caregivers);
   }
   
   const response = await api.get("/caregivers");
-  return response.data.map((c: any) => ({
+  return response.data.map((c: any) => {
+    const isPaused = c.status === "paused" || c.status === "PAUSED" || c.isActive === false;
+    return {
     id: c.id,
     name: c.name,
     phone: c.phone,
     document: c.document,
+    address: c.address || "",
+    status: isPaused ? "Pausado" : "Ativo",
     patientCount: c.patientLinks?.length || 0,
-  }));
+    };
+  });
 }
 
 export async function getCaregiverById(id: string) {
@@ -155,6 +164,7 @@ export async function listActivities(): Promise<ActivityItem[]> {
   const response = await api.get("/encounters");
   return response.data.map((e: any) => ({
     id: e.id,
+    patientId: e.patientId,
     patientName: e.patient?.fullName || "Paciente",
     type: "Atendimento",
     date: e.startAt,

@@ -36,6 +36,7 @@ export const caregiverMocks: CaregiverSummary[] = [
     document: "123.456.789-00",
     address: "Rua das Flores, 123",
     phone: "(11) 98888-7777",
+    status: "Ativo",
     patientCount: 2,
   },
   {
@@ -44,6 +45,7 @@ export const caregiverMocks: CaregiverSummary[] = [
     document: "987.654.321-11",
     address: "Rua das Flores, 23",
     phone: "(21) 95555-4444",
+    status: "Pausado",
     patientCount: 1,
   },
   {
@@ -52,15 +54,16 @@ export const caregiverMocks: CaregiverSummary[] = [
     document: "111.222.333-44",
     address: "Rua das Flores, 13",
     phone: "(31) 97777-6666",
+    status: "Ativo",
     patientCount: 0,
   },
 ];
 
 export const activityMocks: ActivityItem[] = [
-  { id: "1", patientName: "Ana Clara Silva", date: "2026-04-13T14:30:00" },
-  { id: "2", patientName: "João Pedro Santos", date: "2026-04-13T10:00:00" },
-  { id: "3", patientName: "Beatriz Oliveira", date: "2026-04-12T16:00:00" },
-  { id: "4", patientName: "Ricardo Menezes", date: "2026-04-11T09:00:00" },
+  { id: "1", patientId: "1", patientName: "Ana Clara Silva", date: "2026-04-13T14:30:00" },
+  { id: "2", patientId: "2", patientName: "João Pedro Santos", date: "2026-04-13T10:00:00" },
+  { id: "3", patientId: "3", patientName: "Beatriz Oliveira", date: "2026-04-12T16:00:00" },
+  { id: "4", patientId: "1", patientName: "Ricardo Menezes", date: "2026-04-11T09:00:00" },
 ];
 
 export const encounterMocks: EncounterItem[] = [

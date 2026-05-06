@@ -23,6 +23,7 @@ export const encounters = pgTable('encounters', {
     .notNull(),
   startAt: timestamp().defaultNow().notNull(),
   durationInMinutes: integer().default(60).notNull(),
+  sessionValueInCents: integer().default(0).notNull(),
   billingType: billingTypeEnum().default('PRIVATE').notNull(),
   content: text(),
   status: encounterStatusEnum().default('in_progress').notNull(),

@@ -21,6 +21,7 @@ import { DailyRoutine } from "./_components/segments/daily-routine";
 import { FamilyContext } from "./_components/segments/family-context";
 import { FamilyExpectations } from "./_components/segments/family-expectations";
 import { BehaviorRegulation } from "./_components/segments/behavior-regulation";
+import { Schooling } from "./_components/segments/schooling";
 import { PatientMiniHeader } from "./_components/patient-mini-header";
 import { cn } from "@/lib/utils";
 
@@ -89,7 +90,7 @@ export default function AnamnesisPage() {
       case "historico-familiar":
         return <FamilyContext />;
       case "escolaridade":
-        return <DailyRoutine />;
+        return <Schooling />;
       case "expectativas":
         return <FamilyExpectations />;
       default:

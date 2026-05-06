@@ -4,12 +4,15 @@ import { useState } from "react";
 import { format, isYesterday, isToday } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { History, Search, ChevronRight, FileText } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import { useQuery } from "@tanstack/react-query";
 import { listActivities } from "@/services/frontend-data";
 
 export default function ActivityPage() {
   const [search, setSearch] = useState("");
+  const router = useRouter();
   const { data: activities = [] } = useQuery({
     queryKey: ["activities"],
     queryFn: listActivities,
@@ -58,6 +61,7 @@ export default function ActivityPage() {
           filteredActivities.map((activity) => (
             <div
               key={activity.id}
+              onClick={() => router.push(`/encounters/new?id=${activity.id}`)}
               className="group flex items-center justify-between p-4 rounded-2xl bg-card/50 border border-border/20 hover:border-secondary/30 hover:bg-card transition-all cursor-pointer"
             >
               <div className="flex items-center gap-4">
@@ -73,8 +77,24 @@ export default function ActivityPage() {
                   </span>
                 </div>
               </div>
-              
-              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-secondary group-hover:translate-x-1 transition-all" />
+
+              <div className="flex items-center gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  disabled={!activity.patientId}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (!activity.patientId) return;
+                    router.push(`/patients/${activity.patientId}`);
+                  }}
+                  className="rounded-lg"
+                >
+                  Ver paciente
+                </Button>
+                <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:text-secondary group-hover:translate-x-1 transition-all" />
+              </div>
             </div>
           ))
         ) : (

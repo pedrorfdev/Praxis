@@ -220,6 +220,12 @@ function CaregiverCard({ caregiver, onDelete }: { caregiver: CaregiverSummary, o
           <span className="font-medium text-foreground">{caregiver.phone}</span>
         </div>
         <Badge
+          variant={caregiver.status === "Ativo" ? "secondary" : "outline"}
+          className="rounded-full text-xs uppercase tracking-wider py-1 px-3"
+        >
+          {caregiver.status}
+        </Badge>
+        <Badge
           variant={caregiver.patientCount > 0 ? "secondary" : "outline"}
           className="rounded-full text-xs uppercase tracking-wider py-1 px-3"
         >
@@ -247,6 +253,7 @@ function CaregiverList({ caregivers, onDelete }: { caregivers: CaregiverSummary[
         <TableHeader className="bg-secondary/5">
           <TableRow className="hover:bg-transparent border-border/40">
             <TableHead className="font-bold text-primary">Cuidador</TableHead>
+            <TableHead className="font-bold text-primary text-center">Status</TableHead>
             <TableHead className="font-bold text-primary text-center">Documento</TableHead>
             <TableHead className="font-bold text-primary text-center">Telefone</TableHead>
             <TableHead className="text-right font-bold text-primary px-6">Ações</TableHead>
@@ -262,6 +269,14 @@ function CaregiverList({ caregivers, onDelete }: { caregivers: CaregiverSummary[
                   </div>
                   <span className="font-semibold text-sm">{c.name}</span>
                 </div>
+              </TableCell>
+              <TableCell className="text-center">
+                <Badge
+                  variant={c.status === "Ativo" ? "secondary" : "outline"}
+                  className="text-xs"
+                >
+                  {c.status}
+                </Badge>
               </TableCell>
               <TableCell className="text-center text-xs text-muted-foreground">{c.document}</TableCell>
               <TableCell className="text-center text-xs text-muted-foreground">{c.phone}</TableCell>

@@ -63,7 +63,24 @@ export class CaregiversRepository {
   }
 
   async linkToPatient(patientId: string, caregiverId: string, clinicId: string, isPrimary: boolean) {
-    const [link] = await db
+    const existingLink = await db.query.patientCaregivers.findFirst({
+      where: and(
+        eq(schema.patientCaregivers.clinicId, clinicId),
+        eq(schema.patientCaregivers.patientId, patientId),
+        eq(schema.patientCaregivers.caregiverId, caregiverId),
+      ),
+    })
+
+    if (existingLink) {
+      const [updatedLink] = await db
+        .update(schema.patientCaregivers)
+        .set({ isPrimary, updatedAt: new Date() })
+        .where(eq(schema.patientCaregivers.id, existingLink.id))
+        .returning()
+      return updatedLink
+    }
+
+    const [createdLink] = await db
       .insert(schema.patientCaregivers)
       .values({
         patientId,
@@ -71,16 +88,8 @@ export class CaregiversRepository {
         clinicId,
         isPrimary,
       })
-      .onConflictDoUpdate({
-        target: [
-          schema.patientCaregivers.clinicId,
-          schema.patientCaregivers.patientId,
-          schema.patientCaregivers.caregiverId,
-        ],
-        set: { isPrimary, updatedAt: new Date() },
-      })
       .returning()
-    return link
+    return createdLink
   }
 
   async unlinkFromPatient(patientId: string, caregiverId: string, clinicId: string) {

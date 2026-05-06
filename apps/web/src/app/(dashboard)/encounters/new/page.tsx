@@ -78,7 +78,7 @@ function EncounterPageContent() {
   );
   const [startTime, setStartTime] = useState("");
   const [duration, setDuration] = useState("60");
-  const [sessionValue, setSessionValue] = useState("");
+  const [sessionValueInCents, setSessionValueInCents] = useState(0);
   const [insurance, setInsurance] = useState("particular");
 
   const { data: existingSession, isLoading: isLoadingSession } = useQuery({
@@ -122,6 +122,7 @@ function EncounterPageContent() {
       setSelectedPatient(existingSession.patientId);
       setStartTime(format(new Date(existingSession.startAt), "HH:mm"));
       setDuration(String(existingSession.durationInMinutes));
+      setSessionValueInCents(existingSession.sessionValueInCents ?? 0);
       setInsurance(
         existingSession.billingType === "SUBSIDIZED" ? "cauzzo" : "particular",
       );
@@ -159,6 +160,24 @@ function EncounterPageContent() {
     onError: () => toast.error("Falha ao salvar."),
   });
 
+  const resolveStartAtIso = () => {
+    const baseDate = existingSession?.startAt
+      ? new Date(existingSession.startAt)
+      : new Date();
+
+    if (!startTime) {
+      return baseDate.toISOString();
+    }
+
+    const [hours, minutes] = startTime.split(":").map(Number);
+    if (!Number.isFinite(hours) || !Number.isFinite(minutes)) {
+      return baseDate.toISOString();
+    }
+
+    baseDate.setHours(hours, minutes, 0, 0);
+    return baseDate.toISOString();
+  };
+
   const handleComplete = () => {
     if (isLocked)
       return toast.error("Desative o modo visualização para salvar.");
@@ -167,8 +186,9 @@ function EncounterPageContent() {
     saveSession({
       patientId: selectedPatient,
       content: editor?.getHTML(),
-      startAt: new Date().toISOString(),
+      startAt: resolveStartAtIso(),
       durationInMinutes: Number(duration),
+      sessionValueInCents,
       billingType: insurance === "cauzzo" ? "SUBSIDIZED" : "PRIVATE",
       status: "completed",
     });
@@ -316,8 +336,15 @@ function EncounterPageContent() {
                   thousandSeparator="."
                   decimalSeparator=","
                   prefix="R$ "
-                  value={sessionValue}
-                  onValueChange={(v) => setSessionValue(v.value)}
+                  decimalScale={2}
+                  fixedDecimalScale
+                  allowNegative={false}
+                  value={sessionValueInCents / 100}
+                  onValueChange={(values) =>
+                    setSessionValueInCents(
+                      Math.round((values.floatValue ?? 0) * 100),
+                    )
+                  }
                   isAllowed={(values) =>
                     values.floatValue === undefined || values.floatValue <= 1000
                   }

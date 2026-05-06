@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createCaregiverSchema, type CreateCaregiverInput } from "@praxis/core/domain";
 import { Button } from "@/components/ui/button";

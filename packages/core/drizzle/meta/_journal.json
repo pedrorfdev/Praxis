@@ -36,6 +36,13 @@
       "when": 1776816541095,
       "tag": "0004_rainy_exiles",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1778018370141,
+      "tag": "0005_good_scream",
+      "breakpoints": true
     }
   ]
 }

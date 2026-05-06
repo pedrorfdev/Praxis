@@ -1,5 +1,6 @@
 import { relations } from 'drizzle-orm'
 import {
+  boolean,
   pgEnum,
   pgTable,
   text,
@@ -45,7 +46,7 @@ export const patients = pgTable('patients', {
   city: text().notNull(),
   phone: text(),
   diagnosis: diagnosisEnum(),
-  cpf: text().unique(),
+  cpf: text(),
   
   responsibleName: text(), 
   responsiblePhone: text(),
@@ -55,6 +56,7 @@ export const patients = pgTable('patients', {
   educationLevel: text().notNull(),
   profession: text().notNull(),
   religion: text().notNull(),
+  isActive: boolean().default(true).notNull(),
 
   createdAt: timestamp().defaultNow().notNull(),
   updatedAt: timestamp().defaultNow().notNull(),

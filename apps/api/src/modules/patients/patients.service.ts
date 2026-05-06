@@ -52,8 +52,17 @@ export class PatientsService {
     try {
       return await this.repository.update(id, clinicId, data)
     } catch (error: any) {
-      this.logger.error(`Erro ao atualizar paciente: ${error.message}`, error.stack)
+      this.logger.error(
+        `Erro ao atualizar paciente: ${error.message} | code=${error.code} | constraint=${error.constraint} | detail=${error.detail}`,
+        error.stack,
+      )
       if (error.code === '23505') {
+        if (
+          String(error.constraint).includes('cpf') ||
+          String(error.detail).toLowerCase().includes('cpf')
+        ) {
+          throw new BadRequestException('CPF já cadastrado para outro paciente nesta clínica.')
+        }
         throw new BadRequestException('Já existe um paciente com estes dados únicos.')
       }
       throw new InternalServerErrorException('Erro ao atualizar os dados do paciente.')

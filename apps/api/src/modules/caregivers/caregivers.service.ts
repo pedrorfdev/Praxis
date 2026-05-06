@@ -54,9 +54,12 @@ export class CaregiversService {
     try {
       return await this.repository.update(id, clinicId, data)
     } catch (error: any) {
-      this.logger.error(`Erro ao atualizar cuidador: ${error.message}`, error.stack)
+      this.logger.error(
+        `Erro ao atualizar cuidador: ${error.message} | code=${error.code} | constraint=${error.constraint} | detail=${error.detail}`,
+        error.stack,
+      )
       if (error.code === '23505') {
-        throw new BadRequestException('Já existe um cuidador com este documento.')
+        throw new BadRequestException('Documento já cadastrado para outro cuidador nesta clínica.')
       }
       throw new InternalServerErrorException('Erro ao atualizar os dados do cuidador.')
     }

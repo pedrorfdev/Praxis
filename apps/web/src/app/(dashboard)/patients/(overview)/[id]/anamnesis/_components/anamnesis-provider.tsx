@@ -2,6 +2,7 @@
 
 import { createContext, useContext, useEffect, useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
+import { getPatientAnamnesis } from "@/services/frontend-data";
 
 export const ANAMNESIS_STEPS = [
   "queixa-principal",
@@ -36,11 +37,40 @@ export function AnamnesisProvider({
   });
 
   useEffect(() => {
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      methods.reset(JSON.parse(saved));
-    }
-  }, [patientId]);
+    let isMounted = true;
+
+    const loadAnamnesis = async () => {
+      const saved = localStorage.getItem(storageKey);
+      if (saved) {
+        try {
+          methods.reset(JSON.parse(saved));
+        } catch {
+          localStorage.removeItem(storageKey);
+        }
+      }
+
+      try {
+        const response = await getPatientAnamnesis(patientId);
+        const serverContent = response?.content;
+        const hasServerContent =
+          serverContent &&
+          typeof serverContent === "object" &&
+          Object.keys(serverContent).length > 0;
+
+        if (isMounted && hasServerContent) {
+          methods.reset(serverContent);
+        }
+      } catch (error) {
+        console.warn("Falha ao carregar anamnese salva do backend:", error);
+      }
+    };
+
+    loadAnamnesis();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [methods.reset, patientId, storageKey]);
 
   useEffect(() => {
     const subscription = methods.watch((value) => {
