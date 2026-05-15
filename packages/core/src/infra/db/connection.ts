@@ -3,6 +3,7 @@ import postgres from 'postgres'
 import { schemas } from '../schemas/index'
 
 const connectionString =
+  process.env.DATABASE_URL ??
   'postgresql://admin:password123@localhost:5432/praxis_db'
 
 export const sql = postgres(connectionString)

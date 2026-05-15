@@ -93,10 +93,13 @@ export function SpecialtyChart() {
                       borderRadius: "8px",
                     }}
                     itemStyle={{ color: "var(--foreground)" }}
-                    formatter={(value: number, name: string) => [
-                      `${value} paciente${value > 1 ? "s" : ""}`,
-                      name,
-                    ]}
+                    formatter={(value, name) => {
+                      const patientCount = Number(value ?? 0);
+                      return [
+                        `${patientCount} paciente${patientCount > 1 ? "s" : ""}`,
+                        name ?? "",
+                      ];
+                    }}
                   />
                 </PieChart>
               </ResponsiveContainer>

@@ -100,7 +100,7 @@ export class CaregiversController {
       },
     },
   })
-  @ApiOkResponse({ status: 200, description: 'Cuidador atualizado.' })
+  @ApiOkResponse({ description: 'Cuidador atualizado.' })
   @ApiBadRequestResponse({ description: 'Dados invalidos ou documento duplicado na clinica.' })
   @ApiNotFoundResponse({ description: 'Cuidador nao encontrado nesta clinica.' })
   @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })

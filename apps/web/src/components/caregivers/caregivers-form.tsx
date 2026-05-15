@@ -3,7 +3,8 @@
 import { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { createCaregiverSchema, type CreateCaregiverInput } from "@praxis/core/domain";
+import { createCaregiverSchema } from "@praxis/core/domain";
+import type { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -18,11 +19,13 @@ interface CaregiverFormProps {
   isLoading?: boolean;
 }
 
+type CaregiverFormValues = z.input<typeof createCaregiverSchema>;
+
 export function CaregiverForm({ initialData, onSubmit, isLoading }: CaregiverFormProps) {
   const [step, setStep] = useState(1);
   const isEdit = !!initialData?.id;
 
-  const { register, handleSubmit, trigger, control, formState: { errors } } = useForm<CreateCaregiverInput>({
+  const { register, handleSubmit, trigger, control, formState: { errors } } = useForm<CaregiverFormValues>({
     resolver: zodResolver(createCaregiverSchema),
     defaultValues: initialData || {
       isActive: true,

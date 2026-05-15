@@ -28,7 +28,7 @@ async function main() {
     .values({
       name: 'Clínica Praxis - Demo',
       slug: 'clinica-demo',
-      email: 'pedrorf2006@gmail.com',
+      email: 'demo@praxis.com',
       password: hashedDemoPassword,
     })
     .returning()
@@ -123,7 +123,7 @@ async function main() {
 ✅ Seed dinâmico finalizado com sucesso!
 -------------------------------
 🚀 Conta Demo Criada:
-📧 E-mail: pedrorf2006@gmail.com
+📧 E-mail: demo@praxis.com
 🔑 Senha: praxis123
 📊 Pacientes gerados: ${patients.length}
 👥 Cuidadores gerados: ${caregivers.length}
