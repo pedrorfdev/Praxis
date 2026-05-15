@@ -4,7 +4,14 @@ import { useFormContext } from "react-hook-form";
 import { useParams, useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Lock, LockOpen, Save, Loader2 } from "lucide-react";
+import {
+  ChevronLeft,
+  ChevronRight,
+  Lock,
+  LockOpen,
+  Save,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { upsertAnamnesis } from "@/services/frontend-data";
 import { MainComplaint } from "./_components/segments/main-complaint";
@@ -24,13 +31,15 @@ import { BehaviorRegulation } from "./_components/segments/behavior-regulation";
 import { Schooling } from "./_components/segments/schooling";
 import { PatientMiniHeader } from "./_components/patient-mini-header";
 import { cn } from "@/lib/utils";
+import { getUserFacingMessage } from "@/lib/error-utils";
 
 export default function AnamnesisPage() {
   const params = useParams();
   const router = useRouter();
   const patientId = params.id as string;
   const [isSaving, setIsSaving] = useState(false);
-  const { currentStep, nextStep, prevStep, isLastStep, isLocked, setIsLocked } = useAnamnesis();
+  const { currentStep, nextStep, prevStep, isLastStep, isLocked, setIsLocked } =
+    useAnamnesis();
   const { handleSubmit } = useFormContext();
 
   const onFinalSubmit = async (data: any) => {
@@ -50,18 +59,21 @@ export default function AnamnesisPage() {
     };
 
     const cleanData = sanitize(data);
-    
+
     setIsSaving(true);
     try {
       await upsertAnamnesis(patientId, cleanData);
       toast.success("Anamnese finalizada e salva com sucesso!");
-      
+
       // Redirect to patient overview after success
       setTimeout(() => {
         router.push(`/patients/${patientId}`);
       }, 1500);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || "Erro ao salvar anamnese";
+      const errorMessage = getUserFacingMessage(
+        error,
+        "Erro ao salvar anamnese",
+      );
       toast.error(errorMessage);
       console.error("Erro ao salvar anamnese:", error);
     } finally {
@@ -111,15 +123,19 @@ export default function AnamnesisPage() {
             disabled={isSaving}
             className={cn(
               "rounded-xl border-2 gap-2 font-bold uppercase tracking-widest text-xs transition-all cursor-pointer",
-              isLocked 
-                ? "border-zinc-800 text-zinc-500 hover:bg-zinc-800" 
-                : "border-secondary/50 text-secondary bg-secondary/5"
+              isLocked
+                ? "border-zinc-800 text-zinc-500 hover:bg-zinc-800"
+                : "border-secondary/50 text-secondary bg-secondary/5",
             )}
           >
             {isLocked ? (
-              <><Lock className="w-3 h-3" /> Modo Visualização Ativado</>
+              <>
+                <Lock className="w-3 h-3" /> Modo Visualização Ativado
+              </>
             ) : (
-              <><LockOpen className="w-3 h-3" /> Modo Edição Ativado</>
+              <>
+                <LockOpen className="w-3 h-3" /> Modo Edição Ativado
+              </>
             )}
           </Button>
         </div>

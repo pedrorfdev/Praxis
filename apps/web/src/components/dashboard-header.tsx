@@ -1,6 +1,6 @@
 "use client";
 
-import { Moon, Sun, ChevronRight, LogOut } from "lucide-react";
+import { Moon, Sun, LogOut } from "lucide-react";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { useTheme } from "next-themes";
 import { usePathname } from "next/navigation";

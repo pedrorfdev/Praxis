@@ -4,9 +4,13 @@ import {
   Injectable,
   NotFoundException,
   InternalServerErrorException,
-  Logger
+  Logger,
+  UnauthorizedException,
 } from '@nestjs/common'
-import type { CreateClinicInput, UpdateClinicInput } from '@praxis/core/domain'
+import type {
+  CreateClinicInput,
+  UpdateClinicWithCurrentPasswordInput,
+} from '@praxis/core/domain'
 import * as bcrypt from 'bcryptjs'
 import { ClinicsRepository } from './clinics.repository'
 
@@ -62,11 +66,24 @@ export class ClinicsService {
     }
   }
 
-  async update(id: string, data: UpdateClinicInput) {
+  async update(id: string, data: UpdateClinicWithCurrentPasswordInput) {
     try {
-      const updateData = { ...data }
+      const { currentPassword, ...updateData } = data
 
       if (updateData.password) {
+        const clinic = await this.repository.findById(id)
+        if (!clinic)
+          throw new NotFoundException('ClÃ­nica nÃ£o encontrada para atualizar.')
+
+        const isCurrentPasswordValid = await bcrypt.compare(
+          currentPassword ?? '',
+          clinic.password,
+        )
+
+        if (!isCurrentPasswordValid) {
+          throw new UnauthorizedException('Senha atual invÃ¡lida.')
+        }
+
         const salt = await bcrypt.genSalt(10)
         updateData.password = await bcrypt.hash(updateData.password, salt)
       }
@@ -77,7 +94,11 @@ export class ClinicsService {
 
       return updatedClinic
     } catch (error: any) {
-      if (error instanceof NotFoundException) throw error
+      if (
+        error instanceof NotFoundException ||
+        error instanceof UnauthorizedException
+      )
+        throw error
       this.logger.error(`Erro ao atualizar clínica: ${error.message}`, error.stack)
       throw new InternalServerErrorException('Erro interno ao atualizar a clínica.')
     }

@@ -15,7 +15,7 @@ import { Label } from "@/components/ui/label";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Popover, PopoverTrigger, PopoverContent } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "@/components/ui/dialog";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { listCaregivers, createCaregiver } from "@/services/frontend-data";
 import { cn } from "@/lib/utils";
@@ -23,6 +23,7 @@ import { FieldError } from "@/components/ui/field-error";
 import { CaregiverForm } from "@/components/caregivers/caregivers-form";
 import { toast } from "sonner";
 import { Switch } from "@/components/ui/switch";
+import { getUserFacingMessage } from "@/lib/error-utils";
 
 interface PatientFormProps {
   initialData?: any;
@@ -74,7 +75,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
     },
     onError: (error) => {
       console.error(error);
-      toast.error("Erro ao cadastrar responsável.");
+      toast.error(getUserFacingMessage(error, "Erro ao cadastrar responsável."));
     },
   });
 
@@ -278,7 +279,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
                         <PlusCircle className="h-6 w-6" />
                       </Button>
                     </DialogTrigger>
-                    <DialogContent className="max-w-2xl p-0 overflow-hidden bg-transparent border-none">
+                    <DialogContent className="max-w-2xl p-0 overflow-hidden bg-card border-border rounded-xl">
                       <CaregiverForm 
                         onSubmit={(data) => createCaregiverMutation.mutate(data)}
                         isLoading={createCaregiverMutation.isPending}

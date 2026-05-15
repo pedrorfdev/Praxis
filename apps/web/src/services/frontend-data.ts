@@ -13,6 +13,35 @@ import type {
   EncounterItem 
 } from "@/mocks/entities";
 
+/* ============================================================================
+   MAPEAMENTO DE DIAGNÓSTICOS (enum → label amigável)
+   ============================================================================ */
+
+const DIAGNOSIS_LABELS: Record<string, string> = {
+  TDAH: "TDAH",
+  TEA: "TEA",
+  DEPRESSAO: "Depressão",
+  ANSIEDADE: "Ansiedade",
+  BIPOLAR: "Transtorno Bipolar",
+  ESQUIZOFRENIA: "Esquizofrenia",
+  TOC: "TOC",
+  PTSD: "TEPT",
+  AUTISMO: "Autismo",
+  SINDROME_DOWN: "Síndrome de Down",
+  DEFICIENCIA_INTELECTUAL: "Deficiência Intelectual",
+  PARALISIA_CEREBRAL: "Paralisia Cerebral",
+  DISTURBIO_APRENDIZAGEM: "Distúrbio de Aprendizagem",
+  GAGUEZ: "Gagueira",
+  AFASIA: "Afasia",
+  DYSPRAXIA: "Dispraxia",
+  OUTRO: "Outro",
+};
+
+export function formatDiagnosis(raw: string | null | undefined): string {
+  if (!raw) return "Não informado";
+  return DIAGNOSIS_LABELS[raw] ?? raw;
+}
+
 // Helper para simular delay em modo mock
 const fallback = async <T>(data: T): Promise<T> => {
   return new Promise((resolve) => setTimeout(() => resolve(data), 400));
@@ -53,7 +82,7 @@ export async function listPatients(): Promise<PatientSummary[]> {
     return {
     id: p.id,
     fullName: p.fullName,
-    diagnosis: p.diagnosis || "Não informado",
+    diagnosis: formatDiagnosis(p.diagnosis),
     status: isPaused ? "Pausado" : "Ativo",
     lastSession: p.lastSession ? new Date(p.lastSession).toLocaleDateString('pt-BR') : "-",
     };

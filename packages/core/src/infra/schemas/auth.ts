@@ -1,4 +1,4 @@
-import { pgTable, uuid, text, timestamp, index, unique, jsonb } from 'drizzle-orm/pg-core'
+import { pgTable, uuid, text, timestamp, index, unique } from 'drizzle-orm/pg-core'
 import { clinics } from './clinics'
 
 export const passwordResetTokens = pgTable(

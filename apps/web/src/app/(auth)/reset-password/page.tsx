@@ -15,6 +15,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { api } from "@/lib/api";
+import { getUserFacingMessage } from "@/lib/error-utils";
 
 function ResetPasswordForm() {
   const searchParams = useSearchParams();
@@ -70,7 +71,7 @@ function ResetPasswordForm() {
         router.push("/login");
       }, 3000);
     } catch (error: any) {
-      const message = error.response?.data?.message || "Erro ao redefinir senha.";
+      const message = getUserFacingMessage(error, "Erro ao redefinir senha.");
       toast.error(message);
     } finally {
       setIsPending(false);

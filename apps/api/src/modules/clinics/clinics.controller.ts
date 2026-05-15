@@ -24,7 +24,7 @@ import {
 import {
   type CreateClinicInput,
   createClinicSchema,
-  updateClinicSchema,
+  updateClinicWithCurrentPasswordSchema,
 } from '@praxis/core/domain'
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
 import { Public } from '../../common/decorators/public.decorator'
@@ -103,6 +103,7 @@ export class ClinicsController {
       properties: {
         name: { type: 'string', example: 'Clinica Praxis Unidade 2' },
         email: { type: 'string', format: 'email', example: 'contato+2@praxis.com' },
+        currentPassword: { type: 'string', example: 'SenhaAtual123' },
         password: { type: 'string', example: 'NovaSenha123' },
       },
     },
@@ -112,7 +113,7 @@ export class ClinicsController {
   @ApiUnauthorizedResponse({ description: 'Token invalido ou ausente.' })
   async update(
     @ActiveClinic() clinicId: string,
-    @Body(new ZodValidationPipe(updateClinicSchema)) data: any,
+    @Body(new ZodValidationPipe(updateClinicWithCurrentPasswordSchema)) data: any,
   ) {
     return this.clinicsService.update(clinicId, data)
   }

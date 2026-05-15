@@ -28,6 +28,20 @@ export const createClinicSchema = clinicSchema.omit({
 
 export const updateClinicSchema = createClinicSchema.partial()
 
+export const updateClinicWithCurrentPasswordSchema = updateClinicSchema
+  .extend({
+    currentPassword: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    if (data.password && !data.currentPassword) {
+      ctx.addIssue({
+        code: 'custom',
+        message: 'Senha atual é obrigatória para alterar a senha',
+        path: ['currentPassword'],
+      })
+    }
+  })
+
 export const loginSchema = z.object({
   email: z.email('E-mail inválido'),
   password: z.string().min(1, 'Senha é obrigatória'),
@@ -49,6 +63,9 @@ export const resetPasswordSchema = z.object({
 export type Clinic = z.infer<typeof clinicSchema>
 export type CreateClinicInput = z.infer<typeof createClinicSchema>
 export type UpdateClinicInput = z.infer<typeof updateClinicSchema>
+export type UpdateClinicWithCurrentPasswordInput = z.infer<
+  typeof updateClinicWithCurrentPasswordSchema
+>
 export type LoginInput = z.infer<typeof loginSchema>
 export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>

@@ -1,31 +1,53 @@
-import { Users, FileCheck, Activity } from "lucide-react";
-import { cn } from "@/lib/utils";
+"use client";
 
-const metrics = [
-  {
-    title: "Pacientes Ativos",
-    value: "42",
-    icon: Users,
-    color: "text-primary",
-    className: "md:col-span-2 lg:col-span-2",
-  },
-  {
-    title: "Atendimentos",
-    value: "18",
-    icon: Activity,
-    color: "text-secondary",
-    className: "md:col-span-2 lg:col-span-3",
-  },
-  {
-    title: "Evoluções Finalizadas",
-    value: "156",
-    icon: FileCheck,
-    color: "text-secondary",
-    className: "md:col-span-2 lg:col-span-2",
-  },
-];
+import { Users, FileCheck, Activity, Loader2 } from "lucide-react";
+import { useQuery } from "@tanstack/react-query";
+import { cn } from "@/lib/utils";
+import { listPatients, listEncounters } from "@/services/frontend-data";
 
 export function MetricsGrid() {
+  const { data: patients = [], isLoading: loadingPatients } = useQuery({
+    queryKey: ["patients"],
+    queryFn: listPatients,
+  });
+
+  const { data: encounters = [], isLoading: loadingEncounters } = useQuery({
+    queryKey: ["encounters"],
+    queryFn: listEncounters,
+  });
+
+  const isLoading = loadingPatients || loadingEncounters;
+
+  const activePatients = patients.filter((p) => p.status === "Ativo").length;
+  const totalEncounters = encounters.length;
+  const completedEncounters = encounters.filter(
+    (e: any) => e.status === "completed"
+  ).length;
+
+  const metrics = [
+    {
+      title: "Pacientes Ativos",
+      value: activePatients,
+      icon: Users,
+      color: "text-primary",
+      className: "md:col-span-2 lg:col-span-2",
+    },
+    {
+      title: "Atendimentos",
+      value: totalEncounters,
+      icon: Activity,
+      color: "text-secondary",
+      className: "md:col-span-2 lg:col-span-3",
+    },
+    {
+      title: "Evoluções Finalizadas",
+      value: completedEncounters,
+      icon: FileCheck,
+      color: "text-secondary",
+      className: "md:col-span-2 lg:col-span-2",
+    },
+  ];
+
   return (
     <div className="grid gap-4 md:grid-cols-4 lg:grid-cols-7">
       {metrics.map((metric) => (
@@ -43,9 +65,13 @@ export function MetricsGrid() {
             <metric.icon className={cn("h-5 w-5", metric.color)} />
           </div>
           <div className="flex items-baseline gap-2">
-            <h2 className="text-4xl font-black tracking-tighter text-primary">
-              {metric.value}
-            </h2>
+            {isLoading ? (
+              <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+            ) : (
+              <h2 className="text-4xl font-black tracking-tighter text-primary">
+                {metric.value}
+              </h2>
+            )}
           </div>          
           <div className="absolute -right-4 -bottom-4 h-24 w-24 rounded-full bg-secondary/5 blur-3xl" />
         </div>

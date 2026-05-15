@@ -1,10 +1,21 @@
+"use client";
+
 import { MetricsGrid } from "@/components/metrics-grid";
 import { SpecialtyChart } from "@/components/specialty-chart";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, TrendingUp } from "lucide-react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
+import { listEncounters } from "@/services/frontend-data";
 
 export default function DashboardPage() {
+  const { data: encounters = [] } = useQuery({
+    queryKey: ["encounters"],
+    queryFn: listEncounters,
+  });
+
+  const totalEncounters = encounters.length;
+
   return (
     <div className="flex flex-col gap-8 animate-in fade-in duration-700">
       <header className="flex items-center justify-between">
@@ -37,7 +48,9 @@ export default function DashboardPage() {
            </div>
            <h3 className="text-xl font-bold">Pronta para crescer?</h3>
            <p className="text-muted-foreground text-sm max-w-[280px]">
-             Você já realizou 18 atendimentos. Mantenha o foco na evolução dos seus pacientes.
+             {totalEncounters > 0
+               ? `Você já realizou ${totalEncounters} atendimento${totalEncounters > 1 ? "s" : ""}. Mantenha o foco na evolução dos seus pacientes.`
+               : "Registre seu primeiro atendimento para acompanhar a evolução da sua clínica."}
            </p>
            <Link href="/activity" className="text-secondary text-xs font-bold uppercase tracking-widest hover:underline">
               Ver histórico completo

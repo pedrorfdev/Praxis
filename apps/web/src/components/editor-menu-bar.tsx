@@ -2,8 +2,8 @@
 
 import { Editor } from "@tiptap/react";
 import {
-  Bold, Italic, List, ListOrdered, Heading1, Heading2,
-  Quote, Undo, Redo, Palette, Type, Baseline
+  Bold, Italic, List, ListOrdered, Heading1,
+  Quote, Undo, Redo, Type, Baseline
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
