@@ -77,7 +77,6 @@ export function CaregiverCard({ caregiver, onDelete }: CaregiverCardProps) {
           <h3 className="font-bold text-primary text-lg leading-tight">
             {caregiver.name}
           </h3>
-          <p className="text-xs text-muted-foreground italic">Vínculo não definido</p>
         </div>
       </CardHeader>
 
@@ -92,7 +91,7 @@ export function CaregiverCard({ caregiver, onDelete }: CaregiverCardProps) {
         />
         <Badge
           variant={caregiver.patientCount > 0 ? "secondary" : "outline"}
-          className="rounded-full text-xs uppercase tracking-wider py-1 px-3"
+          className="rounded-full text-xs uppercase tracking-wider py-1 px-3 flex items-center gap-1"
         >
           {caregiver.patientCount > 0 ? (
             <span className="inline-flex items-center gap-1">

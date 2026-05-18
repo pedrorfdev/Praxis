@@ -131,11 +131,11 @@ export function DashboardHeader() {
             </Button>
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end" className="rounded-xl border-border/40">
-            <DropdownMenuItem onClick={() => { setTheme("light"); toast.success("Modo Petroleum ativado!"); }}>
-              Light (Petroleum)
+            <DropdownMenuItem onClick={() => { setTheme("light"); toast.success("Modo Claro ativado!"); }}>
+              Light
             </DropdownMenuItem>
-            <DropdownMenuItem onClick={() => { setTheme("dark"); toast.success("Modo Onyx ativado"); }}>
-              Dark (Onyx)
+            <DropdownMenuItem onClick={() => { setTheme("dark"); toast.success("Modo Escuro ativado"); }}>
+              Dark
             </DropdownMenuItem>
             <DropdownMenuItem onClick={() => { setTheme("system"); toast.success("Modo do sistema ativado!"); }}>
               Sistema
