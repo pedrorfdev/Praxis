@@ -7,7 +7,6 @@ import {
   Settings,
   LayoutDashboard,
 } from "lucide-react";
-
 import {
   Sidebar,
   SidebarContent,
@@ -36,8 +35,8 @@ export function AppSidebar() {
     <Sidebar variant="sidebar" collapsible="icon">
       <SidebarHeader className="flex items-center justify-center py-6">
         <Link href="/" className="flex items-center">
-          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground font-black shadow-lg shadow-primary/20">
-            P
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl text-primary-foreground font-black shadow-lg shadow-primary/20">
+            <img src="/praxis-logo.svg" alt="Praxis Logo" className="h-full w-full object-contain" />
           </div>
           <span className="ml-3 font-bold text-xl tracking-tight text-primary group-data-[collapsible=icon]:hidden">
             Praxis

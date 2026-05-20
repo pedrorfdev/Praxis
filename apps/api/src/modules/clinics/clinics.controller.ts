@@ -40,38 +40,6 @@ export class ClinicsController {
     private readonly clinicsService: ClinicsService,
   ) {}
 
-  @Public()
-  @ApiOperation({ summary: 'Registrar uma nova clinica (acesso publico)' })
-  @ApiBody({
-    schema: {
-      type: 'object',
-      required: ['name', 'email', 'password'],
-      properties: {
-        name: { type: 'string', example: 'Clinica Praxis' },
-        email: { type: 'string', format: 'email', example: 'contato@praxis.com' },
-        password: { type: 'string', example: 'SenhaForte123' },
-      },
-    },
-  })
-  @ApiOkResponse({
-    description: 'Clinica registrada com sucesso.',
-    schema: {
-      example: {
-        id: '67f9aa31-cc41-4014-b0e4-6af6a88fcd00',
-        name: 'Clinica Praxis',
-        email: 'contato@praxis.com',
-        slug: 'clinica-praxis',
-        createdAt: '2026-04-27T12:00:00.000Z',
-      },
-    },
-  })
-  @ApiBadRequestResponse({ description: 'Dados invalidos ou e-mail ja cadastrado.' })
-  @Post()
-  @UsePipes(new ZodValidationPipe(createClinicSchema))
-  async create(@Body() data: CreateClinicInput) {
-    return this.clinicsService.create(data)
-  }
-
   @Get('me')
   @ApiOperation({ summary: 'Retorna os dados da clinica logada' })
   @ApiOkResponse({
