@@ -85,7 +85,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
     if (isNavigating) return;
     
     const stepsFields: Record<number, any[]> = {
-      1: ["fullName", "birthDate", "gender", "cpf", "responsibleName"],
+      1: ["fullName", "birthDate", "gender", "responsibleName"],
       2: ["address", "city", "phone", "birthPlace"],
       3: ["religion", "maritalStatus", "educationLevel", "profession"],
     };
@@ -223,7 +223,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
               </div>
 
               <div className="space-y-2">
-                <Label className="text-xs uppercase tracking-widest text-muted-foreground">CPF</Label>
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">CPF (opcional)</Label>
                 <Controller
                   control={control}
                   name="cpf"
@@ -234,7 +234,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
                       customInput={Input}
                       className="bg-background/50 border-border h-14 rounded-2xl px-4"
                       onValueChange={(v) => field.onChange(v.value)}
-                      value={field.value}
+                      value={field.value ?? ""}
                     />
                   )}
                 />

@@ -91,10 +91,13 @@ export const patientSchema = z.object({
 
   cpf: z
     .string()
-    .transform((v) => v?.replace(/\D/g, ""))
-    .refine((v) => !v || validateCpf(v), { message: "CPF inválido" })
     .nullable()
-    .optional(),
+    .optional()
+    .transform((v) => {
+      const cleanCpf = v?.replace(/\D/g, "") ?? "";
+      return cleanCpf.length > 0 ? cleanCpf : null;
+    })
+    .refine((v) => !v || validateCpf(v), { message: "CPF inválido" }),
 
   birthPlace: z
     .string()
@@ -153,7 +156,7 @@ const basePatientSchema = patientSchema.omit({
     }
 
     if (data.type === 'ADULT') {
-      const fields = ['profession', 'maritalStatus', 'educationLevel', 'cpf'] as const;
+      const fields = ['profession', 'maritalStatus', 'educationLevel'] as const;
       fields.forEach((field) => {
         if (!data[field] || data[field]!.length < 1) {
           ctx.addIssue({

@@ -21,13 +21,8 @@ import {
   ApiTags,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger'
-import {
-  type CreateClinicInput,
-  createClinicSchema,
-  updateClinicWithCurrentPasswordSchema,
-} from '@praxis/core/domain'
+import { updateClinicWithCurrentPasswordSchema} from '@praxis/core/domain'
 import { ActiveClinic } from '../../common/decorators/active-clinic.decorator'
-import { Public } from '../../common/decorators/public.decorator'
 import { ZodValidationPipe } from '../../common/pipes/zod-validation.pipe'
 import { ClinicsService } from './clinics.service'
 
