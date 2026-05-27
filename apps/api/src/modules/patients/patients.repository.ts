@@ -8,19 +8,24 @@ import { and, desc, eq } from 'drizzle-orm'
 
 @Injectable()
 export class PatientsRepository {
-  private normalizeCpf<T extends { cpf?: string | null }>(data: T): T {
-    if (!Object.prototype.hasOwnProperty.call(data, 'cpf')) return data
+  private normalizeOptionalFields<T extends { cpf?: string | null; email?: string | null }>(data: T): T {
+    const normalized: { cpf?: string | null; email?: string | null } & Record<string, unknown> = { ...data }
 
-    return {
-      ...data,
-      cpf: data.cpf?.trim() ? data.cpf : null,
+    if (Object.prototype.hasOwnProperty.call(normalized, 'cpf')) {
+      normalized.cpf = normalized.cpf?.trim() ? normalized.cpf : null
     }
+
+    if (Object.prototype.hasOwnProperty.call(normalized, 'email')) {
+      normalized.email = normalized.email?.trim() ? normalized.email : null
+    }
+
+    return normalized as T
   }
 
   async create(data: CreatePatientInput & { clinicId: string }) {
     const [patient] = await db
       .insert(schema.patients)
-      .values(this.normalizeCpf(data))
+      .values(this.normalizeOptionalFields(data))
       .returning()
     
     return patient
@@ -45,7 +50,7 @@ export class PatientsRepository {
   async update(id: string, clinicId: string, data: UpdatePatientInput) {
     const [updatedPatient] = await db
       .update(schema.patients)
-      .set({ ...this.normalizeCpf(data), updatedAt: new Date() })
+      .set({ ...this.normalizeOptionalFields(data), updatedAt: new Date() })
       .where(
         and(eq(schema.patients.id, id), eq(schema.patients.clinicId, clinicId)),
       )

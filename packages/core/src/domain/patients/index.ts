@@ -1,5 +1,17 @@
 import { z } from "zod";
 
+const optionalEmailSchema = z
+  .string()
+  .nullable()
+  .optional()
+  .transform((value) => {
+    const email = value?.trim().toLowerCase() ?? "";
+    return email.length > 0 ? email : null;
+  })
+  .refine((value) => !value || z.email().safeParse(value).success, {
+    message: "E-mail inválido",
+  });
+
 const validateCpf = (cpf: string) => {
   const cleanCpf = cpf.replace(/\D/g, "");
   if (cleanCpf.length !== 11 || !!cleanCpf.match(/(\d)\1{10}/)) return false;
@@ -65,6 +77,7 @@ export const patientSchema = z.object({
     .nullable()
     .optional(),
   
+  email: optionalEmailSchema,
   address: z
     .string()
     .min(5, "Endereço muito curto")

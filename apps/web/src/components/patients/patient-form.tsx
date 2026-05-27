@@ -49,6 +49,7 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
       religion: "Nenhuma",
       address: "",
       city: "",
+      email: "",
       birthPlace: "",
       profession: "",
       birthDate: "",
@@ -323,6 +324,11 @@ export function PatientForm({ initialData, isEditing, isLoading, onSubmit }: Pat
                   )}
                 />
                 <FieldError message={errors.phone?.message as string} />
+              </div>
+              <div className="space-y-2">
+                <Label className="text-xs uppercase tracking-widest text-muted-foreground">E-mail (opcional)</Label>
+                <Controller control={control} name="email" render={({ field }) => <Input className="bg-background/50 border-border h-14 rounded-2xl px-4" {...field} value={field.value ?? ""} />} />
+                <FieldError message={errors.email?.message as string} />
               </div>
               <div className="space-y-2">
                 <Label className="text-xs uppercase tracking-widest text-muted-foreground">Naturalidade</Label>

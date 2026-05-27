@@ -119,7 +119,7 @@ export function CaregiverForm({ initialData, onSubmit, isLoading }: CaregiverFor
             <FieldError message={errors.address?.message} />
           </div>
           <div className="space-y-2">
-            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">E-mail</Label>
+            <Label className="text-xs font-bold uppercase tracking-widest text-muted-foreground ml-1">E-mail (opcional)</Label>
             <Input {...register("email")} placeholder="exemplo@email.com" className="bg-background/50 h-14 rounded-2xl border-border" />
             <FieldError message={errors.email?.message} />
           </div>

@@ -8,10 +8,19 @@ import { and, desc, eq } from 'drizzle-orm'
 
 @Injectable()
 export class CaregiversRepository {
+  private normalizeOptionalFields<T extends { email?: string | null }>(data: T): T {
+    if (!Object.prototype.hasOwnProperty.call(data, 'email')) return data
+
+    return {
+      ...data,
+      email: data.email?.trim() ? data.email : null,
+    } as T
+  }
+
   async create(data: CreateCaregiverInput & { clinicId: string }) {
     const [caregiver] = await db
       .insert(schema.caregivers)
-      .values(data)
+      .values(this.normalizeOptionalFields(data))
       .returning()
     
     return caregiver
@@ -46,7 +55,7 @@ export class CaregiversRepository {
   async update(id: string, clinicId: string, data: UpdateCaregiverInput) {
     const [updatedCaregiver] = await db
       .update(schema.caregivers)
-      .set({ ...data, updatedAt: new Date() })
+      .set({ ...this.normalizeOptionalFields(data), updatedAt: new Date() })
       .where(
         and(eq(schema.caregivers.id, id), eq(schema.caregivers.clinicId, clinicId)),
       )

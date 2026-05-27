@@ -45,6 +45,7 @@ export const patients = pgTable('patients', {
   address: text().notNull(),
   city: text().notNull(),
   phone: text(),
+  email: text(),
   diagnosis: diagnosisEnum(),
   cpf: text(),
   
